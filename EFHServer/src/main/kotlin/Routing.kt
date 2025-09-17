@@ -10,7 +10,7 @@ fun Application.configureRouting() {
             call.respondText("Hello World!")
         }
         get("/get-user"){
-            call.respondText("bonjour!!!!!!!")
+            call.respondText("bonjour!!!!!!!!!!!")
         }
     }
 }
