@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="RemoteTargetsManager">
+    <option name="projectDefaultTargetUuid" value="8310efe8-e8c4-4930-95cc-57fb407c1635" />
+    <targets>
+      <target name="opc@node1.vpn.woznes.com:22" type="ssh/sftp" uuid="8310efe8-e8c4-4930-95cc-57fb407c1635">
+        <config>
+          <option name="projectRootOnTarget" value="/home/opc/EFHServer" />
+          <option name="serverName" value="opc@node1.vpn.woznes.com:22 agent" />
+          <option name="useRsync" value="true" />
+        </config>
+      </target>
+    </targets>
+  </component>
+</project>
