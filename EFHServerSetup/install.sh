@@ -189,7 +189,7 @@ source .bashrc
 echo "Installing SSL certificate..."
 if ~/.acme.sh/acme.sh --issue -d ${SUBDOMAIN}.${DOMAIN} --dns dns_cf --keylength ec-256 --server letsencrypt --nocron --force; then
   echo "SSL certificate installed."
-  ~/.acme.sh/acme.sh --uninstall-cronjob
+  ~/.acme.sh/acme.sh --install-cronjob
 else
   echo "Failed to install SSL certificate."
   exit 1
