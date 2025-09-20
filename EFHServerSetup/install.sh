@@ -169,26 +169,20 @@ fi
 echo "Firewall disabled."
 
 # Add CF_Token to .bashrc
-BASHRC=$HOME/.bashrc
-echo "Updating CFToken to .bashrc"
-if grep -q "^export CF_Token=" "$BASHRC"; then
-  sed -i "s|^export CF_Token=.*|export CF_Token=\"$CFToken\"|" "$BASHRC"
-  echo "replaced CFToken"
-else
-  echo "export CF_Token=\"$CFToken\"" >> "$BASHRC"
-  echo "Added CFToken"
-fi
+
 
 # Install acme.sh
 echo "Installing acme.sh..."
 curl https://get.acme.sh | sh -s email=$EMAIL --home $(pwd)/acme.sh
-source $(pwd)/.bashrc
 
 # Install SSL certificate
+export CF_Email="$EMAIL"
+export CF_Token="$CFToken"
 $(pwd)/acme.sh/acme.sh --upgrade --auto-upgrade
 echo "Installing SSL certificate..."
 if $(pwd)/acme.sh/acme.sh --issue -d ${SUBDOMAIN}.${DOMAIN} --dns dns_cf --keylength ec-256 --server letsencrypt --nocron --force; then
   echo "SSL certificate installed."
+  $(pwd)/acme.sh/acme.sh --set-default-ca --server letsencrypt
   $(pwd)/acme.sh/acme.sh --install-cronjob
 else
   echo "Failed to install SSL certificate."
