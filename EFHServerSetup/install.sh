@@ -182,14 +182,14 @@ fi
 # Install acme.sh
 echo "Installing acme.sh..."
 curl https://get.acme.sh | sh -s email=$EMAIL --home $(pwd)/acme.sh
-source .bashrc
+source $(pwd)/.bashrc
 
 # Install SSL certificate
-~/.acme.sh/acme.sh --upgrade --auto-upgrade
+$(pwd)/acme.sh/acme.sh --upgrade --auto-upgrade
 echo "Installing SSL certificate..."
-if ~/.acme.sh/acme.sh --issue -d ${SUBDOMAIN}.${DOMAIN} --dns dns_cf --keylength ec-256 --server letsencrypt --nocron --force; then
+if $(pwd)/acme.sh/acme.sh --issue -d ${SUBDOMAIN}.${DOMAIN} --dns dns_cf --keylength ec-256 --server letsencrypt --nocron --force; then
   echo "SSL certificate installed."
-  ~/.acme.sh/acme.sh --install-cronjob
+  $(pwd)/acme.sh/acme.sh --install-cronjob
 else
   echo "Failed to install SSL certificate."
   exit 1
