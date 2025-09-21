@@ -255,8 +255,8 @@ cat > config.json <<EOF
     "ssl": {
         "verify": true,
         "verify_hostname": true,
-        "cert": "$(pwd)/cert/fullchain.cer",
-        "key": "$(pwd)/cert/${SUBDOMAIN}.${DOMAIN}.key",
+        "cert": "cert/fullchain.cer",
+        "key": "cert/${SUBDOMAIN}.${DOMAIN}.key",
         "key_password": "",
         "cipher": "",
         "curves": "",
@@ -332,10 +332,10 @@ cat > config.json <<EOF
         "api_port": 444,
         "ssl": {
             "enabled": true,
-            "key": "$(pwd)/cert/api.key",
-            "cert": "$(pwd)/cert/api.crt",
+            "key": "cert/api.key",
+            "cert": "cert/api.crt",
             "verify_client": true,
-            "client_cert": ["$(pwd)/cert/apiserver.crt"]
+            "client_cert": ["cert/apiserver.crt"]
         }
     }
 }
