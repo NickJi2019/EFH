@@ -1,1 +1,1 @@
-一键安装trojan-go服务端环境：`sudo bash <(wget -qO- https://raw.githubusercontent.com/NickJi2019/EFH/refs/heads/main/EFHServerSetup/install.sh)`
+一键安装trojan-go服务端环境：`sudo /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/NickJi2019/EFH/refs/heads/main/EFHServerSetup/install.sh)"`
