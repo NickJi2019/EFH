@@ -428,7 +428,7 @@ if [[ $release == "debian" ]]; then
   update-ca-certificates
 fi
 if [[ $release == "fedora" ]]; then
-  cp ca.crt /etc/pki/ca-trust/source/anchors/
+  cp cert/ca.crt /etc/pki/ca-trust/source/anchors/
   update-ca-trust extract
 fi
 
