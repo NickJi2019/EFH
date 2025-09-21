@@ -446,8 +446,8 @@ if $(pwd)/acme.sh/acme.sh --issue -d ${SUBDOMAIN}.${DOMAIN} --dns dns_cf --keyle
   $(pwd)/acme.sh/acme.sh --set-default-ca --server letsencrypt
   $(pwd)/acme.sh/acme.sh --install-cronjob
   $(pwd)/acme.sh/acme.sh --install-cert -d ${SUBDOMAIN}.${DOMAIN} \
-    --key-file       /etc/nginx/ssl/${SUBDOMAIN}.${DOMAIN}key \
-    --fullchain-file /etc/nginx/ssl/fullchain.cer \
+    --key-file       $(pwd)/cert/${SUBDOMAIN}.${DOMAIN}key \
+    --fullchain-file $(pwd)/cert/fullchain.cer \
     --reloadcmd     "systemctl reload trojan-go"
 else
   echo "Failed to install SSL certificate."
