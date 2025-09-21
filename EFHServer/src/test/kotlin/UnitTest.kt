@@ -10,11 +10,12 @@ class UnitTest {
     fun t1(){
         val cert= File("/Users/nickji/Documents/CA/EFHServer.crt")
         val key= File("/Users/nickji/Documents/CA/EFHServer.private.key")
+        val ca=File("/Users/nickji/Documents/CA/WoznesCA.pem.cer")
         println(cert.absolutePath)
         println(key.absolutePath)
         println(cert.bufferedReader().readText())
         println(key.bufferedReader().readText())
-        val u=UserManager(listOf("vpn.woznes.com" to 444), cert , key)
+        val u=UserManager(listOf("node2.vpn.woznes.com" to 444),ca, cert , key)
         runBlocking {
             u.listUsers().collect { value -> println(value) }
         }

@@ -11,16 +11,18 @@ import java.io.File
 
 class UserManager(
     private val nodes: List<Pair<String, Int>>, // host + port
+    private val cert: File,
     private val clientCrt: File,
     private val clientKey: File
 ) {
     private val channels: List<ManagedChannel> = nodes.map { (host, port) ->
         val sslContext = GrpcSslContexts.forClient()
+            .trustManager(cert)
             .keyManager(clientCrt, clientKey) // 客户端证书 + 私钥（双向认证）
             .build()
 
         NettyChannelBuilder.forAddress(host, port)
-//            .sslContext(sslContext)
+            .sslContext(sslContext)
             .build()
     }
 

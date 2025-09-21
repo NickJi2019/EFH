@@ -364,13 +364,11 @@ in_block=0
 while IFS= read -r line; do
   if [[ "$line" == -----BEGIN* ]]; then
     in_block=1
-    echo "$line" >> "cert/api.crt"
   fi
   if [[ $in_block -eq 1 ]]; then
     echo "$line" >> "cert/api.crt"
   fi
   if [[ "$line" == -----END* ]]; then
-    echo "$line" >> "cert/api.crt"
     break
   fi
 done
@@ -380,13 +378,11 @@ in_block=0
 while IFS= read -r line; do
   if [[ "$line" == -----BEGIN* ]]; then
     in_block=1
-    echo "$line" >> "cert/api.key"
   fi
   if [[ $in_block -eq 1 ]]; then
     echo "$line" >> "cert/api.key"
   fi
   if [[ "$line" == -----END* ]]; then
-    echo "$line" >> "cert/api.key"
     break
   fi
 done
@@ -396,13 +392,11 @@ in_block=0
 while IFS= read -r line; do
   if [[ "$line" == -----BEGIN* ]]; then
     in_block=1
-    echo "$line" >> "cert/apiserver.crt"
   fi
   if [[ $in_block -eq 1 ]]; then
     echo "$line" >> "cert/apiserver.crt"
   fi
   if [[ "$line" == -----END* ]]; then
-    echo "$line" >> "cert/apiserver.crt"
     break
   fi
 done
@@ -412,13 +406,11 @@ in_block=0
 while IFS= read -r line; do
   if [[ "$line" == -----BEGIN* ]]; then
     in_block=1
-    echo "$line" >> "cert/ca.crt"
   fi
   if [[ $in_block -eq 1 ]]; then
     echo "$line" >> "cert/ca.crt"
   fi
   if [[ "$line" == -----END* ]]; then
-    echo "$line" >> "cert/ca.crt"
     break
   fi
 done
