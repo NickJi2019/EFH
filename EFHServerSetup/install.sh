@@ -18,10 +18,10 @@ requirements:
 #NC='\033[0m'
 
 # Check root permission
-if [[ $EUID -ne 0 ]]; then
-  echo "${RED}Please run as root$NC"
-  exit 1
-fi
+#if [[ $EUID -ne 0 ]]; then
+#  echo "${RED}Please run as root$NC"
+#  exit 1
+#fi
 
 echo "Do you want to continue? [y/N]"
 read -r -p "" input
