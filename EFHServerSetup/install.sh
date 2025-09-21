@@ -168,69 +168,75 @@ elif command -v iptables >/dev/null 2>&1; then
 fi
 echo "Firewall disabled."
 
-# Add CF_Token to .bashrc
-
-
-# Install acme.sh
-echo "Installing acme.sh..."
-curl https://get.acme.sh | sh -s email=$EMAIL --home $(pwd)/acme.sh
-
-# Install SSL certificate
-export CF_Email="$EMAIL"
-export CF_Token="$CFToken"
-$(pwd)/acme.sh/acme.sh --upgrade --auto-upgrade
-echo "Installing SSL certificate..."
-if $(pwd)/acme.sh/acme.sh --issue -d ${SUBDOMAIN}.${DOMAIN} --dns dns_cf --keylength ec-256 --server letsencrypt --nocron --force; then
-  echo "SSL certificate installed."
-  $(pwd)/acme.sh/acme.sh --set-default-ca --server letsencrypt
-  $(pwd)/acme.sh/acme.sh --install-cronjob
-else
-  echo "Failed to install SSL certificate."
-  exit 1
-fi
 
 # Downloading trojan-go
 echo "Downloading trojan-go"
 case $arch in
-  "x86_64")
-    wget https://github.com/p4gefau1t/trojan-go/releases/download/v0.10.6/trojan-go-linux-amd64.zip
-    ;;
-  "aarch64")
-    wget https://github.com/p4gefau1t/trojan-go/releases/download/v0.10.6/trojan-go-linux-armv8.zip
-    ;;
-  "armv7l"|"armv8l")
-    wget https://github.com/p4gefau1t/trojan-go/releases/download/v0.10.6/trojan-go-linux-armv7.zip
-    ;;
-  "armv6l")
-    wget https://github.com/p4gefau1t/trojan-go/releases/download/v0.10.6/trojan-go-linux-armv6.zip
-    ;;
-  "armv5"*)
-    wget https://github.com/p4gefau1t/trojan-go/releases/download/v0.10.6/trojan-go-linux-armv5.zip
-    ;;
-  "arm"*)
-    wget https://github.com/p4gefau1t/trojan-go/releases/download/v0.10.6/trojan-go-linux-arm.zip
-    ;;
-  "mips64")
-    wget https://github.com/p4gefau1t/trojan-go/releases/download/v0.10.6/trojan-go-linux-mips64.zip
-    ;;
-  "mips64le")
-    wget https://github.com/p4gefau1t/trojan-go/releases/download/v0.10.6/trojan-go-linux-mips64le.zip
-    ;;
-  "i386"|"i486"|"i586"|"i686")
-    wget https://github.com/p4gefau1t/trojan-go/releases/download/v0.10.6/trojan-go-linux-386.zip
-    ;;
-  *)
-    echo "Unsupported architecture."
-    exit 1
-    ;;
+"x86_64")
+  wget https://github.com/p4gefau1t/trojan-go/releases/download/v0.10.6/trojan-go-linux-amd64.zip
+  ;;
+"aarch64")
+  wget https://github.com/p4gefau1t/trojan-go/releases/download/v0.10.6/trojan-go-linux-armv8.zip
+  ;;
+"armv7l"|"armv8l")
+  wget https://github.com/p4gefau1t/trojan-go/releases/download/v0.10.6/trojan-go-linux-armv7.zip
+  ;;
+"armv6l")
+  wget https://github.com/p4gefau1t/trojan-go/releases/download/v0.10.6/trojan-go-linux-armv6.zip
+  ;;
+"armv5"*)
+  wget https://github.com/p4gefau1t/trojan-go/releases/download/v0.10.6/trojan-go-linux-armv5.zip
+  ;;
+"arm"*)
+  wget https://github.com/p4gefau1t/trojan-go/releases/download/v0.10.6/trojan-go-linux-arm.zip
+  ;;
+"mips64")
+  wget https://github.com/p4gefau1t/trojan-go/releases/download/v0.10.6/trojan-go-linux-mips64.zip
+  ;;
+"mips64le")
+  wget https://github.com/p4gefau1t/trojan-go/releases/download/v0.10.6/trojan-go-linux-mips64le.zip
+  ;;
+"i386"|"i486"|"i586"|"i686")
+  wget https://github.com/p4gefau1t/trojan-go/releases/download/v0.10.6/trojan-go-linux-386.zip
+  ;;
+*)
+  echo "Unsupported architecture."
+  exit 1
+  ;;
 esac
 
 unzip trojan-go-linux*.zip
 rm trojan-go-linux*.zip
 echo "trojan-go installed."
 
-# Generating config for trojan-go
-echo "Generating config for trojan-go..."
+# Creating service
+echo "Creating service..."
+touch /etc/systemd/system/trojan-go.service
+cat > /etc/systemd/system/trojan-go.service <<EOF
+[Unit]
+Description=trojan-go service
+After=network.target
+
+[Service]
+ExecStart=$(pwd)/trojan-go -config $(pwd)/config.json
+ExecStop=/bin/kill -s SIGTERM \$MAINPID
+ExecReload=/bin/kill -s HUP \$MAINPID
+Type=simple
+Restart=always
+RestartSec=5
+StartLimitIntervalSec=30
+StartLimitBurst=3
+User=root
+WorkingDirectory=$(pwd)
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target
+EOF
+sudo systemctl daemon-reload
+
+
 touch config.json
 cat > config.json <<EOF
 {
@@ -249,8 +255,8 @@ cat > config.json <<EOF
     "ssl": {
         "verify": true,
         "verify_hostname": true,
-        "cert": "$(pwd)/acme.sh/domain.example.com_ecc/fullchain.cer",
-        "key": "$(pwd)/acme.sh/domain.example.com_ecc/domain.example.com.key",
+        "cert": "$(pwd)/cert/fullchain.cer",
+        "key": "$(pwd)/cert/${SUBDOMAIN}.${DOMAIN}.key",
         "key_password": "",
         "cipher": "",
         "curves": "",
@@ -326,43 +332,15 @@ cat > config.json <<EOF
         "api_port": 444,
         "ssl": {
             "enabled": true,
-            "key": "$(pwd)/privateCert/private.key",
-            "cert": "$(pwd)/privateCert/cert.crt",
+            "key": "$(pwd)/cert/api.key",
+            "cert": "$(pwd)/cert/api.crt",
             "verify_client": true,
-            "client_cert": ["$(pwd)/privateCert/server.crt"]
+            "client_cert": ["$(pwd)/cert/apiserver.crt"]
         }
     }
 }
 EOF
-# replace the domain name in config.json
-sed -i "s/domain.example.com/${SUBDOMAIN}.${DOMAIN}/g" config.json
 
-# Creating service
-echo "Creating service..."
-touch /etc/systemd/system/trojan-go.service
-cat > /etc/systemd/system/trojan-go.service <<EOF
-[Unit]
-Description=trojan-go service
-After=network.target
-
-[Service]
-ExecStart=$(pwd)/trojan-go -config $(pwd)/config.json
-ExecStop=/bin/kill -s SIGTERM \$MAINPID
-ExecReload=/bin/kill -s HUP \$MAINPID
-Type=simple
-Restart=always
-RestartSec=5
-StartLimitIntervalSec=30
-StartLimitBurst=3
-User=root
-WorkingDirectory=$(pwd)
-StandardOutput=syslog
-StandardError=syslog
-
-[Install]
-WantedBy=multi-user.target
-EOF
-sudo systemctl daemon-reload
 
 # Install nginx
 echo "Installing nginx..."
@@ -370,3 +348,111 @@ eval "$pm" install nginx -y
 
 systemctl enable --now nginx
 service nginx restart
+
+
+# Generating config for trojan-go
+echo "Generating config for trojan-go..."
+mkdir cert
+: > cert/api.key
+: > cert/api.crt
+: > cert/apiserver.crt
+: > cert/ca.crt
+
+echo "Please input your API Cert: "
+
+in_block=0
+while IFS= read -r line; do
+  if [[ "$line" == -----BEGIN* ]]; then
+    in_block=1
+    echo "$line" >> "cert/api.crt"
+  fi
+  if [[ $in_block -eq 1 ]]; then
+    echo "$line" >> "cert/api.crt"
+  fi
+  if [[ "$line" == -----END* ]]; then
+    echo "$line" >> "cert/api.crt"
+    break
+  fi
+done
+
+echo "Please input your API Cert private key: "
+in_block=0
+while IFS= read -r line; do
+  if [[ "$line" == -----BEGIN* ]]; then
+    in_block=1
+    echo "$line" >> "cert/api.key"
+  fi
+  if [[ $in_block -eq 1 ]]; then
+    echo "$line" >> "cert/api.key"
+  fi
+  if [[ "$line" == -----END* ]]; then
+    echo "$line" >> "cert/api.key"
+    break
+  fi
+done
+
+echo "Please input your API Cert of client: "
+in_block=0
+while IFS= read -r line; do
+  if [[ "$line" == -----BEGIN* ]]; then
+    in_block=1
+    echo "$line" >> "cert/apiserver.crt"
+  fi
+  if [[ $in_block -eq 1 ]]; then
+    echo "$line" >> "cert/apiserver.crt"
+  fi
+  if [[ "$line" == -----END* ]]; then
+    echo "$line" >> "cert/apiserver.crt"
+    break
+  fi
+done
+
+echo "Please input your CA Cert: "
+in_block=0
+while IFS= read -r line; do
+  if [[ "$line" == -----BEGIN* ]]; then
+    in_block=1
+    echo "$line" >> "cert/ca.crt"
+  fi
+  if [[ $in_block -eq 1 ]]; then
+    echo "$line" >> "cert/ca.crt"
+  fi
+  if [[ "$line" == -----END* ]]; then
+    echo "$line" >> "cert/ca.crt"
+    break
+  fi
+done
+
+if [[ $release == "debian" ]]; then
+  cp cert/ca.crt /usr/local/share/ca-certificates/
+  update-ca-certificates
+fi
+if [[ $release == "fedora" ]]; then
+  cp ca.crt /etc/pki/ca-trust/source/anchors/
+  update-ca-trust extract
+fi
+
+# Install acme.sh
+echo "Installing acme.sh..."
+curl https://get.acme.sh | sh -s email=$EMAIL --home $(pwd)/acme.sh
+
+# Install SSL certificate
+export CF_Email="$EMAIL"
+export CF_Token="$CFToken"
+$(pwd)/acme.sh/acme.sh --upgrade --auto-upgrade
+echo "Installing SSL certificate..."
+if $(pwd)/acme.sh/acme.sh --issue -d ${SUBDOMAIN}.${DOMAIN} --dns dns_cf --keylength ec-256 --server letsencrypt --nocron --force; then
+  echo "SSL certificate installed."
+  $(pwd)/acme.sh/acme.sh --set-default-ca --server letsencrypt
+  $(pwd)/acme.sh/acme.sh --install-cronjob
+  $(pwd)/acme.sh/acme.sh --install-cert -d ${SUBDOMAIN}.${DOMAIN} \
+    --key-file       /etc/nginx/ssl/${SUBDOMAIN}.${DOMAIN}key \
+    --fullchain-file /etc/nginx/ssl/fullchain.cer \
+    --reloadcmd     "systemctl reload trojan-go"
+else
+  echo "Failed to install SSL certificate."
+  exit 1
+fi
+
+systemctl start trojan-go
+systemctl enable --now trojan-go
