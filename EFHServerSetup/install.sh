@@ -85,8 +85,8 @@ echo "CPU Architecture: $arch"
 echo "Detecting SELinux..."
 if command -v getenforce >/dev/null 2>&1; then
   echo "SELinux is detected. Disabling..."
-  setenforce 0
-  sed -i 's/^SELINUX=enforcing$/SELINUX=disabled/' /etc/selinux/config
+  sudo setenforce 0
+  sudo sed -i 's/^SELINUX=enforcing$/SELINUX=disabled/' /etc/selinux/config
   echo "SELinux disabled."
 fi
 
@@ -101,15 +101,15 @@ if [[ "$ID_LIKE" == *"debian"* ]] || [[ "$ID_LIKE" == *"ubuntu"* ]]; then
   echo "Debian/Ubuntu detected."
   echo "Using apt-get as package manager."
   echo "Installing dependencies..."
-  apt-get update
-  apt-get install -y curl wget unzip
+  sudo apt-get update
+  sudo apt-get install -y curl wget unzip
   pm="apt"
   release="debian"
 elif [[ "$ID_LIKE" == *"rhel"* ]] || [[ "$ID_LIKE" == *"fedora"* ]] || [[ "$ID_LIKE" == *"centos"* ]]; then
   echo "Fedora/CentOS detected."
   echo "Using dnf as package manager."
   echo "Installing dependencies..."
-  dnf install -y curl wget unzip
+  sudo dnf install -y curl wget unzip
   pm="dnf"
   release="fedora"
 else
@@ -121,50 +121,50 @@ fi
 echo "Detecting firewall type..."
 if command -v ufw >/dev/null 2>&1; then
   echo "ufw detected. Disabling..."
-  ufw disable
-  ufw reset
-  ufw default allow incoming
-  systemctl stop ufw
-  systemctl disable --now ufw
+  sudo ufw disable
+  sudo ufw reset
+  sudo ufw default allow incoming
+  sudo systemctl stop ufw
+  sudo systemctl disable --now ufw
 elif systemctl list-unit-files | grep -q firewalld; then
   echo "firewalld detected. Disabling..."
-  systemctl stop firewalld
-  systemctl disable --now firewalld
+  sudo systemctl stop firewalld
+  sudo systemctl disable --now firewalld
 elif command -v firewall-cmd >/dev/null 2>&1; then
   echo "firewalld detected. Disabling..."
-  systemctl stop firewalld
-  systemctl disable --now firewalld
+  sudo systemctl stop firewalld
+  sudo systemctl disable --now firewalld
 elif command -v nft >/dev/null 2>&1; then
   echo "nft detected. Disabling..."
-  nft flush ruleset
-  nft delete table inet filter
-  nft delete table ip nat
-  nft add table inet filter
-  nft 'add chain inet filter input { type filter hook input priority 0; policy accept; }'
-  nft 'add chain inet filter forward { type filter hook forward priority 0; policy accept; }'
-  nft 'add chain inet filter output { type filter hook output priority 0; policy accept; }'
+  sudo nft flush ruleset
+  sudo nft delete table inet filter
+  sudo nft delete table ip nat
+  sudo nft add table inet filter
+  sudo nft 'add chain inet filter input { type filter hook input priority 0; policy accept; }'
+  sudo nft 'add chain inet filter forward { type filter hook forward priority 0; policy accept; }'
+  sudo nft 'add chain inet filter output { type filter hook output priority 0; policy accept; }'
   if [[ $release == "debian" ]]; then
-    sh -c "nft list ruleset > /etc/nftables.conf"
+    sudo sh -c "nft list ruleset > /etc/nftables.conf"
   elif [[ $release == "fedora" ]]; then
-    nft list ruleset | sudo tee /etc/sysconfig/nftables.conf
+    sudo nft list ruleset | sudo tee /etc/sysconfig/nftables.conf
   fi
-  systemctl stop nftables
-  systemctl disable --now nftables
+  sudo systemctl stop nftables
+  sudo systemctl disable --now nftables
 elif command -v iptables >/dev/null 2>&1; then
   echo "iptables detected. Disabling..."
-  iptables -F
-  iptables -X
-  sudo iptables -t nat -F
-  sudo iptables -t nat -X
-  sudo iptables -t mangle -F
-  sudo iptables -t mangle -X
-  sudo iptables -t raw -F
-  sudo iptables -t raw -X
-  iptables -P INPUT ACCEPT
-  iptables -P OUTPUT ACCEPT
-  iptables -P FORWARD ACCEPT
-  systemctl stop iptables
-  systemctl disable --now iptables
+  sudo iptables -F
+  sudo iptables -X
+  sudo sudo iptables -t nat -F
+  sudo sudo iptables -t nat -X
+  sudo sudo iptables -t mangle -F
+  sudo sudo iptables -t mangle -X
+  sudo sudo iptables -t raw -F
+  sudo sudo iptables -t raw -X
+  sudo iptables -P INPUT ACCEPT
+  sudo iptables -P OUTPUT ACCEPT
+  sudo iptables -P FORWARD ACCEPT
+  sudo systemctl stop iptables
+  sudo systemctl disable --now iptables
 fi
 echo "Firewall disabled."
 
@@ -211,8 +211,8 @@ echo "trojan-go installed."
 
 # Creating service
 echo "Creating service..."
-touch /etc/systemd/system/trojan-go.service
-cat > /etc/systemd/system/trojan-go.service <<EOF
+sudo touch /etc/systemd/system/trojan-go.service
+sudo cat > /etc/systemd/system/trojan-go.service <<EOF
 [Unit]
 Description=trojan-go service
 After=network.target
@@ -344,10 +344,10 @@ EOF
 
 # Install nginx
 echo "Installing nginx..."
-eval "$pm" install nginx -y
+eval sudo "$pm" install nginx -y
 
-systemctl enable --now nginx
-service nginx restart
+sudo systemctl enable --now nginx
+sudo service nginx restart
 
 
 # Generating config for trojan-go
@@ -424,12 +424,12 @@ while IFS= read -r line; do
 done
 
 if [[ $release == "debian" ]]; then
-  cp cert/ca.crt /usr/local/share/ca-certificates/
-  update-ca-certificates
+  sudo cp cert/ca.crt /usr/local/share/ca-certificates/
+  sudo update-ca-certificates
 fi
 if [[ $release == "fedora" ]]; then
-  cp cert/ca.crt /etc/pki/ca-trust/source/anchors/
-  update-ca-trust extract
+  sudo cp cert/ca.crt /etc/pki/ca-trust/source/anchors/
+  sudo update-ca-trust extract
 fi
 
 # Install acme.sh
@@ -445,8 +445,8 @@ if $(pwd)/acme.sh/acme.sh --issue -d ${SUBDOMAIN}.${DOMAIN} --dns dns_cf --keyle
   echo "SSL certificate installed."
   $(pwd)/acme.sh/acme.sh --set-default-ca --server letsencrypt
   $(pwd)/acme.sh/acme.sh --install-cronjob
-  $(pwd)/acme.sh/acme.sh --install-cert -d ${SUBDOMAIN}.${DOMAIN} \
-    --key-file       $(pwd)/cert/${SUBDOMAIN}.${DOMAIN}key \
+  $(pwd)/acme.sh/acme.sh --install-cert -d ${SUBDOMAIN}.${DOMAIN} --force \
+    --key-file       $(pwd)/cert/${SUBDOMAIN}.${DOMAIN}.key \
     --fullchain-file $(pwd)/cert/fullchain.cer \
     --reloadcmd     "systemctl reload trojan-go"
 else
@@ -454,5 +454,5 @@ else
   exit 1
 fi
 
-systemctl start trojan-go
-systemctl enable --now trojan-go
+sudo systemctl start trojan-go
+sudo systemctl enable --now trojan-go
