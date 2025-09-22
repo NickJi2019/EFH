@@ -209,9 +209,18 @@ unzip trojan-go-linux*.zip
 rm trojan-go-linux*.zip
 echo "trojan-go installed."
 
+echo "Do you want to enable api over mTLS? [y/N]"
+read -r -p "" input
+if [[ $input =~ ^[Yy]$ ]]; then
+  api="false"
+else
+  api="true"
+fi
+
 # Creating service
 echo "Creating service..."
-sudo : > /etc/systemd/system/trojan-go.service
+sudo rm /etc/systemd/system/trojan-go.service
+sudo touch /etc/systemd/system/trojan-go.service
 sudo cat > /etc/systemd/system/trojan-go.service <<EOF
 [Unit]
 Description=trojan-go service
@@ -327,7 +336,7 @@ cat > config.json <<EOF
         "check_rate": 60
     },
     "api": {
-        "enabled": true,
+        "enabled": $api,
         "api_addr": "0.0.0.0",
         "api_port": 444,
         "ssl": {
@@ -349,79 +358,80 @@ eval sudo "$pm" install nginx -y
 sudo systemctl enable --now nginx
 sudo service nginx restart
 
+if [[ $api == "true" ]]; then
+  # Generating config for trojan-go
+  echo "Generating config for trojan-go..."
+  mkdir cert
+  : > cert/api.key
+  : > cert/api.crt
+  : > cert/apiserver.crt
+  : > cert/ca.crt
 
-# Generating config for trojan-go
-echo "Generating config for trojan-go..."
-mkdir cert
-: > cert/api.key
-: > cert/api.crt
-: > cert/apiserver.crt
-: > cert/ca.crt
+  echo "Please input your API Cert: "
 
-echo "Please input your API Cert: "
+  in_block=0
+  while IFS= read -r line; do
+    if [[ "$line" == -----BEGIN* ]]; then
+      in_block=1
+    fi
+    if [[ $in_block -eq 1 ]]; then
+      echo "$line" >> "cert/api.crt"
+    fi
+    if [[ "$line" == -----END* ]]; then
+      break
+    fi
+  done
 
-in_block=0
-while IFS= read -r line; do
-  if [[ "$line" == -----BEGIN* ]]; then
-    in_block=1
-  fi
-  if [[ $in_block -eq 1 ]]; then
-    echo "$line" >> "cert/api.crt"
-  fi
-  if [[ "$line" == -----END* ]]; then
-    break
-  fi
-done
+  echo "Please input your API Cert private key: "
+  in_block=0
+  while IFS= read -r line; do
+    if [[ "$line" == -----BEGIN* ]]; then
+      in_block=1
+    fi
+    if [[ $in_block -eq 1 ]]; then
+      echo "$line" >> "cert/api.key"
+    fi
+    if [[ "$line" == -----END* ]]; then
+      break
+    fi
+  done
 
-echo "Please input your API Cert private key: "
-in_block=0
-while IFS= read -r line; do
-  if [[ "$line" == -----BEGIN* ]]; then
-    in_block=1
-  fi
-  if [[ $in_block -eq 1 ]]; then
-    echo "$line" >> "cert/api.key"
-  fi
-  if [[ "$line" == -----END* ]]; then
-    break
-  fi
-done
+  echo "Please input your API Cert of client: "
+  in_block=0
+  while IFS= read -r line; do
+    if [[ "$line" == -----BEGIN* ]]; then
+      in_block=1
+    fi
+    if [[ $in_block -eq 1 ]]; then
+      echo "$line" >> "cert/apiserver.crt"
+    fi
+    if [[ "$line" == -----END* ]]; then
+      break
+    fi
+  done
 
-echo "Please input your API Cert of client: "
-in_block=0
-while IFS= read -r line; do
-  if [[ "$line" == -----BEGIN* ]]; then
-    in_block=1
-  fi
-  if [[ $in_block -eq 1 ]]; then
-    echo "$line" >> "cert/apiserver.crt"
-  fi
-  if [[ "$line" == -----END* ]]; then
-    break
-  fi
-done
+  echo "Please input your CA Cert: "
+  in_block=0
+  while IFS= read -r line; do
+    if [[ "$line" == -----BEGIN* ]]; then
+      in_block=1
+    fi
+    if [[ $in_block -eq 1 ]]; then
+      echo "$line" >> "cert/ca.crt"
+    fi
+    if [[ "$line" == -----END* ]]; then
+      break
+    fi
+  done
 
-echo "Please input your CA Cert: "
-in_block=0
-while IFS= read -r line; do
-  if [[ "$line" == -----BEGIN* ]]; then
-    in_block=1
+  if [[ $release == "debian" ]]; then
+    sudo cp cert/ca.crt /usr/local/share/ca-certificates/
+    sudo update-ca-certificates
   fi
-  if [[ $in_block -eq 1 ]]; then
-    echo "$line" >> "cert/ca.crt"
+  if [[ $release == "fedora" ]]; then
+    sudo cp cert/ca.crt /etc/pki/ca-trust/source/anchors/
+    sudo update-ca-trust extract
   fi
-  if [[ "$line" == -----END* ]]; then
-    break
-  fi
-done
-
-if [[ $release == "debian" ]]; then
-  sudo cp cert/ca.crt /usr/local/share/ca-certificates/
-  sudo update-ca-certificates
-fi
-if [[ $release == "fedora" ]]; then
-  sudo cp cert/ca.crt /etc/pki/ca-trust/source/anchors/
-  sudo update-ca-trust extract
 fi
 
 # Install acme.sh
