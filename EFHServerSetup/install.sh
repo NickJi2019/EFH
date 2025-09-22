@@ -450,7 +450,7 @@ if $(pwd)/acme.sh/acme.sh --issue -d ${SUBDOMAIN}.${DOMAIN} --dns dns_cf --keyle
   $(pwd)/acme.sh/acme.sh --install-cert -d ${SUBDOMAIN}.${DOMAIN} --force \
     --key-file       $(pwd)/cert/${SUBDOMAIN}.${DOMAIN}.key \
     --fullchain-file $(pwd)/cert/fullchain.cer \
-    --reloadcmd     "systemctl reload trojan-go"
+    --reloadcmd     "sudo systemctl reload trojan-go"
 else
   echo "Failed to install SSL certificate."
   exit 1
