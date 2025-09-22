@@ -212,16 +212,16 @@ echo "trojan-go installed."
 echo "Do you want to enable api over mTLS? [y/N]"
 read -r -p "" input
 if [[ $input =~ ^[Yy]$ ]]; then
-  api="false"
-else
   api="true"
+else
+  api="false"
 fi
 
 # Creating service
 echo "Creating service..."
 sudo rm /etc/systemd/system/trojan-go.service
 sudo touch /etc/systemd/system/trojan-go.service
-sudo cat > /etc/systemd/system/trojan-go.service <<EOF
+sudo tee /etc/systemd/system/trojan-go.service <<EOF
 [Unit]
 Description=trojan-go service
 After=network.target
