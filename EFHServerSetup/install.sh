@@ -221,7 +221,7 @@ fi
 echo "Creating service..."
 sudo rm /etc/systemd/system/trojan-go.service
 sudo touch /etc/systemd/system/trojan-go.service
-sudo base -c 'cat > /etc/systemd/system/trojan-go.service <<EOF
+sudo /bin/bash -c 'cat > /etc/systemd/system/trojan-go.service <<EOF
 [Unit]
 Description=trojan-go service
 After=network.target
