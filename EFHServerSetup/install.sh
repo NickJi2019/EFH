@@ -211,7 +211,7 @@ echo "trojan-go installed."
 
 # Creating service
 echo "Creating service..."
-sudo touch /etc/systemd/system/trojan-go.service
+sudo : > /etc/systemd/system/trojan-go.service
 sudo cat > /etc/systemd/system/trojan-go.service <<EOF
 [Unit]
 Description=trojan-go service
@@ -237,7 +237,7 @@ EOF
 sudo systemctl daemon-reload
 
 
-touch config.json
+: > config.json
 cat > config.json <<EOF
 {
     "run_type": "server",
