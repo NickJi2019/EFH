@@ -437,7 +437,7 @@ fi
 # Install acme.sh
 echo "Installing acme.sh..."
 curl https://get.acme.sh | sh -s email=$EMAIL --home $(pwd)/acme.sh
-
+mkdir $(pwd)/cert
 # Install SSL certificate
 export CF_Email="$EMAIL"
 export CF_Token="$CFToken"
