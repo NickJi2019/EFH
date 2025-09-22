@@ -254,7 +254,7 @@ cat > config.json <<EOF
     "udp_timeout": 60,
     "ssl": {
         "verify": true,
-        "verify_hostname": true,
+        "verify_hostname": false,
         "cert": "cert/fullchain.cer",
         "key": "cert/${SUBDOMAIN}.${DOMAIN}.key",
         "key_password": "",
