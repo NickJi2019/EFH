@@ -221,7 +221,7 @@ fi
 echo "Creating service..."
 sudo rm /etc/systemd/system/trojan-go.service
 sudo touch /etc/systemd/system/trojan-go.service
-sudo tee /etc/systemd/system/trojan-go.service <<EOF
+sudo base -c 'cat > /etc/systemd/system/trojan-go.service <<EOF
 [Unit]
 Description=trojan-go service
 After=network.target
@@ -242,7 +242,7 @@ StandardError=syslog
 
 [Install]
 WantedBy=multi-user.target
-EOF
+EOF'
 sudo systemctl daemon-reload
 
 
