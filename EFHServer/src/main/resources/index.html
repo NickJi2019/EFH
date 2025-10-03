@@ -52,24 +52,24 @@
         window.location.href = "shadowrocket://config/add/"+encoded;
     }
 
-    function hashWithFixedSalt(password, salt="fuckHDSB") {
-        // 辅助：字符串 -> Uint8Array (UTF-8)
-        const enc = new TextEncoder();
-        const saltBytes = enc.encode(salt);
-        const pwdBytes  = enc.encode(password);
+    function hashWithFixedSalt(password, salt = "fuckHDSB") {
+        return (async () => {
+            const enc = new TextEncoder();
+            const saltBytes = enc.encode(salt);
+            const pwdBytes  = enc.encode(password);
 
-        // 拼接 salt + password
-        const combined = new Uint8Array(saltBytes.length + pwdBytes.length);
-        combined.set(saltBytes, 0);
-        combined.set(pwdBytes, saltBytes.length);
+            // 拼接 salt + password
+            const combined = new Uint8Array(saltBytes.length + pwdBytes.length);
+            combined.set(saltBytes, 0);
+            combined.set(pwdBytes, saltBytes.length);
 
-        // 计算 SHA-256
-        const hashBuffer = crypto.subtle.digest('SHA-256', combined);
+            // 在 IIFE 里用 await
+            const hashBuffer = await crypto.subtle.digest("SHA-256", combined);
 
-        // ArrayBuffer -> hex
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        return hashHex;
+            // 转 hex
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+        })(); // 这里立即执行
     }
 </script>
 </html>
