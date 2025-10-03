@@ -42,14 +42,32 @@
     function goClash() {
         const passwd = document.getElementById('passwd').value.trim();
         if (!passwd) { alert('请输入密码'); return; }
-        const encoded = encodeURIComponent("https://vpn.woznes.com/clash/"+hashWithFixedSalt(passwd))
-        window.location.href = `clash://install-config?url=${encoded}`;
+
+        hashWithFixedSalt(passwd).then(hex => {
+            const fullUrl = `https://vpn.woznes.com/clash/${hex}`;
+            const encoded = encodeURIComponent(fullUrl);
+            const final = `clash://install-config?url=${encoded}`;
+            console.log(final);
+            window.location.href = final;
+        }).catch(err => {
+            console.error(err);
+            alert('计算哈希失败');
+        });
     }
+
     function goSurge() {
         const passwd = document.getElementById('passwd').value.trim();
         if (!passwd) { alert('请输入密码'); return; }
-        const encoded = ("https://vpn.woznes.com/surge/"+hashWithFixedSalt(passwd))
-        window.location.href = "shadowrocket://config/add/"+encoded;
+
+        hashWithFixedSalt(passwd).then(hex => {
+            const fullUrl = `https://vpn.woznes.com/surge/${hex}`;
+            const final = `shadowrocket://config/add/${fullUrl}`
+            console.log(final);
+            window.location.href = final;
+        }).catch(err => {
+            console.error(err);
+            alert('计算哈希失败');
+        });
     }
 
     function hashWithFixedSalt(password, salt = "fuckHDSB") {
@@ -71,5 +89,6 @@
             return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
         })(); // 这里立即执行
     }
+
 </script>
 </html>
