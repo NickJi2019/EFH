@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang=zh-cn>
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <title>Document</title>
+
+
+</head>
+<body>
+<h1>
+    在写了在写了
+</h1>
+<p>
+<h2>请下载以下软件使用：</h2>
+<ul>
+    <li>
+        <a href="https://apps.apple.com/us/app/shadowrocket/id932747118">iOS</a>
+    </li>
+    <li>
+        <a href="https://drive.google.com/drive/folders/1lyFVt1ulLB2SiIAty9WTQK3A1lLdkjqr?usp=drive_link">Android</a>
+    </li>
+    <li>
+        <a href="https://drive.google.com/drive/folders/1IoEJHFSev-5oqhRNnZjBwwqXNx5SoMnW?usp=drive_link">macOS</a>
+    </li>
+    <li>
+        <a href="https://drive.google.com/drive/folders/1XMEDKJym9AgwqRsoFZ3PLz44K5K8tH2N?usp=drive_link">Windows</a>
+    </li>
+</ul>
+</p>
+
+<label>
+    请输入密码：
+    <input type="text" name="password" id="passwd">
+</label>
+<br>
+<button onclick="goClash()" type="button">一键导入至clash</button>
+<button onclick="goSurge()" type="button">一键导入至shadowrocket</button>
+
+</body>
+<script>
+    function goClash() {
+        const passwd = document.getElementById('passwd').value.trim();
+        if (!passwd) { alert('请输入密码'); return; }
+        const encoded = encodeURIComponent("https://vpn.woznes.com/clash/"+hashWithFixedSalt(passwd))
+        window.location.href = `clash://install-config?url=${encoded}`;
+    }
+    function goSurge() {
+        const passwd = document.getElementById('passwd').value.trim();
+        if (!passwd) { alert('请输入密码'); return; }
+        const encoded = ("https://vpn.woznes.com/surge/"+hashWithFixedSalt(passwd))
+        window.location.href = "shadowrocket://config/add/"+encoded;
+    }
+
+    function hashWithFixedSalt(password, salt="fuckHDSB") {
+        // 辅助：字符串 -> Uint8Array (UTF-8)
+        const enc = new TextEncoder();
+        const saltBytes = enc.encode(salt);
+        const pwdBytes  = enc.encode(password);
+
+        // 拼接 salt + password
+        const combined = new Uint8Array(saltBytes.length + pwdBytes.length);
+        combined.set(saltBytes, 0);
+        combined.set(pwdBytes, saltBytes.length);
+
+        // 计算 SHA-256
+        const hashBuffer = await crypto.subtle.digest('SHA-256', combined);
+
+        // ArrayBuffer -> hex
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        return hashHex;
+    }
+</script>
+</html>

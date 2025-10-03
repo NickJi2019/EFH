@@ -1,0 +1,88 @@
+# HTTP(S) 代理服务端口
+port: 7890
+
+# SOCKS5 代理服务端口
+socks-port: 7891
+
+# Clash 路由工作模式
+# rule: 基于规则的数据包路由
+# global: 所有数据包将被转发到单个节点
+# direct: 直接将数据包转发到互联网
+mode: rule
+
+# RESTful Web API 监听地址
+external-controller: 127.0.0.1:9090
+
+
+proxies:
+  # Trojan
+  - name: "EFH Node1"
+    type: trojan
+    server: node1.vpn.woznes.com
+    port: 443
+    password: $$passwd$$
+    udp: true
+    sni: node1.vpn.woznes.com # aka 服务器名称
+    alpn:
+      - h2
+      - http/1.1
+    skip-cert-verify: true
+
+  - name: "EFH Node2"
+    type: trojan
+    server: node2.vpn.woznes.com
+    port: 443
+    password: $$passwd$$
+    udp: true
+    sni: node2.vpn.woznes.com # aka 服务器名称
+    alpn:
+      - h2
+      - http/1.1
+    skip-cert-verify: true
+
+  - name: "EFH Node3"
+    type: trojan
+    server: node3.vpn.woznes.com
+    port: 443
+    password: $$passwd$$
+    udp: true
+    sni: node3.vpn.woznes.com # aka 服务器名称
+    alpn:
+      - h2
+      - http/1.1
+    skip-cert-verify: true
+
+  - name: "EFH Node4"
+    type: trojan
+    server: node4.vpn.woznes.com
+    port: 443
+    password: $$passwd$$
+    udp: true
+    sni: node4.vpn.woznes.com # aka 服务器名称
+    alpn:
+      - h2
+      - http/1.1
+    skip-cert-verify: true
+
+proxy-groups:
+#  - name: Auto
+#    type: url-test
+#    proxies:
+#      - EFH Node1
+#      - EFH Node2
+#      - EFH Node3
+#      - EFH Node4
+#    url: http://www.gstatic.com/generate_204
+#    interval: 300
+
+  - name: Proxy
+    type: select
+    proxies:
+      - EFH Node1
+      - EFH Node2
+      - EFH Node3
+      - EFH Node4
+
+
+rules:
+  - MATCH,Proxy #剩下的所有流量都走代理
