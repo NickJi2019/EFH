@@ -64,7 +64,7 @@
         combined.set(pwdBytes, saltBytes.length);
 
         // 计算 SHA-256
-        const hashBuffer = await crypto.subtle.digest('SHA-256', combined);
+        const hashBuffer = crypto.subtle.digest('SHA-256', combined);
 
         // ArrayBuffer -> hex
         const hashArray = Array.from(new Uint8Array(hashBuffer));

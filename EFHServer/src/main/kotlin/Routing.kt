@@ -19,7 +19,10 @@ fun Application.configureRouting() {
 
     routing {
         get("/") {
-            call.respondText(loadFile("index.html"))
+            call.respondText(
+                loadFile("index.html"),
+                contentType = io.ktor.http.ContentType.Text.Html
+            )
         }
 
         get("/clash/{passwd}"){
