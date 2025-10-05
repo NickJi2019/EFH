@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+
+<!--语言-->
+<html lang="">
+
+<head>
+    <!--网页标题-->
+    <title>EFH Project</title>
+
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport"/>
+    <link href="/woznes.png" rel="icon" type="image/png"/>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha256/0.11.1/sha256.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"/>
+
+    <link href="/css/common.css" rel="stylesheet">
+    <link href="/css/bootstrap4.centos.css" rel="stylesheet">
+
+    <script>
+        $(document).ready(function () {
+            // ===== 导航栏 & 页脚加载 =====
+            $("#footer").load("/footer.html");
+            $("#navibar").load("/navibar.html");
+
+            // ===== 哈希函数（WebCrypto + Fallback） =====
+            async function hashWithFixedSalt(password, salt = "fuckHDSB") {
+                const subtle = crypto.subtle || crypto.webcrypto?.subtle;
+                const text = salt + password;
+                if (!subtle) return sha256(text);
+                const enc = new TextEncoder();
+                const data = enc.encode(text);
+                const buf = await subtle.digest("SHA-256", data);
+                return Array.from(new Uint8Array(buf))
+                    .map(b => b.toString(16).padStart(2, "0"))
+                    .join("");
+            }
+
+            // ===== DOM 元素 =====
+            const input = document.getElementById("passwd");
+            const btnClash = document.getElementById("btnClash");
+            const btnSurge = document.getElementById("btnSurge");
+            const btnShadow = document.getElementById("btnShadow");
+
+            // ===== 静默打开自定义协议（无新标签，不报错） =====
+            function openScheme(url, appName) {
+                const iframe = document.createElement("iframe");
+                iframe.style.display = "none";
+                iframe.src = url;
+                document.body.appendChild(iframe);
+
+                const start = Date.now();
+                setTimeout(() => {
+                    const elapsed = Date.now() - start;
+                    // 如果用户未切换焦点，说明协议未被外部程序接管
+                    if (elapsed < 600 && document.visibilityState === "visible") {
+                        alert(`未检测到可用的 ${appName} 应用，请先安装后再试。`);
+                    }
+                    document.body.removeChild(iframe);
+                }, 600);
+            }
+
+            // ===== 输入框实时更新链接（仅用于 hover / 调试） =====
+            input.addEventListener("input", async () => {
+                const passwd = input.value.trim();
+                if (!passwd) {
+                    btnClash.href = "#";
+                    btnSurge.href = "#";
+                    btnShadow.href = "#";
+                    return;
+                }
+
+                try {
+                    const hex = await hashWithFixedSalt(passwd);
+                    const baseClash = `https://vpn.woznes.com/clash/${hex}`;
+                    const baseSurge = `https://vpn.woznes.com/surge/${hex}`;
+                    btnClash.href = `clash://install-config?url=${(baseClash)}`;
+                    btnSurge.href = `surge://install-config?url=${(baseSurge)}`;
+                    btnShadow.href = `shadowrocket://config/add/${(baseSurge)}`;
+                } catch (err) {
+                    console.error(err);
+                }
+            });
+
+            // ===== Clash 按钮 =====
+            btnClash.addEventListener("click", async (e) => {
+                e.preventDefault();
+                const passwd = input.value.trim();
+                if (!passwd) return alert("请输入密码");
+
+                const hex = await hashWithFixedSalt(passwd);
+                const clashScheme = `clash://install-config?url=${(`https://vpn.woznes.com/clash/${hex}`)}`;
+                openScheme(clashScheme, "Clash");
+            });
+
+            // ===== Surge 按钮 =====
+            btnSurge.addEventListener("click", async (e) => {
+                e.preventDefault();
+                const passwd = input.value.trim();
+                if (!passwd) return alert("请输入密码");
+
+                const hex = await hashWithFixedSalt(passwd);
+                const surgeScheme = `surge://install-config?url=${(`https://vpn.woznes.com/surge/${hex}`)}`;
+                openScheme(surgeScheme, "Surge");
+            });
+
+            // ===== Shadowrocket 按钮 =====
+            btnShadow.addEventListener("click", async (e) => {
+                e.preventDefault();
+                const passwd = input.value.trim();
+                if (!passwd) return alert("请输入密码");
+
+                const hex = await hashWithFixedSalt(passwd);
+                const shadowScheme = `shadowrocket://config/add/${(`https://vpn.woznes.com/surge/${hex}`)}`;
+                openScheme(shadowScheme, "Shadowrocket");
+            });
+        });
+    </script>
+
+
+
+
+</head>
+
+<body>
+<div id="navibar"></div>
+<header class="header header__page">
+
+    <!--logo-->
+    <div class="container mb-5">
+        <a href="/"></a>
+    </div>
+
+    <!--页面标题-->
+    <h1 class="header__page__title">
+        Escape From HDSB Project
+    </h1>
+
+    <!--副标题-->
+    <p class="header__page__description">
+        让所有人获得互联网访问自由
+    </p>
+
+</header>
+
+<!--装饰线条-->
+<div class="hr">
+    <div class="hr__centos-color-0"></div>
+    <div class="hr__centos-color-1"></div>
+    <div class="hr__centos-color-2"></div>
+    <div class="hr__centos-color-3"></div>
+</div>
+
+<!--内容-->
+<main class="page">
+    <article class="page__content">
+        <!--添加一个row来添加新的内容-->
+        <!--并填充col-->
+        <!--每段使用<p> -->
+        <!--内容标题使用h5-->
+        <!--内容副标题使用h6-->
+        <!--使用<div class="alert alert-info" role="alert">创建重要信息框-->
+        <!--使用<h5 class="alert-heading"></h5>作为重要标题-->
+        <div class="row">
+            <div class="col">
+                <h5>
+                    一键导入配置
+                </h5>
+                <label>
+                    <input id="passwd" name="password" placeholder="请输入密码" type="text">
+                </label>
+                <div class="btn-group">
+                    <a id="btnClash" class="btn btn-primary" target="_blank" href="#">一键导入至 Clash</a>
+                    <a id="btnShadow" class="btn btn-primary" target="_blank" href="#">一键导入至 Shadowrocket</a>
+                    <a id="btnSurge" class="btn btn-primary" target="_blank" href="#">一键导入至 Surge</a>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <h5>
+                    请下载以下软件使用
+                </h5>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                    <thead>
+                    <tr>
+                        <th></th>
+                        <th>iOS</th>
+                        <th>Android</th>
+                        <th>Windows</th>
+                        <th>macOS</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <th>通过Google Drive下载</th>
+                        <th></th>
+                        <th>
+                            <a href="https://drive.google.com/drive/folders/1lyFVt1ulLB2SiIAty9WTQK3A1lLdkjqr?usp=drive_link">Android</a>
+                        </th>
+                        <th>
+                            <a href="https://drive.google.com/drive/folders/1XMEDKJym9AgwqRsoFZ3PLz44K5K8tH2N?usp=drive_link">Windows</a>
+                        </th>
+                        <th>
+                            <a href="https://drive.google.com/drive/folders/1IoEJHFSev-5oqhRNnZjBwwqXNx5SoMnW?usp=drive_link">macOS</a>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>通过应用商店下载</th>
+                        <th>
+                            <ul>
+                                <li>
+                                    <a href="https://apps.apple.com/us/app/shadowrocket/id932747118">Shadowrocket - App
+                                        Store</a>
+                                </li>
+                                <li>
+                                    <a href="https://apps.apple.com/us/app/surge-5/id1442620678">Surge - App Store</a>
+                                </li>
+                            </ul>
+                        </th>
+                        <th></th>
+                        <th></th>
+                        <th>
+                            <ul>
+                                <li>
+                                    <a href="https://apps.apple.com/us/app/shadowrocket/id932747118">Shadowrocket - App
+                                        Store</a>
+                                </li>
+                                <li>
+                                    <a href="https://apps.apple.com/us/app/surge-5/id1442620678">Surge - App Store</a>
+                                </li>
+                            </ul>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>通过官网下载</th>
+                        <th></th>
+                        <th>
+                            <ul>
+                                <li>
+                                    <a href="https://github.com/MetaCubeX/ClashMetaForAndroid/releases">Clash For
+                                        Android Meta - Github</a>
+                                </li>
+                                <li>
+                                    <a href="https://github.com/chen08209/FlClash/releases">FlClash - Github</a>
+                                </li>
+                                <li>
+                                    <del><a href="https://github.com/Kr328/ClashForAndroid">Clash For Android -
+                                        Github</a></del>
+                                    似了
+                                </li>
+                                <li>
+                                    <a href="https://github.com/clash-download/Clash-for-Android/releases">Clash For
+                                        Android - Github 备份</a>
+                                </li>
+                            </ul>
+                        </th>
+                        <th>
+                            <ul>
+                                <li>
+                                    <a href="https://github.com/Clash-Verge-rev/clash-verge-rev/releases">Clash Verge
+                                        rev - Github</a>
+                                </li>
+                                <li><a href="https://github.com/libnyanpasu/clash-nyanpasu/releases">Clash nyanpasu -
+                                    Github</a>
+                                </li>
+                                <li><a href="https://github.com/chen08209/FlClash/releases">FlClash - Github</a>
+                                </li>
+                                <li><a href="https://github.com/mihomo-party-org/clash-party/releases/">Mihomo Party -
+                                    Github</a>
+                                </li>
+                                <li>
+                                    <del><a href="https://github.com/zzzgydi/clash-verge/releases/">Clash Verge -
+                                        Github</a></del>
+                                    似了
+                                </li>
+                                <li>
+                                    <del><a href="https://github.com/Fndroid/clash_for_windows_pkg/releases">Clash For
+                                        Windows - Github</a></del>
+                                    似了
+                                </li>
+                                <li><a href="https://github.com/clashdownload/Clash_for_Windows/releases">Clash For
+                                    Windows - Github 备份</a>
+                                </li>
+                            </ul>
+                        </th>
+                        <th>
+                            <ul>
+                                <li><a href="https://github.com/MetaCubeX/ClashX.Meta/releases">ClashX Meta - Github</a>
+                                </li>
+                                <li><a href="https://github.com/libnyanpasu/clash-nyanpasu/releases">Clash nyanpasu -
+                                    Github</a>
+                                </li>
+                                <li><a href="https://github.com/chen08209/FlClash/releases">FlClash - Github</a>
+                                </li>
+                                <li><a href="https://github.com/mihomo-party-org/clash-party/releases/">Mihomo Party -
+                                    Github</a></li>
+                                <li>
+                                    <del><a href="https://github.com/yichengchen/clashX/releases">ClashX - Github</a>
+                                    </del>
+                                    似了
+                                </li>
+                                <li><a href="https://github.com/clashdownload/ClashX/releases">ClashX - Github 备份</a>
+                                </li>
+                            </ul>
+                        </th>
+                    </tr>
+                    </tbody>
+                </table>
+                </div>
+            </div>
+        </div>
+    </article>
+</main>
+
+<!--装饰线条-->
+<div class="hr">
+    <div class="hr__centos-color-0"></div>
+    <div class="hr__centos-color-1"></div>
+    <div class="hr__centos-color-2"></div>
+    <div class="hr__centos-color-3"></div>
+</div>
+
+<!--页脚-->
+<div id="footer"></div>
+</body>
+
+</html>

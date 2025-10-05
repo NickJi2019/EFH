@@ -1,0 +1,37 @@
+.navbar-brand, .nav-item{
+    text-shadow: 0 0 15px #000000;
+}
+.navbar{
+    color: #FFFFFF;
+    /*background: transparent !important;*/
+    /*backdrop-filter: blur(10px);*/
+}
+.bg-blur{
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    /*backdrop-filter: invert(100%);*/
+}
+.blur{
+    filter: blur(10px);
+}
+
+.navbar .navbar-nav,
+.navbar .navbar-nav .nav-link{
+    color: #FFFFFF;
+
+}
+.dropdown-menu {
+    position: fixed;
+    border: none;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    /*background-color: rgba(0,0,0,0.5);*/
+    /*backdrop-filter: blur(10px);*/
+}
+
+.dropdown-item:hover, .dropdown-item:focus, .dropdown-item:active{
+    color: rgba(255,255,255,0.75);
+    background-color: transparent;
+}
+html, body {
+    overflow: visible !important;
+}
