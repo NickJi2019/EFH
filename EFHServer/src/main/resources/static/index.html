@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
 <!--语言-->
-<html lang="">
+<html lang="zh-cn">
 
 <head>
     <!--网页标题-->
@@ -44,31 +44,14 @@
             const btnSurge = document.getElementById("btnSurge");
             const btnShadow = document.getElementById("btnShadow");
 
-            // ===== 静默打开自定义协议（无新标签，不报错） =====
-            function openScheme(url, appName) {
-                const iframe = document.createElement("iframe");
-                iframe.style.display = "none";
-                iframe.src = url;
-                document.body.appendChild(iframe);
-
-                const start = Date.now();
-                setTimeout(() => {
-                    const elapsed = Date.now() - start;
-                    // 如果用户未切换焦点，说明协议未被外部程序接管
-                    if (elapsed < 600 && document.visibilityState === "visible") {
-                        alert(`未检测到可用的 ${appName} 应用，请先安装后再试。`);
-                    }
-                    document.body.removeChild(iframe);
-                }, 600);
-            }
-
-            // ===== 输入框实时更新链接（仅用于 hover / 调试） =====
+            // ===== 输入框实时更新链接 =====
             input.addEventListener("input", async () => {
                 const passwd = input.value.trim();
                 if (!passwd) {
-                    btnClash.href = "#";
-                    btnSurge.href = "#";
-                    btnShadow.href = "#";
+                    // 如果输入框为空，取消链接
+                    btnClash.removeAttribute("href");
+                    btnSurge.removeAttribute("href");
+                    btnShadow.removeAttribute("href");
                     return;
                 }
 
@@ -76,51 +59,16 @@
                     const hex = await hashWithFixedSalt(passwd);
                     const baseClash = `https://vpn.woznes.com/clash/${hex}`;
                     const baseSurge = `https://vpn.woznes.com/surge/${hex}`;
-                    btnClash.href = `clash://install-config?url=${(baseClash)}`;
-                    btnSurge.href = `surge://install-config?url=${(baseSurge)}`;
-                    btnShadow.href = `shadowrocket://config/add/${(baseSurge)}`;
+
+                    btnClash.href = `clash://install-config?url=${baseClash}`;
+                    btnSurge.href = `surge://install-config?url=${baseSurge}`;
+                    btnShadow.href = `shadowrocket://config/add/${baseSurge}`;
                 } catch (err) {
                     console.error(err);
                 }
             });
-
-            // ===== Clash 按钮 =====
-            btnClash.addEventListener("click", async (e) => {
-                e.preventDefault();
-                const passwd = input.value.trim();
-                if (!passwd) return alert("请输入密码");
-
-                const hex = await hashWithFixedSalt(passwd);
-                const clashScheme = `clash://install-config?url=${(`https://vpn.woznes.com/clash/${hex}`)}`;
-                openScheme(clashScheme, "Clash");
-            });
-
-            // ===== Surge 按钮 =====
-            btnSurge.addEventListener("click", async (e) => {
-                e.preventDefault();
-                const passwd = input.value.trim();
-                if (!passwd) return alert("请输入密码");
-
-                const hex = await hashWithFixedSalt(passwd);
-                const surgeScheme = `surge://install-config?url=${(`https://vpn.woznes.com/surge/${hex}`)}`;
-                openScheme(surgeScheme, "Surge");
-            });
-
-            // ===== Shadowrocket 按钮 =====
-            btnShadow.addEventListener("click", async (e) => {
-                e.preventDefault();
-                const passwd = input.value.trim();
-                if (!passwd) return alert("请输入密码");
-
-                const hex = await hashWithFixedSalt(passwd);
-                const shadowScheme = `shadowrocket://config/add/${(`https://vpn.woznes.com/surge/${hex}`)}`;
-                openScheme(shadowScheme, "Shadowrocket");
-            });
         });
     </script>
-
-
-
 
 </head>
 
@@ -173,7 +121,7 @@
                 </label>
                 <div class="btn-group">
                     <a id="btnClash" class="btn btn-primary" target="_blank" href="#">一键导入至 Clash</a>
-                    <a id="btnShadow" class="btn btn-primary" target="_blank" href="#">一键导入至 Shadowrocket</a>
+                    <a id="btnShadow" class="btn btn-primary" target="_blank" href="#">一键导入至 Shadow rocket</a>
                     <a id="btnSurge" class="btn btn-primary" target="_blank" href="#">一键导入至 Surge</a>
                 </div>
             </div>

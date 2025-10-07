@@ -64,25 +64,81 @@ proxies:
       - http/1.1
     skip-cert-verify: true
 
-proxy-groups:
-#  - name: Auto
-#    type: url-test
-#    proxies:
-#      - EFH Node1
-#      - EFH Node2
-#      - EFH Node3
-#      - EFH Node4
-#    url: http://www.gstatic.com/generate_204
-#    interval: 300
+  - name: "Cloudflared EFH Node1"
+    type: trojan
+    server: cf.node1.vpn.woznes.com
+    port: 443
+    password: $$passwd$$
+    udp: true
+    sni: cf.node1.vpn.woznes.com # aka 服务器名称
+    alpn:
+      - h2
+      - http/1.1
+    skip-cert-verify: true
 
-  - name: Proxy
-    type: select
+  - name: "Cloudflared EFH Node2"
+    type: trojan
+    server: cf.node2.vpn.woznes.com
+    port: 443
+    password: $$passwd$$
+    udp: true
+    sni: cf.node2.vpn.woznes.com # aka 服务器名称
+    alpn:
+      - h2
+      - http/1.1
+    skip-cert-verify: true
+
+  - name: "Cloudflared EFH Node3"
+    type: trojan
+    server: cf.node3.vpn.woznes.com
+    port: 443
+    password: $$passwd$$
+    udp: true
+    sni: cf.node3.vpn.woznes.com # aka 服务器名称
+    alpn:
+      - h2
+      - http/1.1
+    skip-cert-verify: true
+
+  - name: "Cloudflared EFH Node4"
+    type: trojan
+    server: cf.node4.vpn.woznes.com
+    port: 443
+    password: $$passwd$$
+    udp: true
+    sni: cf.node4.vpn.woznes.com # aka 服务器名称
+    alpn:
+      - h2
+      - http/1.1
+    skip-cert-verify: true
+
+proxy-groups:
+  - name: Auto
+    type: url-test
     proxies:
       - EFH Node1
       - EFH Node2
       - EFH Node3
       - EFH Node4
+    url: http://www.gstatic.com/generate_204
+    interval: 300
 
+  - name: Proxy
+    type: select
+    proxies:
+      - Auto
+      - EFH Node1
+      - EFH Node2
+      - EFH Node3
+      - EFH Node4
+      - DIRECT
 
 rules:
+  - DOMAIN-KEYWORD,google,DIRECT
+  - DOMAIN-KEYWORD,gstatic,DIRECT
+  - DOMAIN-KEYWORD,youtube,DIRECT
+  - DOMAIN-SUFFIX,brightspace.com,DIRECT
+  - DOMAIN-SUFFIX,elearningontario.ca,DIRECT
+  - DOMAIN-KEYWORD,kahoot,DIRECT
+  - DOMAIN-KEYWORD,blooket,DIRECT
   - MATCH,Proxy #剩下的所有流量都走代理
