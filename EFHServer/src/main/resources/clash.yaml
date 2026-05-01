@@ -14,7 +14,7 @@ mode: rule
 external-controller: 127.0.0.1:9090
 
 dns:
-  enable: ture
+  enable: true
   listen: 0.0.0.0:53
   ipv6: false # 当为 false 时, AAAA 查询的响应将为空
 
