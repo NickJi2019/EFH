@@ -443,7 +443,7 @@ export CF_Email="$EMAIL"
 export CF_Token="$CFToken"
 $(pwd)/acme.sh/acme.sh --upgrade --auto-upgrade
 echo "Installing SSL certificate..."
-if $(pwd)/acme.sh/acme.sh --issue -d ${SUBDOMAIN}.${DOMAIN} --dns dns_cf --keylength ec-256 --server letsencrypt --nocron --force; then
+if $(pwd)/acme.sh/acme.sh --issue -d ${SUBDOMAIN}.${DOMAIN} --dns dns_cf --keylength ec-256 --server letsencrypt --force; then
   echo "SSL certificate installed."
   $(pwd)/acme.sh/acme.sh --set-default-ca --server letsencrypt
   $(pwd)/acme.sh/acme.sh --install-cronjob

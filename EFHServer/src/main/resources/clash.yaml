@@ -13,6 +13,23 @@ mode: rule
 # RESTful Web API 监听地址
 external-controller: 127.0.0.1:9090
 
+dns:
+  enable: ture
+  listen: 0.0.0.0:53
+  ipv6: false # 当为 false 时, AAAA 查询的响应将为空
+
+  default-nameserver:
+    - 1.1.1.1
+    - 8.8.8.8
+  enhanced-mode: fake-ip
+  nameserver:
+    - https://cloudflare-dns.com/dns-query
+    - https://dns.google/dns-query
+  fallback:
+    - https://doh.pub/dns-query
+    - https://dns.alidns.com/dns-query
+    - dhcp://en0 # 来自 dhcp 的 dns
+
 
 proxies:
   # Trojan
@@ -64,65 +81,8 @@ proxies:
       - http/1.1
     skip-cert-verify: true
 
-  - name: "Cloudflared EFH Node1"
-    type: trojan
-    server: cf.node1.vpn.woznes.com
-    port: 443
-    password: $$passwd$$
-    udp: true
-    sni: cf.node1.vpn.woznes.com # aka 服务器名称
-    alpn:
-      - h2
-      - http/1.1
-    skip-cert-verify: true
-
-  - name: "Cloudflared EFH Node2"
-    type: trojan
-    server: cf.node2.vpn.woznes.com
-    port: 443
-    password: $$passwd$$
-    udp: true
-    sni: cf.node2.vpn.woznes.com # aka 服务器名称
-    alpn:
-      - h2
-      - http/1.1
-    skip-cert-verify: true
-
-  - name: "Cloudflared EFH Node3"
-    type: trojan
-    server: cf.node3.vpn.woznes.com
-    port: 443
-    password: $$passwd$$
-    udp: true
-    sni: cf.node3.vpn.woznes.com # aka 服务器名称
-    alpn:
-      - h2
-      - http/1.1
-    skip-cert-verify: true
-
-  - name: "Cloudflared EFH Node4"
-    type: trojan
-    server: cf.node4.vpn.woznes.com
-    port: 443
-    password: $$passwd$$
-    udp: true
-    sni: cf.node4.vpn.woznes.com # aka 服务器名称
-    alpn:
-      - h2
-      - http/1.1
-    skip-cert-verify: true
 
 proxy-groups:
-  - name: Auto
-    type: url-test
-    proxies:
-      - EFH Node1
-      - EFH Node2
-      - EFH Node3
-      - EFH Node4
-    url: http://www.gstatic.com/generate_204
-    interval: 300
-
   - name: Proxy
     type: select
     proxies:
@@ -132,6 +92,15 @@ proxy-groups:
       - EFH Node3
       - EFH Node4
       - DIRECT
+  - name: Auto
+    type: url-test
+    proxies:
+      - EFH Node1
+      - EFH Node2
+      - EFH Node3
+      - EFH Node4
+    url: http://www.gstatic.com/generate_204
+    interval: 300
 
 rules:
   - DOMAIN-KEYWORD,google,DIRECT
