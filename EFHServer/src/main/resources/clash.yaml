@@ -21,7 +21,7 @@ dns:
   default-nameserver:
     - 1.1.1.1
     - 8.8.8.8
-  enhanced-mode: fake-ip
+#  enhanced-mode: fake-ip
   nameserver:
     - https://cloudflare-dns.com/dns-query
     - https://dns.google/dns-query
