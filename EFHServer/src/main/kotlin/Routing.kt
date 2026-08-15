@@ -50,5 +50,17 @@ fun Application.configureRouting() {
                 call.respondText(loadConfig("shadowrocket.conf", it, "https://vpn.woznes.com/surge/$it"))
             }
         }
+
+        // v2 get configuration
+        get("/get-config/{passwd}/Woznes-EFH-Clash") {
+            call.pathParameters["passwd"]?.let {
+                call.respondText(loadConfig("clash.yaml", it))
+            }
+        }
+        get("/get-config/{passwd}/Woznes-EFH-Surge") {
+            call.pathParameters["passwd"]?.let {
+                call.respondText(loadConfig("shadowrocket.conf", it, "https://vpn.woznes.com/get-config/$it/Woznes-EFH-Surge"))
+            }
+        }
     }
 }

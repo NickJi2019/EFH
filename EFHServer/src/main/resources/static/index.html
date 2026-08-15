@@ -44,27 +44,97 @@
             const btnSurge = document.getElementById("btnSurge");
             const btnShadow = document.getElementById("btnShadow");
 
-            // ===== 输入框实时更新链接 =====
+            // ===== 复制函数 =====
+            async function copyToClipboard(text) {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    try {
+                        await navigator.clipboard.writeText(text);
+                        console.log('复制成功 (使用 Clipboard API)');
+                        return true;
+                    } catch (err) {
+                        console.warn('Clipboard API 失败，尝试降级方案...', err);
+                    }
+                }
+                try {
+                    const textArea = document.createElement('textarea');
+                    textArea.value = text;
+                    textArea.style.position = 'fixed';
+                    textArea.style.top = '-9999px';
+                    textArea.style.left = '-9999px';
+                    textArea.style.opacity = '0';
+                    textArea.style.pointerEvents = 'none';
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    const success = document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    if (success) {
+                        console.log('复制成功 (使用 execCommand)');
+                        return true;
+                    } else {
+                        throw new Error('execCommand 返回 false');
+                    }
+                } catch (err) {
+                    console.error('复制失败:', err);
+                    alert('复制失败，请手动复制内容');
+                    return false;
+                }
+            }
+
+            // ===== 输入框实时更新一键导入链接 =====
             input.addEventListener("input", async () => {
                 const passwd = input.value.trim();
                 if (!passwd) {
-                    // 如果输入框为空，取消链接
                     btnClash.removeAttribute("href");
                     btnSurge.removeAttribute("href");
                     btnShadow.removeAttribute("href");
                     return;
                 }
-
                 try {
                     const hex = await hashWithFixedSalt(passwd);
-                    const baseClash = `https://vpn.woznes.com/clash/${hex}`;
-                    const baseSurge = `https://vpn.woznes.com/surge/${hex}`;
+                    const baseClash = `https://vpn.woznes.com/get-config/${hex}/Woznes-EFH-Clash`;
+                    const baseSurge = `https://vpn.woznes.com/get-config/${hex}/Woznes-EFH-Surge`;
 
                     btnClash.href = `clash://install-config?url=${baseClash}`;
-                    btnSurge.href = `surge://install-config?url=${baseSurge}`;
+                    btnSurge.href = `surge:///install-config?url=${encodeURI(baseSurge)}`;
                     btnShadow.href = `shadowrocket://config/add/${baseSurge}`;
                 } catch (err) {
                     console.error(err);
+                }
+            });
+
+            // ===== 【新增】手动复制按钮功能 =====
+            $("#btnManualClash, #btnManualShadow, #btnManualSurge").on('click', async function (e) {
+                e.preventDefault(); // 阻止 <a> 的默认跳转
+
+                const passwd = input.value.trim();
+                if (!passwd) {
+                    alert('请先输入密码');
+                    return;
+                }
+
+                try {
+                    const hex = await hashWithFixedSalt(passwd);
+                    const baseClash = `https://vpn.woznes.com/get-config/${hex}/Woznes-EFH-Clash`;
+                    const baseSurge = `https://vpn.woznes.com/get-config/${hex}/Woznes-EFH-Surge`;
+
+                    let textToCopy = '';
+                    const id = this.id;
+                    if (id === 'btnManualClash') {
+                        textToCopy = baseClash;
+                    } else if (id === 'btnManualShadow' || id === 'btnManualSurge') {
+                        textToCopy = baseSurge;
+                    }
+
+                    const success = await copyToClipboard(textToCopy);
+                    if (success) {
+                        const originalText = $(this).text();
+                        $(this).text('已复制!');
+                        setTimeout(() => $(this).text(originalText), 2000);
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert('复制失败，请重试');
                 }
             });
         });
@@ -104,17 +174,10 @@
 <!--内容-->
 <main class="page">
     <article class="page__content">
-        <!--添加一个row来添加新的内容-->
-        <!--并填充col-->
-        <!--每段使用<p> -->
-        <!--内容标题使用h5-->
-        <!--内容副标题使用h6-->
-        <!--使用<div class="alert alert-info" role="alert">创建重要信息框-->
-        <!--使用<h5 class="alert-heading"></h5>作为重要标题-->
         <div class="row">
             <div class="col">
                 <h5>
-                    一键导入配置
+                    导入配置
                 </h5>
                 <label>
                     <input id="passwd" name="password" placeholder="请输入密码" type="text">
@@ -125,6 +188,14 @@
                     <a id="btnSurge" class="btn btn-primary" target="_blank" href="#">一键导入至 Surge</a>
                 </div>
             </div>
+            <div class="col">
+                手动导入配置
+                <div class="btn-group">
+                    <a id="btnManualClash" class="btn btn-primary" target="_blank" href="#">复制Clash配置URL</a>
+                    <a id="btnManualShadow" class="btn btn-primary" target="_blank" href="#">复制Shadowrocket配置URL</a>
+                    <a id="btnManualSurge" class="btn btn-primary" target="_blank" href="#">复制Surge配置URL</a>
+                </div>
+            </div>
         </div>
         <div class="row">
             <div class="col">
@@ -133,131 +204,131 @@
                 </h5>
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped">
-                    <thead>
-                    <tr>
-                        <th></th>
-                        <th>iOS</th>
-                        <th>Android</th>
-                        <th>Windows</th>
-                        <th>macOS</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <th>通过Google Drive下载</th>
-                        <th></th>
-                        <th>
-                            <a href="https://drive.google.com/drive/folders/1lyFVt1ulLB2SiIAty9WTQK3A1lLdkjqr?usp=drive_link">Android</a>
-                        </th>
-                        <th>
-                            <a href="https://drive.google.com/drive/folders/1XMEDKJym9AgwqRsoFZ3PLz44K5K8tH2N?usp=drive_link">Windows</a>
-                        </th>
-                        <th>
-                            <a href="https://drive.google.com/drive/folders/1IoEJHFSev-5oqhRNnZjBwwqXNx5SoMnW?usp=drive_link">macOS</a>
-                        </th>
-                    </tr>
-                    <tr>
-                        <th>通过应用商店下载</th>
-                        <th>
-                            <ul>
-                                <li>
-                                    <a href="https://apps.apple.com/us/app/shadowrocket/id932747118">Shadowrocket - App
-                                        Store</a>
-                                </li>
-                                <li>
-                                    <a href="https://apps.apple.com/us/app/surge-5/id1442620678">Surge - App Store</a>
-                                </li>
-                            </ul>
-                        </th>
-                        <th></th>
-                        <th></th>
-                        <th>
-                            <ul>
-                                <li>
-                                    <a href="https://apps.apple.com/us/app/shadowrocket/id932747118">Shadowrocket - App
-                                        Store</a>
-                                </li>
-                                <li>
-                                    <a href="https://apps.apple.com/us/app/surge-5/id1442620678">Surge - App Store</a>
-                                </li>
-                            </ul>
-                        </th>
-                    </tr>
-                    <tr>
-                        <th>通过官网下载</th>
-                        <th></th>
-                        <th>
-                            <ul>
-                                <li>
-                                    <a href="https://github.com/MetaCubeX/ClashMetaForAndroid/releases">Clash For
-                                        Android Meta - Github</a>
-                                </li>
-                                <li>
-                                    <a href="https://github.com/chen08209/FlClash/releases">FlClash - Github</a>
-                                </li>
-                                <li>
-                                    <del><a href="https://github.com/Kr328/ClashForAndroid">Clash For Android -
-                                        Github</a></del>
-                                    似了
-                                </li>
-                                <li>
-                                    <a href="https://github.com/clash-download/Clash-for-Android/releases">Clash For
-                                        Android - Github 备份</a>
-                                </li>
-                            </ul>
-                        </th>
-                        <th>
-                            <ul>
-                                <li>
-                                    <a href="https://github.com/Clash-Verge-rev/clash-verge-rev/releases">Clash Verge
-                                        rev - Github</a>
-                                </li>
-                                <li><a href="https://github.com/libnyanpasu/clash-nyanpasu/releases">Clash nyanpasu -
-                                    Github</a>
-                                </li>
-                                <li><a href="https://github.com/chen08209/FlClash/releases">FlClash - Github</a>
-                                </li>
-                                <li><a href="https://github.com/mihomo-party-org/clash-party/releases/">Mihomo Party -
-                                    Github</a>
-                                </li>
-                                <li>
-                                    <del><a href="https://github.com/zzzgydi/clash-verge/releases/">Clash Verge -
-                                        Github</a></del>
-                                    似了
-                                </li>
-                                <li>
-                                    <del><a href="https://github.com/Fndroid/clash_for_windows_pkg/releases">Clash For
-                                        Windows - Github</a></del>
-                                    似了
-                                </li>
-                                <li><a href="https://github.com/clashdownload/Clash_for_Windows/releases">Clash For
-                                    Windows - Github 备份</a>
-                                </li>
-                            </ul>
-                        </th>
-                        <th>
-                            <ul>
-                                <li><a href="https://github.com/MetaCubeX/ClashX.Meta/releases">ClashX Meta - Github</a>
-                                </li>
-                                <li><a href="https://github.com/libnyanpasu/clash-nyanpasu/releases">Clash nyanpasu -
-                                    Github</a>
-                                </li>
-                                <li><a href="https://github.com/chen08209/FlClash/releases">FlClash - Github</a>
-                                </li>
-                                <li><a href="https://github.com/mihomo-party-org/clash-party/releases/">Mihomo Party -
-                                    Github</a></li>
-                                <li>
-                                    <del><a href="https://github.com/yichengchen/clashX/releases">ClashX - Github</a>
-                                    </del>
-                                    似了
-                                </li>
-                                <li><a href="https://github.com/clashdownload/ClashX/releases">ClashX - Github 备份</a>
-                                </li>
-                            </ul>
-                        </th>
-                    </tr>
-                    </tbody>
-                </table>
+                        <thead>
+                        <tr>
+                            <th></th>
+                            <th>iOS</th>
+                            <th>Android</th>
+                            <th>Windows</th>
+                            <th>macOS</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <th>通过Google Drive下载</th>
+                            <th></th>
+                            <th>
+                                <a href="https://drive.google.com/drive/folders/1lyFVt1ulLB2SiIAty9WTQK3A1lLdkjqr?usp=drive_link">Android</a>
+                            </th>
+                            <th>
+                                <a href="https://drive.google.com/drive/folders/1XMEDKJym9AgwqRsoFZ3PLz44K5K8tH2N?usp=drive_link">Windows</a>
+                            </th>
+                            <th>
+                                <a href="https://drive.google.com/drive/folders/1IoEJHFSev-5oqhRNnZjBwwqXNx5SoMnW?usp=drive_link">macOS</a>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th>通过应用商店下载</th>
+                            <th>
+                                <ul>
+                                    <li>
+                                        <a href="https://apps.apple.com/us/app/shadowrocket/id932747118">Shadowrocket - App
+                                            Store</a>
+                                    </li>
+                                    <li>
+                                        <a href="https://apps.apple.com/us/app/surge-5/id1442620678">Surge - App Store</a>
+                                    </li>
+                                </ul>
+                            </th>
+                            <th></th>
+                            <th></th>
+                            <th>
+                                <ul>
+                                    <li>
+                                        <a href="https://apps.apple.com/us/app/shadowrocket/id932747118">Shadowrocket - App
+                                            Store</a>
+                                    </li>
+                                    <li>
+                                        <a href="https://apps.apple.com/us/app/surge-5/id1442620678">Surge - App Store</a>
+                                    </li>
+                                </ul>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th>通过官网下载</th>
+                            <th></th>
+                            <th>
+                                <ul>
+                                    <li>
+                                        <a href="https://github.com/MetaCubeX/ClashMetaForAndroid/releases">Clash For
+                                            Android Meta - Github</a>
+                                    </li>
+                                    <li>
+                                        <a href="https://github.com/chen08209/FlClash/releases">FlClash - Github</a>
+                                    </li>
+                                    <li>
+                                        <del><a href="https://github.com/Kr328/ClashForAndroid">Clash For Android -
+                                            Github</a></del>
+                                        似了
+                                    </li>
+                                    <li>
+                                        <a href="https://github.com/clash-download/Clash-for-Android/releases">Clash For
+                                            Android - Github 备份</a>
+                                    </li>
+                                </ul>
+                            </th>
+                            <th>
+                                <ul>
+                                    <li>
+                                        <a href="https://github.com/Clash-Verge-rev/clash-verge-rev/releases">Clash Verge
+                                            rev - Github</a>
+                                    </li>
+                                    <li><a href="https://github.com/libnyanpasu/clash-nyanpasu/releases">Clash nyanpasu -
+                                        Github</a>
+                                    </li>
+                                    <li><a href="https://github.com/chen08209/FlClash/releases">FlClash - Github</a>
+                                    </li>
+                                    <li><a href="https://github.com/mihomo-party-org/clash-party/releases/">Mihomo Party -
+                                        Github</a>
+                                    </li>
+                                    <li>
+                                        <del><a href="https://github.com/zzzgydi/clash-verge/releases/">Clash Verge -
+                                            Github</a></del>
+                                        似了
+                                    </li>
+                                    <li>
+                                        <del><a href="https://github.com/Fndroid/clash_for_windows_pkg/releases">Clash For
+                                            Windows - Github</a></del>
+                                        似了
+                                    </li>
+                                    <li><a href="https://github.com/clashdownload/Clash_for_Windows/releases">Clash For
+                                        Windows - Github 备份</a>
+                                    </li>
+                                </ul>
+                            </th>
+                            <th>
+                                <ul>
+                                    <li><a href="https://github.com/MetaCubeX/ClashX.Meta/releases">ClashX Meta - Github</a>
+                                    </li>
+                                    <li><a href="https://github.com/libnyanpasu/clash-nyanpasu/releases">Clash nyanpasu -
+                                        Github</a>
+                                    </li>
+                                    <li><a href="https://github.com/chen08209/FlClash/releases">FlClash - Github</a>
+                                    </li>
+                                    <li><a href="https://github.com/mihomo-party-org/clash-party/releases/">Mihomo Party -
+                                        Github</a></li>
+                                    <li>
+                                        <del><a href="https://github.com/yichengchen/clashX/releases">ClashX - Github</a>
+                                        </del>
+                                        似了
+                                    </li>
+                                    <li><a href="https://github.com/clashdownload/ClashX/releases">ClashX - Github 备份</a>
+                                    </li>
+                                </ul>
+                            </th>
+                        </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
