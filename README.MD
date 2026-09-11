@@ -1,2 +1,3 @@
 [Project EFH](https://vpn.woznes.com)
+
 一键安装trojan-go服务端环境：`/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/NickJi2019/EFH/refs/heads/main/EFHServerSetup/install.sh)"`
