@@ -7,6 +7,31 @@
 - 产物：`EFHServer/build/libs/EFHServer-all.jar`
 - 服务：`EFHServer`
 
+## 服务器前置配置（仅首次）
+
+`/top-domains/{top}` 需要 Cloudflare `CF_Token`：服务器 IP 请求 Radar 公开 attachment 端点会返回 403，需用 token 走 Radar API 回退。
+
+注意：systemd 服务不加载 `~/.bashrc`，写在 bashrc 里的 `export CF_Token` **不会生效**。必须通过 systemd `EnvironmentFile` 提供：
+
+```sh
+# 取出安装时使用过的同一个 token（acme.sh 保存的）
+TOKEN=$(sed -n "s/^SAVED_CF_Token='\(.*\)'/\1/p" ~/.acme.sh/account.conf)
+
+# 写入环境文件并设置权限
+printf 'CF_Token=%s\n' "$TOKEN" | sudo tee /etc/EFHServer.env >/dev/null
+sudo chmod 600 /etc/EFHServer.env
+
+# 在 service 中加入 EnvironmentFile（仅当尚未存在）
+grep -q 'EnvironmentFile=/etc/EFHServer.env' /etc/systemd/system/EFHServer.service || \
+  sudo sed -i '/^\[Service\]/a EnvironmentFile=/etc/EFHServer.env' /etc/systemd/system/EFHServer.service
+
+sudo systemctl daemon-reload
+sudo service EFHServer restart
+
+# 验证
+curl -sS -o /dev/null -w '%{http_code}\n' https://vpn.woznes.com/top-domains/200
+```
+
 ## 步骤
 
 ### 1. 提交并推送代码
@@ -31,7 +56,7 @@ cd EFHServer
 设置版本号并创建 release（版本号用新的 tag，例如 `v0.0.5`）：
 
 ```sh
-VERSION=v0.0.5
+VERSION=v0.0.6
 
 gh release create "$VERSION" \
   EFHServer/build/libs/EFHServer-all.jar \
@@ -50,7 +75,7 @@ gh release upload "$VERSION" EFHServer/build/libs/EFHServer-all.jar --clobber
 ```sh
 ssh opc@vpn.woznes.com
 
-VERSION=v0.0.5
+VERSION=v0.0.6
 rm -f EFHServer-all.jar
 curl -fL -o EFHServer-all.jar \
   "https://github.com/NickJi2019/EFH/releases/download/$VERSION/EFHServer-all.jar"
@@ -69,7 +94,7 @@ sudo service EFHServer status
 
 ```sh
 cd EFHServer && ./gradlew buildFatJar
-VERSION=v0.0.5
+VERSION=v0.0.6
 gh release create "$VERSION" build/libs/EFHServer-all.jar --title "$VERSION" --notes "EFHServer $VERSION"
 ssh opc@vpn.woznes.com "rm -f EFHServer-all.jar && curl -fL -o EFHServer-all.jar https://github.com/NickJi2019/EFH/releases/download/$VERSION/EFHServer-all.jar && sudo service EFHServer restart"
 ```
