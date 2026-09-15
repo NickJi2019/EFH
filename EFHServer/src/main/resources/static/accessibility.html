@@ -66,11 +66,11 @@
                     </div>
                     <div class="col-auto">
                         <label for="concurrencyInput">并发数</label>
-                        <input id="concurrencyInput" class="form-control" type="number" min="1" max="256" value="32">
+                        <input id="concurrencyInput" class="form-control" type="number" min="1" max="256" value="16">
                     </div>
                     <div class="col-auto">
                         <label for="timeoutInput">单站超时（毫秒）</label>
-                        <input id="timeoutInput" class="form-control" type="number" min="1000" step="1000" value="8000">
+                        <input id="timeoutInput" class="form-control" type="number" min="1000" step="1000" value="12000">
                     </div>
                     <div class="col-auto">
                         <button id="startBtn" class="btn btn-primary">开始检测</button>
@@ -209,8 +209,7 @@
             el.textContent = String(parseInt(el.textContent, 10) + 1);
         }
 
-        function probe(domain, timeoutMs) {
-            var url = "https://" + domain;
+        function probeOnce(url, timeoutMs) {
             var controller = new AbortController();
             var timer = setTimeout(function () {
                 controller.abort();
@@ -223,13 +222,13 @@
             }).then(function (res) {
                 return res.text().then(function (text) {
                     if (text.indexOf(BLOCK_TEXT) !== -1) {
-                        return {status: "blocked", detail: "命中 HDSB 屏蔽页面"};
+                        return {status: "blocked", detail: url + " 命中 HDSB 屏蔽页面"};
                     }
-                    return {status: "accessible", detail: "HTTP " + res.status};
+                    return {status: "accessible", detail: "HTTP " + res.status + "（" + url + "）"};
                 });
             }).catch(function (err) {
                 if (err && err.name === "AbortError") {
-                    return {status: "timeout", detail: "超时 " + timeoutMs + "ms"};
+                    throw err;
                 }
                 return fetch(url, {
                     mode: "no-cors",
@@ -237,16 +236,32 @@
                     redirect: "follow",
                     signal: controller.signal
                 }).then(function () {
-                    return {status: "accessible", detail: "可连通（无法读取正文 / 未开放 CORS）"};
-                }).catch(function (err2) {
-                    if (err2 && err2.name === "AbortError") {
-                        return {status: "timeout", detail: "超时 " + timeoutMs + "ms"};
-                    }
-                    return {status: "error", detail: "SSL 或网络错误"};
+                    return {status: "accessible", detail: "可连通（未开放 CORS）"};
                 });
             }).finally(function () {
                 clearTimeout(timer);
             });
+        }
+
+        // 很多 Radar Top 域名是 CDN/CNAME 基础设施域名，裸域无 A 记录或不做 HTTPS，
+        // 但 www 子域可访问。裸域失败时回退尝试 www，避免误报。
+        function probe(domain, timeoutMs) {
+            var candidates = ["https://" + domain + "/", "https://www." + domain + "/"];
+            function attempt(i) {
+                if (i >= candidates.length) {
+                    return Promise.resolve({
+                        status: "error",
+                        detail: "SSL/网络错误（已尝试 " + candidates.join("、") + "）"
+                    });
+                }
+                return probeOnce(candidates[i], timeoutMs).catch(function (err) {
+                    if (err && err.name === "AbortError") {
+                        return {status: "timeout", detail: "超时 " + timeoutMs + "ms"};
+                    }
+                    return attempt(i + 1);
+                });
+            }
+            return attempt(0);
         }
 
         function runPool(items, concurrency, worker) {
@@ -280,10 +295,10 @@
             var concurrency = parseInt(concurrencyInput.value, 10);
             var timeoutMs = parseInt(timeoutInput.value, 10);
             if (!(concurrency > 0)) {
-                concurrency = 32;
+                concurrency = 16;
             }
             if (!(timeoutMs > 0)) {
-                timeoutMs = 8000;
+                timeoutMs = 12000;
             }
 
             cancelled = false;
