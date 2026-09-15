@@ -41,7 +41,8 @@
             // ===== DOM 元素 =====
             const input = document.getElementById("passwd");
             const btnClash = document.getElementById("btnClash");
-            const btnSurge = document.getElementById("btnSurge");
+            const btnSurgeMac = document.getElementById("btnSurgeMac");
+            const btnSurgeiOS = document.getElementById("btnSurgeiOS");
             const btnShadow = document.getElementById("btnShadow");
 
             // ===== 复制函数 =====
@@ -76,7 +77,7 @@
                     }
                 } catch (err) {
                     console.error('复制失败:', err);
-                    alert('复制失败，请手动复制内容');
+                    alert('复制失败，请手动导入');
                     return false;
                 }
             }
@@ -86,7 +87,8 @@
                 const passwd = input.value.trim();
                 if (!passwd) {
                     btnClash.removeAttribute("href");
-                    btnSurge.removeAttribute("href");
+                    btnSurgeMac.removeAttribute("href");
+                    btnSurgeiOS.removeAttribute("href");
                     btnShadow.removeAttribute("href");
                     return;
                 }
@@ -96,7 +98,8 @@
                     const baseSurge = `https://vpn.woznes.com/get-config/${hex}/Woznes-EFH-Surge`;
 
                     btnClash.href = `clash://install-config?url=${baseClash}`;
-                    btnSurge.href = `surge:///install-config?url=${encodeURI(baseSurge)}`;
+                    btnSurgeMac.href = `surge:///install-config?url=${encodeURI(baseSurge)}`;
+                    btnSurgeiOS.href = `surge:///install-config?url=${encodeURI(baseSurge)}`;
                     btnShadow.href = `shadowrocket://config/add/${baseSurge}`;
                 } catch (err) {
                     console.error(err);
@@ -184,8 +187,9 @@
                 </label>
                 <div class="btn-group">
                     <a id="btnClash" class="btn btn-primary" target="_blank" href="#">一键导入至 Clash</a>
-                    <a id="btnShadow" class="btn btn-primary" target="_blank" href="#">一键导入至 Shadow rocket</a>
-                    <a id="btnSurge" class="btn btn-primary" target="_blank" href="#">一键导入至 Surge</a>
+                    <a id="btnShadow" class="btn btn-primary" target="_blank" href="#">一键导入至 Shadowrocket</a>
+                    <a id="btnSurgeMac" class="btn btn-primary" target="_blank" href="#">一键导入至 Surge macOS</a>
+                    <a id="btnSurgeiOS" class="btn btn-primary" target="_blank" href="#">一键导入至 Surge iOS</a>
                 </div>
             </div>
             <div class="col">

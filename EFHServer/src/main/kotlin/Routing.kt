@@ -62,5 +62,25 @@ fun Application.configureRouting() {
                 call.respondText(loadConfig("shadowrocket.conf", it, "https://vpn.woznes.com/get-config/$it/Woznes-EFH-Surge"))
             }
         }
+
+        // 下发 Cloudflare Radar Top 网站列表，每行一个域名
+        get("/top-domains/{top}") {
+            val top = call.pathParameters["top"]?.toIntOrNull()
+            if (top == null || !TopDomains.isValid(top)) {
+                call.respondText(
+                    text = "invalid top; supported: ${TopDomains.buckets.joinToString(",")}",
+                    status = HttpStatusCode.BadRequest
+                )
+                return@get
+            }
+            try {
+                call.respondText(TopDomains.download(top).joinToString("\n"), ContentType.Text.Plain)
+            } catch (e: Exception) {
+                call.respondText(
+                    text = "failed to fetch top $top: ${e.message}",
+                    status = HttpStatusCode.BadGateway
+                )
+            }
+        }
     }
 }

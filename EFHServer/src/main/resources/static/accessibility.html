@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+
+<!--语言-->
+<html lang="zh-cn">
+
+<head>
+    <!--网页标题-->
+    <title>EFH - 网站屏蔽检测</title>
+
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport"/>
+    <link href="/woznes.png" rel="icon" type="image/png"/>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.2/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"/>
+
+    <link href="/css/common.css" rel="stylesheet">
+    <link href="/css/bootstrap4.centos.css" rel="stylesheet">
+    <script>
+        $(document).ready(function () {
+            $("#footer").load("/footer.html");
+            $("#navibar").load("/navibar.html");
+        })
+    </script>
+</head>
+
+<body>
+<div id="navibar"></div>
+<header class="header header__page">
+
+    <!--logo-->
+    <div class="container mb-5">
+        <a href="/static"></a>
+    </div>
+
+    <!--页面标题-->
+    <h1 class="header__page__title">
+        网站屏蔽检测
+    </h1>
+
+    <!--副标题-->
+    <p class="header__page__description">
+        检测 Cloudflare Radar Top 网站在当前网络下是否被 HDSB 屏蔽
+    </p>
+
+</header>
+
+<!--装饰线条-->
+<div class="hr">
+    <div class="hr__centos-color-0"></div>
+    <div class="hr__centos-color-1"></div>
+    <div class="hr__centos-color-2"></div>
+    <div class="hr__centos-color-3"></div>
+</div>
+
+<!--内容-->
+<main class="page">
+    <article class="page__content">
+        <div class="row">
+            <div class="col">
+                <div class="form-row align-items-end">
+                    <div class="col-auto">
+                        <label for="topSelect">检测列表</label>
+                        <select id="topSelect" class="form-control"></select>
+                    </div>
+                    <div class="col-auto">
+                        <label for="concurrencyInput">并发数</label>
+                        <input id="concurrencyInput" class="form-control" type="number" min="1" max="256" value="32">
+                    </div>
+                    <div class="col-auto">
+                        <label for="timeoutInput">单站超时（毫秒）</label>
+                        <input id="timeoutInput" class="form-control" type="number" min="1000" step="1000" value="8000">
+                    </div>
+                    <div class="col-auto">
+                        <button id="startBtn" class="btn btn-primary">开始检测</button>
+                        <button id="stopBtn" class="btn btn-secondary" disabled>停止</button>
+                        <button id="exportBtn" class="btn btn-outline-primary" disabled>导出 CSV</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col">
+                <div class="progress" style="height: 22px;">
+                    <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated"
+                         role="progressbar" style="width: 0%;">0 / 0
+                    </div>
+                </div>
+                <p id="statusText" class="mt-2 mb-1">就绪。</p>
+            </div>
+        </div>
+
+        <div class="row mt-2">
+            <div class="col">
+                <span class="badge badge-success">可访问 <span id="countAccessible">0</span></span>
+                <span class="badge badge-danger">被屏蔽 <span id="countBlocked">0</span></span>
+                <span class="badge badge-warning">SSL/网络错误 <span id="countError">0</span></span>
+                <span class="badge badge-secondary">超时 <span id="countTimeout">0</span></span>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped table-sm">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>域名</th>
+                            <th>状态</th>
+                            <th>详情</th>
+                        </tr>
+                        </thead>
+                        <tbody id="resultBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </article>
+</main>
+
+<!--装饰线条-->
+<div class="hr">
+    <div class="hr__centos-color-0"></div>
+    <div class="hr__centos-color-1"></div>
+    <div class="hr__centos-color-2"></div>
+    <div class="hr__centos-color-3"></div>
+</div>
+
+<!--页脚-->
+<div id="footer"></div>
+
+<script>
+    (function () {
+        "use strict";
+
+        var BLOCK_TEXT = "This website is blocked due to HDSB filtering rules.";
+        var BUCKETS = [200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 1000000];
+        var STATUS_META = {
+            accessible: {label: "可访问", cls: "success", stat: "countAccessible"},
+            blocked: {label: "被屏蔽", cls: "danger", stat: "countBlocked"},
+            error: {label: "SSL/网络错误", cls: "warning", stat: "countError"},
+            timeout: {label: "超时", cls: "secondary", stat: "countTimeout"}
+        };
+
+        var running = false;
+        var cancelled = false;
+        var results = [];
+
+        var topSelect = document.getElementById("topSelect");
+        var concurrencyInput = document.getElementById("concurrencyInput");
+        var timeoutInput = document.getElementById("timeoutInput");
+        var startBtn = document.getElementById("startBtn");
+        var stopBtn = document.getElementById("stopBtn");
+        var exportBtn = document.getElementById("exportBtn");
+        var progressBar = document.getElementById("progressBar");
+        var statusText = document.getElementById("statusText");
+        var resultBody = document.getElementById("resultBody");
+
+        BUCKETS.forEach(function (top) {
+            var option = document.createElement("option");
+            option.value = String(top);
+            option.textContent = "Top " + formatTop(top);
+            topSelect.appendChild(option);
+        });
+
+        function formatTop(top) {
+            return String(top).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        function resetCounters() {
+            Object.keys(STATUS_META).forEach(function (key) {
+                document.getElementById(STATUS_META[key].stat).textContent = "0";
+            });
+        }
+
+        function updateProgress(done, total) {
+            var pct = total > 0 ? Math.floor(done * 100 / total) : 0;
+            progressBar.style.width = pct + "%";
+            progressBar.textContent = done + " / " + total + " (" + pct + "%)";
+        }
+
+        function addRow(index, domain, status, detail) {
+            var meta = STATUS_META[status] || STATUS_META.error;
+            var tr = document.createElement("tr");
+            var tdIndex = document.createElement("td");
+            tdIndex.textContent = String(index + 1);
+            var tdDomain = document.createElement("td");
+            tdDomain.textContent = domain;
+            var tdStatus = document.createElement("td");
+            var badge = document.createElement("span");
+            badge.className = "badge badge-" + meta.cls;
+            badge.textContent = meta.label;
+            tdStatus.appendChild(badge);
+            var tdDetail = document.createElement("td");
+            tdDetail.textContent = detail || "";
+            tr.appendChild(tdIndex);
+            tr.appendChild(tdDomain);
+            tr.appendChild(tdStatus);
+            tr.appendChild(tdDetail);
+            resultBody.appendChild(tr);
+        }
+
+        function bumpCounter(status) {
+            var meta = STATUS_META[status] || STATUS_META.error;
+            var el = document.getElementById(meta.stat);
+            el.textContent = String(parseInt(el.textContent, 10) + 1);
+        }
+
+        function probe(domain, timeoutMs) {
+            var url = "https://" + domain;
+            var controller = new AbortController();
+            var timer = setTimeout(function () {
+                controller.abort();
+            }, timeoutMs);
+            return fetch(url, {
+                mode: "cors",
+                cache: "no-store",
+                redirect: "follow",
+                signal: controller.signal
+            }).then(function (res) {
+                return res.text().then(function (text) {
+                    if (text.indexOf(BLOCK_TEXT) !== -1) {
+                        return {status: "blocked", detail: "命中 HDSB 屏蔽页面"};
+                    }
+                    return {status: "accessible", detail: "HTTP " + res.status};
+                });
+            }).catch(function (err) {
+                if (err && err.name === "AbortError") {
+                    return {status: "timeout", detail: "超时 " + timeoutMs + "ms"};
+                }
+                return fetch(url, {
+                    mode: "no-cors",
+                    cache: "no-store",
+                    redirect: "follow",
+                    signal: controller.signal
+                }).then(function () {
+                    return {status: "accessible", detail: "可连通（无法读取正文 / 未开放 CORS）"};
+                }).catch(function (err2) {
+                    if (err2 && err2.name === "AbortError") {
+                        return {status: "timeout", detail: "超时 " + timeoutMs + "ms"};
+                    }
+                    return {status: "error", detail: "SSL 或网络错误"};
+                });
+            }).finally(function () {
+                clearTimeout(timer);
+            });
+        }
+
+        function runPool(items, concurrency, worker) {
+            var index = 0;
+            var active = Math.max(1, Math.min(concurrency, items.length));
+            var runners = [];
+            for (var w = 0; w < active; w++) {
+                runners.push((function loop() {
+                    var current = index++;
+                    if (cancelled || current >= items.length) {
+                        return Promise.resolve();
+                    }
+                    return worker(items[current], current).then(loop);
+                })());
+            }
+            return Promise.all(runners);
+        }
+
+        function setRunning(value) {
+            running = value;
+            startBtn.disabled = value;
+            stopBtn.disabled = !value;
+            exportBtn.disabled = value || results.length === 0;
+        }
+
+        startBtn.addEventListener("click", function () {
+            if (running) {
+                return;
+            }
+            var top = topSelect.value;
+            var concurrency = parseInt(concurrencyInput.value, 10);
+            var timeoutMs = parseInt(timeoutInput.value, 10);
+            if (!(concurrency > 0)) {
+                concurrency = 32;
+            }
+            if (!(timeoutMs > 0)) {
+                timeoutMs = 8000;
+            }
+
+            cancelled = false;
+            results = [];
+            resultBody.innerHTML = "";
+            resetCounters();
+            updateProgress(0, 0);
+            setRunning(true);
+            statusText.textContent = "正在获取 Top " + formatTop(parseInt(top, 10)) + " 列表...";
+
+            var finished = 0;
+            fetch("/top-domains/" + top, {cache: "no-store"}).then(function (res) {
+                if (!res.ok) {
+                    return res.text().then(function (body) {
+                        throw new Error("HTTP " + res.status + ": " + body);
+                    });
+                }
+                return res.text();
+            }).then(function (text) {
+                var domains = text.split("\n").map(function (line) {
+                    return line.trim();
+                }).filter(function (line) {
+                    return line.length > 0;
+                });
+                if (domains.length === 0) {
+                    throw new Error("列表为空");
+                }
+                statusText.textContent = "共 " + domains.length + " 个域名，开始检测...";
+                updateProgress(0, domains.length);
+
+                return runPool(domains, concurrency, function (domain, i) {
+                    if (cancelled) {
+                        return Promise.resolve();
+                    }
+                    return probe(domain, timeoutMs).then(function (result) {
+                        results[i] = {domain: domain, status: result.status, detail: result.detail};
+                        addRow(i, domain, result.status, result.detail);
+                        bumpCounter(result.status);
+                        finished++;
+                        updateProgress(finished, domains.length);
+                    });
+                });
+            }).then(function () {
+                statusText.textContent = cancelled
+                    ? "已停止，完成 " + finished + " 个。"
+                    : "检测完成，共 " + finished + " 个。";
+                setRunning(false);
+            }).catch(function (err) {
+                statusText.textContent = "出错：" + (err && err.message ? err.message : err);
+                setRunning(false);
+            });
+        });
+
+        stopBtn.addEventListener("click", function () {
+            cancelled = true;
+            statusText.textContent = "正在停止...";
+        });
+
+        exportBtn.addEventListener("click", function () {
+            var rows = [["domain", "status", "detail"]];
+            results.forEach(function (item) {
+                if (item) {
+                    rows.push([item.domain, item.status, item.detail]);
+                }
+            });
+            var csv = rows.map(function (row) {
+                return row.map(function (cell) {
+                    return '"' + String(cell).replace(/"/g, '""') + '"';
+                }).join(",");
+            }).join("\n");
+            var blob = new Blob([csv], {type: "text/csv;charset=utf-8"});
+            var link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "accessibility-top" + topSelect.value + ".csv";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+        });
+
+        setRunning(false);
+        updateProgress(0, 0);
+    })();
+</script>
+</body>
+
+</html>
