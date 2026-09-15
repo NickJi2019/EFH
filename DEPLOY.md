@@ -7,6 +7,18 @@
 - 产物：`EFHServer/build/libs/EFHServer-all.jar`
 - 服务：`EFHServer`
 
+## 一键部署脚本
+
+`deploy.sh` 封装了下面的全部步骤（推送 → 打包 → 发布 Release → 服务器替换并重启 → 验证），并会在首次部署时自动配置服务器的 `CF_Token`：
+
+```sh
+./deploy.sh                # 自动递增 patch 版本号（基于最新 tag）
+./deploy.sh v0.1.0         # 指定版本号
+./deploy.sh v0.1.0 --dirty # 允许工作区有未提交改动
+```
+
+前置：已安装并登录 `gh`（或设置 `GH_TOKEN`），且本机能免密 `ssh opc@vpn.woznes.com`。
+
 ## 服务器前置配置（仅首次）
 
 `/top-domains/{top}` 需要 Cloudflare `CF_Token`：服务器 IP 请求 Radar 公开 attachment 端点会返回 403，需用 token 走 Radar API 回退。
