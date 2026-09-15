@@ -96,7 +96,7 @@
             <div class="col">
                 <span class="badge badge-success">可访问 <span id="countAccessible">0</span></span>
                 <span class="badge badge-danger">被屏蔽 <span id="countBlocked">0</span></span>
-                <span class="badge badge-warning">SSL/网络错误 <span id="countError">0</span></span>
+                <span class="badge badge-warning">无法访问 <span id="countError">0</span></span>
                 <span class="badge badge-secondary">超时 <span id="countTimeout">0</span></span>
             </div>
         </div>
@@ -141,7 +141,7 @@
         var STATUS_META = {
             accessible: {label: "可访问", cls: "success", stat: "countAccessible"},
             blocked: {label: "被屏蔽", cls: "danger", stat: "countBlocked"},
-            error: {label: "SSL/网络错误", cls: "warning", stat: "countError"},
+            error: {label: "无法访问", cls: "warning", stat: "countError"},
             timeout: {label: "超时", cls: "secondary", stat: "countTimeout"}
         };
 
@@ -209,7 +209,10 @@
             el.textContent = String(parseInt(el.textContent, 10) + 1);
         }
 
-        function probeOnce(url, timeoutMs) {
+        // 不依据 SSL 判定，只读取页面正文并匹配 HDSB 屏蔽提示。
+        // 页面由用户浏览器本地发起请求，反映本地网络/拦截的真实情况。
+        function probe(domain, timeoutMs) {
+            var url = "https://" + domain + "/";
             var controller = new AbortController();
             var timer = setTimeout(function () {
                 controller.abort();
@@ -220,37 +223,19 @@
                 redirect: "follow",
                 signal: controller.signal
             }).then(function (res) {
-                return res.text().then(function (text) {
-                    if (text.indexOf(BLOCK_TEXT) !== -1) {
-                        return {status: "blocked", detail: url + " 命中 HDSB 屏蔽页面"};
-                    }
-                    return {status: "accessible", detail: "HTTP " + res.status + "（" + url + "）"};
-                });
-            }).catch(function (err) {
-                if (err && err.name === "AbortError") {
-                    throw err;
+                return res.text();
+            }).then(function (text) {
+                if (text.indexOf(BLOCK_TEXT) !== -1) {
+                    return {status: "blocked", detail: "命中 HDSB 屏蔽页面"};
                 }
-                return fetch(url, {
-                    mode: "no-cors",
-                    cache: "no-store",
-                    redirect: "follow",
-                    signal: controller.signal
-                }).then(function () {
-                    return {status: "accessible", detail: "可连通（未开放 CORS）"};
-                });
-            }).finally(function () {
-                clearTimeout(timer);
-            });
-        }
-
-        // 只探测裸域本身。检测在用户浏览器本地发起，反映本地网络/拦截的真实情况，
-        // 不做任何域名替换（如 www）以免掩盖本地行为。
-        function probe(domain, timeoutMs) {
-            return probeOnce("https://" + domain + "/", timeoutMs).catch(function (err) {
+                return {status: "accessible", detail: "可读取页面，未命中屏蔽提示"};
+            }).catch(function (err) {
                 if (err && err.name === "AbortError") {
                     return {status: "timeout", detail: "超时 " + timeoutMs + "ms"};
                 }
-                return {status: "error", detail: "SSL 或网络错误"};
+                return {status: "error", detail: "无法读取页面（网络/SSL/CORS）"};
+            }).finally(function () {
+                clearTimeout(timer);
             });
         }
 
