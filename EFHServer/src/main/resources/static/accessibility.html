@@ -243,25 +243,15 @@
             });
         }
 
-        // 很多 Radar Top 域名是 CDN/CNAME 基础设施域名，裸域无 A 记录或不做 HTTPS，
-        // 但 www 子域可访问。裸域失败时回退尝试 www，避免误报。
+        // 只探测裸域本身。检测在用户浏览器本地发起，反映本地网络/拦截的真实情况，
+        // 不做任何域名替换（如 www）以免掩盖本地行为。
         function probe(domain, timeoutMs) {
-            var candidates = ["https://" + domain + "/", "https://www." + domain + "/"];
-            function attempt(i) {
-                if (i >= candidates.length) {
-                    return Promise.resolve({
-                        status: "error",
-                        detail: "SSL/网络错误（已尝试 " + candidates.join("、") + "）"
-                    });
+            return probeOnce("https://" + domain + "/", timeoutMs).catch(function (err) {
+                if (err && err.name === "AbortError") {
+                    return {status: "timeout", detail: "超时 " + timeoutMs + "ms"};
                 }
-                return probeOnce(candidates[i], timeoutMs).catch(function (err) {
-                    if (err && err.name === "AbortError") {
-                        return {status: "timeout", detail: "超时 " + timeoutMs + "ms"};
-                    }
-                    return attempt(i + 1);
-                });
-            }
-            return attempt(0);
+                return {status: "error", detail: "SSL 或网络错误"};
+            });
         }
 
         function runPool(items, concurrency, worker) {
