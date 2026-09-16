@@ -19,26 +19,23 @@
     <link href="/css/common.css" rel="stylesheet">
     <link href="/css/bootstrap4.centos.css" rel="stylesheet">
     <style>
-        /* 按钮内加载动画：放大原图后裁剪，显示清晰的 18px 转圈 */
+        /* 纯 CSS 转圈：不依赖图片，颜色跟随按钮文字 */
         .btn-spinner {
             display: inline-block;
-            width: 18px;
-            height: 18px;
-            margin-right: .4em;
-            overflow: hidden;
-            position: relative;
-            vertical-align: -.2em;
+            width: 1em;
+            height: 1em;
+            margin-right: .45em;
+            border: 2px solid currentColor;
+            border-right-color: transparent;
+            border-radius: 50%;
+            vertical-align: -.15em;
+            animation: btn-spin .7s linear infinite;
         }
 
-        .btn-spinner img {
-            position: absolute;
-            width: 86px;
-            height: auto;
-            left: -34px;
-            top: -19px;
-            /* 原图白底：反相后用 screen 混合，白底消失、圆点变浅，贴合按钮 */
-            filter: invert(1);
-            mix-blend-mode: screen;
+        @keyframes btn-spin {
+            to {
+                transform: rotate(360deg);
+            }
         }
     </style>
     <script>
@@ -91,7 +88,7 @@
         <div class="row">
             <div class="col">
                 <button id="refreshBtn" class="btn btn-primary">
-                    <span id="loadingSpinner" class="btn-spinner" hidden><img alt="" src="/icon/loading.gif"></span>
+                    <span id="loadingSpinner" class="btn-spinner" hidden></span>
                     <span id="refreshLabel">刷新</span>
                 </button>
                 <span id="updated" class="ml-2"></span>
