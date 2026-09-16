@@ -32,14 +32,22 @@
             white-space: normal;
             display: inline-flex;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             gap: .4em;
         }
 
         .btn-group-block > .btn > .btn-icon {
-            width: auto;
-            height: 1.15em;
+            /* 固定为等大的正方形图标框，保证所有按钮图标垂直对齐 */
+            width: 1.25em;
+            height: 1.25em;
+            object-fit: contain;
             flex: none;
+            vertical-align: middle;
+        }
+
+        /* Clash 按钮上的 clash + flclash 两个图标并排，间距小一点 */
+        .btn-group-block > .btn > .btn-icon + .btn-icon {
+            margin-left: -.15em;
         }
 
         .link-icon {
@@ -235,12 +243,12 @@
                 <br>
 
                 <div class="btn-group btn-group-block" role="group">
-                    <a id="btnClash" class="btn btn-primary" target="_blank" href="#"><img class="btn-icon" src="/icon/clash.png" alt=""><span data-i18n="index.btnClash">一键导入至 Clash</span></a>
+                    <a id="btnClash" class="btn btn-primary" target="_blank" href="#"><img class="btn-icon" src="/icon/clash.png" alt=""><img class="btn-icon" src="/icon/flclash.png" alt=""><span data-i18n="index.btnClash">一键导入至 Clash</span></a>
                     <a id="btnShadow" class="btn btn-primary" target="_blank" href="#"><img class="btn-icon" src="/icon/shadowrocket.webp" alt=""><span data-i18n="index.btnShadow">一键导入至 Shadowrocket</span></a>
                     <a id="btnSurgeiOS" class="btn btn-primary" target="_blank" href="#"><img class="btn-icon" src="/icon/surge.webp" alt=""><span data-i18n="index.btnSurgeiOS">一键导入至 Surge</span></a>
                 </div>
                 <div class="btn-group btn-group-block btn-group-block--stacked" role="group">
-                    <a id="btnManualClash" class="btn btn-primary" target="_blank" href="#"><img class="btn-icon" src="/icon/clash.png" alt=""><span data-i18n="index.btnManualClash">复制 Clash 配置 URL</span></a>
+                    <a id="btnManualClash" class="btn btn-primary" target="_blank" href="#"><img class="btn-icon" src="/icon/clash.png" alt=""><img class="btn-icon" src="/icon/flclash.png" alt=""><span data-i18n="index.btnManualClash">复制 Clash 配置 URL</span></a>
                     <a id="btnManualShadow" class="btn btn-primary" target="_blank" href="#"><img class="btn-icon" src="/icon/shadowrocket.webp" alt=""><span data-i18n="index.btnManualShadow">复制 Shadowrocket 配置 URL</span></a>
                     <a id="btnManualSurge" class="btn btn-primary" target="_blank" href="#"><img class="btn-icon" src="/icon/surge.webp" alt=""><span data-i18n="index.btnManualSurge">复制 Surge 配置 URL</span></a>
                 </div>
