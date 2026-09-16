@@ -5,7 +5,7 @@
 
 <head>
     <!--网页标题-->
-    <title>EFH - 网站屏蔽检测</title>
+    <title data-i18n="acc.pageTitle">EFH - 网站屏蔽检测</title>
 
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport"/>
@@ -15,6 +15,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.2/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"/>
 
+    <script src="/js/i18n.js" defer></script>
     <link href="/css/common.css" rel="stylesheet">
     <link href="/css/bootstrap4.centos.css" rel="stylesheet">
     <script>
@@ -35,12 +36,12 @@
     </div>
 
     <!--页面标题-->
-    <h1 class="header__page__title">
+    <h1 class="header__page__title" data-i18n="acc.heading">
         网站屏蔽检测
     </h1>
 
     <!--副标题-->
-    <p class="header__page__description">
+    <p class="header__page__description" data-i18n="acc.subtitle">
         检测 Cloudflare Radar Top 网站在当前网络下是否被 HDSB 屏蔽
     </p>
 
@@ -61,21 +62,21 @@
             <div class="col">
                 <div class="form-row align-items-end">
                     <div class="col-auto">
-                        <label for="topSelect">检测列表</label>
+                        <label for="topSelect" data-i18n="acc.list">检测列表</label>
                         <select id="topSelect" class="form-control"></select>
                     </div>
                     <div class="col-auto">
-                        <label for="concurrencyInput">并发数</label>
+                        <label for="concurrencyInput" data-i18n="acc.concurrency">并发数</label>
                         <input id="concurrencyInput" class="form-control" type="number" min="1" max="256" value="16">
                     </div>
                     <div class="col-auto">
-                        <label for="timeoutInput">单站超时（毫秒）</label>
+                        <label for="timeoutInput" data-i18n="acc.timeout">单站超时（毫秒）</label>
                         <input id="timeoutInput" class="form-control" type="number" min="1000" step="1000" value="12000">
                     </div>
                     <div class="col-auto">
-                        <button id="startBtn" class="btn btn-primary">开始检测</button>
-                        <button id="stopBtn" class="btn btn-secondary" disabled>停止</button>
-                        <button id="exportBtn" class="btn btn-outline-primary" disabled>导出 CSV</button>
+                        <button id="startBtn" class="btn btn-primary" data-i18n="acc.start">开始检测</button>
+                        <button id="stopBtn" class="btn btn-secondary" disabled data-i18n="acc.stop">停止</button>
+                        <button id="exportBtn" class="btn btn-outline-primary" disabled data-i18n="acc.export">导出 CSV</button>
                     </div>
                 </div>
             </div>
@@ -88,16 +89,16 @@
                          role="progressbar" style="width: 0%;">0 / 0
                     </div>
                 </div>
-                <p id="statusText" class="mt-2 mb-1">就绪。</p>
+                <p id="statusText" class="mt-2 mb-1" data-i18n="acc.ready">就绪。</p>
             </div>
         </div>
 
         <div class="row mt-2">
             <div class="col">
-                <span class="badge badge-success">可访问 <span id="countAccessible">0</span></span>
-                <span class="badge badge-danger">被屏蔽 <span id="countBlocked">0</span></span>
-                <span class="badge badge-warning">无法访问 <span id="countError">0</span></span>
-                <span class="badge badge-secondary">超时 <span id="countTimeout">0</span></span>
+                <span class="badge badge-success"><span data-i18n="acc.badge.accessible">可访问</span> <span id="countAccessible">0</span></span>
+                <span class="badge badge-danger"><span data-i18n="acc.badge.blocked">被屏蔽</span> <span id="countBlocked">0</span></span>
+                <span class="badge badge-warning"><span data-i18n="acc.badge.unreachable">无法访问</span> <span id="countError">0</span></span>
+                <span class="badge badge-secondary"><span data-i18n="acc.badge.timeout">超时</span> <span id="countTimeout">0</span></span>
             </div>
         </div>
 
@@ -107,10 +108,10 @@
                     <table class="table table-bordered table-striped table-sm">
                         <thead>
                         <tr>
-                            <th>#</th>
-                            <th>域名</th>
-                            <th>状态</th>
-                            <th>详情</th>
+                            <th data-i18n="acc.table.index">#</th>
+                            <th data-i18n="acc.table.domain">域名</th>
+                            <th data-i18n="acc.table.status">状态</th>
+                            <th data-i18n="acc.table.detail">详情</th>
                         </tr>
                         </thead>
                         <tbody id="resultBody"></tbody>
@@ -139,15 +140,16 @@
         var BLOCK_TEXT = "This website is blocked due to HDSB filtering rules.";
         var BUCKETS = [200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 1000000];
         var STATUS_META = {
-            accessible: {label: "可访问", cls: "success", stat: "countAccessible"},
-            blocked: {label: "被屏蔽", cls: "danger", stat: "countBlocked"},
-            error: {label: "无法访问", cls: "warning", stat: "countError"},
-            timeout: {label: "超时", cls: "secondary", stat: "countTimeout"}
+            accessible: {labelKey: "acc.badge.accessible", cls: "success", stat: "countAccessible"},
+            blocked: {labelKey: "acc.badge.blocked", cls: "danger", stat: "countBlocked"},
+            error: {labelKey: "acc.badge.unreachable", cls: "warning", stat: "countError"},
+            timeout: {labelKey: "acc.badge.timeout", cls: "secondary", stat: "countTimeout"}
         };
 
         var running = false;
         var cancelled = false;
         var results = [];
+        var lastStatus = {key: "acc.ready", params: null};
 
         var topSelect = document.getElementById("topSelect");
         var concurrencyInput = document.getElementById("concurrencyInput");
@@ -182,7 +184,12 @@
             progressBar.textContent = done + " / " + total + " (" + pct + "%)";
         }
 
-        function addRow(index, domain, status, detail) {
+        function setStatus(key, params) {
+            lastStatus = {key: key, params: params || null};
+            statusText.textContent = i18n.t(key, params);
+        }
+
+        function addRow(index, domain, status, detailKey, detailParams) {
             var meta = STATUS_META[status] || STATUS_META.error;
             var tr = document.createElement("tr");
             var tdIndex = document.createElement("td");
@@ -192,15 +199,24 @@
             var tdStatus = document.createElement("td");
             var badge = document.createElement("span");
             badge.className = "badge badge-" + meta.cls;
-            badge.textContent = meta.label;
+            badge.textContent = i18n.t(meta.labelKey);
             tdStatus.appendChild(badge);
             var tdDetail = document.createElement("td");
-            tdDetail.textContent = detail || "";
+            tdDetail.textContent = detailKey ? i18n.t(detailKey, detailParams) : "";
             tr.appendChild(tdIndex);
             tr.appendChild(tdDomain);
             tr.appendChild(tdStatus);
             tr.appendChild(tdDetail);
             resultBody.appendChild(tr);
+        }
+
+        function renderTable() {
+            resultBody.innerHTML = "";
+            results.forEach(function (item, i) {
+                if (item) {
+                    addRow(i, item.domain, item.status, item.detailKey, item.detailParams);
+                }
+            });
         }
 
         function bumpCounter(status) {
@@ -226,14 +242,14 @@
                 return res.text();
             }).then(function (text) {
                 if (text.indexOf(BLOCK_TEXT) !== -1) {
-                    return {status: "blocked", detail: "命中 HDSB 屏蔽页面"};
+                    return {status: "blocked", detailKey: "acc.blockedDetail"};
                 }
-                return {status: "accessible", detail: "可读取页面，未命中屏蔽提示"};
+                return {status: "accessible", detailKey: "acc.accessibleDetail"};
             }).catch(function (err) {
                 if (err && err.name === "AbortError") {
-                    return {status: "timeout", detail: "超时 " + timeoutMs + "ms"};
+                    return {status: "timeout", detailKey: "acc.timeoutDetail", detailParams: {n: timeoutMs}};
                 }
-                return {status: "error", detail: "无法读取页面（网络/SSL/CORS）"};
+                return {status: "error", detailKey: "acc.unreachableDetail"};
             }).finally(function () {
                 clearTimeout(timer);
             });
@@ -282,7 +298,7 @@
             resetCounters();
             updateProgress(0, 0);
             setRunning(true);
-            statusText.textContent = "正在获取 Top " + formatTop(parseInt(top, 10)) + " 列表...";
+            setStatus("acc.loading", {top: formatTop(parseInt(top, 10))});
 
             var finished = 0;
             fetch("/top-domains/" + top, {cache: "no-store"}).then(function (res) {
@@ -299,9 +315,9 @@
                     return line.length > 0;
                 });
                 if (domains.length === 0) {
-                    throw new Error("列表为空");
+                    throw new Error(i18n.t("acc.empty"));
                 }
-                statusText.textContent = "共 " + domains.length + " 个域名，开始检测...";
+                setStatus("acc.loaded", {n: domains.length});
                 updateProgress(0, domains.length);
 
                 return runPool(domains, concurrency, function (domain, i) {
@@ -309,34 +325,36 @@
                         return Promise.resolve();
                     }
                     return probe(domain, timeoutMs).then(function (result) {
-                        results[i] = {domain: domain, status: result.status, detail: result.detail};
-                        addRow(i, domain, result.status, result.detail);
+                        results[i] = {domain: domain, status: result.status, detailKey: result.detailKey, detailParams: result.detailParams};
+                        addRow(i, domain, result.status, result.detailKey, result.detailParams);
                         bumpCounter(result.status);
                         finished++;
                         updateProgress(finished, domains.length);
                     });
                 });
             }).then(function () {
-                statusText.textContent = cancelled
-                    ? "已停止，完成 " + finished + " 个。"
-                    : "检测完成，共 " + finished + " 个。";
+                if (cancelled) {
+                    setStatus("acc.stopped", {n: finished});
+                } else {
+                    setStatus("acc.done", {n: finished});
+                }
                 setRunning(false);
             }).catch(function (err) {
-                statusText.textContent = "出错：" + (err && err.message ? err.message : err);
+                setStatus("acc.error", {msg: (err && err.message ? err.message : err)});
                 setRunning(false);
             });
         });
 
         stopBtn.addEventListener("click", function () {
             cancelled = true;
-            statusText.textContent = "正在停止...";
+            setStatus("acc.stopping");
         });
 
         exportBtn.addEventListener("click", function () {
             var rows = [["domain", "status", "detail"]];
             results.forEach(function (item) {
                 if (item) {
-                    rows.push([item.domain, item.status, item.detail]);
+                    rows.push([item.domain, item.status, item.detailKey ? i18n.t(item.detailKey, item.detailParams) : ""]);
                 }
             });
             var csv = rows.map(function (row) {
@@ -352,6 +370,11 @@
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(link.href);
+        });
+
+        document.addEventListener("i18n:changed", function () {
+            renderTable();
+            setStatus(lastStatus.key, lastStatus.params);
         });
 
         setRunning(false);

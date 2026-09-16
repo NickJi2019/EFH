@@ -5,7 +5,7 @@
 
 <head>
     <!--网页标题-->
-    <title>EFH Project</title>
+    <title data-i18n="index.pageTitle">EFH Project</title>
 
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport"/>
@@ -16,6 +16,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha256/0.11.1/sha256.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"/>
 
+    <script src="/js/i18n.js" defer></script>
     <link href="/css/common.css" rel="stylesheet">
     <link href="/css/bootstrap4.centos.css" rel="stylesheet">
 
@@ -77,7 +78,7 @@
                     }
                 } catch (err) {
                     console.error('复制失败:', err);
-                    alert('复制失败，请手动导入');
+                    alert(i18n.t('index.alert.copyFailed'));
                     return false;
                 }
             }
@@ -112,7 +113,7 @@
 
                 const passwd = input.value.trim();
                 if (!passwd) {
-                    alert('请先输入密码');
+                    alert(i18n.t('index.alert.needPassword'));
                     return;
                 }
 
@@ -132,12 +133,12 @@
                     const success = await copyToClipboard(textToCopy);
                     if (success) {
                         const originalText = $(this).text();
-                        $(this).text('已复制!');
+                        $(this).text(i18n.t('index.copied'));
                         setTimeout(() => $(this).text(originalText), 2000);
                     }
                 } catch (err) {
                     console.error(err);
-                    alert('复制失败，请重试');
+                    alert(i18n.t('index.alert.copyFailedRetry'));
                 }
             });
         });
@@ -155,12 +156,12 @@
     </div>
 
     <!--页面标题-->
-    <h1 class="header__page__title">
+    <h1 class="header__page__title" data-i18n="index.heading">
         Escape From HDSB Project
     </h1>
 
     <!--副标题-->
-    <p class="header__page__description">
+    <p class="header__page__description" data-i18n="index.subtitle">
         让所有人获得互联网访问自由
     </p>
 
@@ -179,31 +180,34 @@
     <article class="page__content">
         <div class="row">
             <div class="col">
-                <h5>
+                <h5 data-i18n="index.import">
                     导入配置
                 </h5>
                 <label>
-                    <input id="passwd" name="password" placeholder="请输入密码" type="text">
+                    <input id="passwd" name="password" placeholder="请输入密码" data-i18n-placeholder="index.passwordPlaceholder" type="text">
                 </label>
+
+                <br>
+
                 <div class="btn-group">
-                    <a id="btnClash" class="btn btn-primary" target="_blank" href="#">一键导入至 Clash</a>
-                    <a id="btnShadow" class="btn btn-primary" target="_blank" href="#">一键导入至 Shadowrocket</a>
-                    <a id="btnSurgeMac" class="btn btn-primary" target="_blank" href="#">一键导入至 Surge macOS</a>
-                    <a id="btnSurgeiOS" class="btn btn-primary" target="_blank" href="#">一键导入至 Surge iOS</a>
+                    <a id="btnClash" class="btn btn-primary" target="_blank" href="#" data-i18n="index.btnClash">一键导入至 Clash</a>
+                    <a id="btnShadow" class="btn btn-primary" target="_blank" href="#" data-i18n="index.btnShadow">一键导入至 Shadowrocket</a>
+<!--                    <a id="btnSurgeMac" class="btn btn-primary" target="_blank" href="#" data-i18n="index.btnSurgeMac">一键导入至 Surge macOS</a>-->
+                    <a id="btnSurgeiOS" class="btn btn-primary" target="_blank" href="#" data-i18n="index.btnSurgeiOS">一键导入至 Surge</a>
+                </div>
+
+
+                <div class="btn-group">
+                    <a id="btnManualClash" class="btn btn-primary" target="_blank" href="#" data-i18n="index.btnManualClash">复制 Clash 配置 URL</a>
+                    <a id="btnManualShadow" class="btn btn-primary" target="_blank" href="#" data-i18n="index.btnManualShadow">复制 Shadowrocket 配置 URL</a>
+                    <a id="btnManualSurge" class="btn btn-primary" target="_blank" href="#" data-i18n="index.btnManualSurge">复制 Surge 配置 URL</a>
                 </div>
             </div>
-            <div class="col">
-                手动导入配置
-                <div class="btn-group">
-                    <a id="btnManualClash" class="btn btn-primary" target="_blank" href="#">复制Clash配置URL</a>
-                    <a id="btnManualShadow" class="btn btn-primary" target="_blank" href="#">复制Shadowrocket配置URL</a>
-                    <a id="btnManualSurge" class="btn btn-primary" target="_blank" href="#">复制Surge配置URL</a>
-                </div>
-            </div>
+
         </div>
         <div class="row">
             <div class="col">
-                <h5>
+                <h5 data-i18n="index.download">
                     请下载以下软件使用
                 </h5>
                 <div class="table-responsive">
@@ -219,7 +223,7 @@
                         </thead>
                         <tbody>
                         <tr>
-                            <th>通过Google Drive下载</th>
+                            <th data-i18n="index.table.viaDrive">通过 Google Drive 下载</th>
                             <th></th>
                             <th>
                                 <a href="https://drive.google.com/drive/folders/1lyFVt1ulLB2SiIAty9WTQK3A1lLdkjqr?usp=drive_link">Android</a>
@@ -232,12 +236,14 @@
                             </th>
                         </tr>
                         <tr>
-                            <th>通过应用商店下载</th>
+                            <th data-i18n="index.table.viaStore">通过应用商店下载</th>
                             <th>
                                 <ul>
                                     <li>
-                                        <a href="https://apps.apple.com/us/app/shadowrocket/id932747118">Shadowrocket - App
+                                        <strong>
+                                        <a href="https://apps.apple.com/us/app/shadowrocket/id932747118">Shadowrocket <span data-i18n="index.recommended">(推荐)</span> - App
                                             Store</a>
+                                        </strong>
                                     </li>
                                     <li>
                                         <a href="https://apps.apple.com/us/app/surge-5/id1442620678">Surge - App Store</a>
@@ -259,74 +265,62 @@
                             </th>
                         </tr>
                         <tr>
-                            <th>通过官网下载</th>
+                            <th data-i18n="index.table.viaOfficial">通过官网下载</th>
                             <th></th>
                             <th>
                                 <ul>
                                     <li>
+                                        <strong>
+                                        <a href="https://github.com/chen08209/FlClash/releases">FlClash <span data-i18n="index.recommended">(推荐)</span> - Github</a>
+                                        </strong>
+                                    </li>
+
+                                    <li>
                                         <a href="https://github.com/MetaCubeX/ClashMetaForAndroid/releases">Clash For
                                             Android Meta - Github</a>
+                                    </li>
+
+                                    <li>
+                                        <a href="https://github.com/mihomo-party-org/clash-party/releases">Clash Party - Github</a>
+                                    </li>
+                                </ul>
+                            </th>
+                            <th>
+                                <ul>
+                                    <li>
+                                        <strong>
+                                            <a href="https://github.com/chen08209/FlClash/releases">FlClash <span data-i18n="index.recommended">(推荐)</span> - Github</a>
+                                        </strong>
+                                    </li>
+                                    <li><a href="https://github.com/libnyanpasu/clash-nyanpasu/releases">Clash nyanpasu -
+                                        Github</a>
+                                    </li>
+                                    <li><a href="https://github.com/mihomo-party-org/clash-party/releases/">Clash Party -
+                                        Github</a>
+                                    </li>
+                                    <li>
+                                        <a href="https://github.com/Clash-Verge-rev/clash-verge-rev/releases">Clash Verge
+                                            rev - Github</a>
+                                    </li>
+                                </ul>
+                            </th>
+                            <th>
+                                <ul>
+                                    <li>
+                                        <strong>
+                                        <a href="https://github.com/MetaCubeX/ClashX.Meta/releases">ClashX Meta <span data-i18n="index.recommended">(推荐)</span> - Github</a>
+                                        </strong>
                                     </li>
                                     <li>
                                         <a href="https://github.com/chen08209/FlClash/releases">FlClash - Github</a>
                                     </li>
                                     <li>
-                                        <del><a href="https://github.com/Kr328/ClashForAndroid">Clash For Android -
-                                            Github</a></del>
-                                        似了
-                                    </li>
-                                    <li>
-                                        <a href="https://github.com/clash-download/Clash-for-Android/releases">Clash For
-                                            Android - Github 备份</a>
-                                    </li>
-                                </ul>
-                            </th>
-                            <th>
-                                <ul>
-                                    <li>
-                                        <a href="https://github.com/Clash-Verge-rev/clash-verge-rev/releases">Clash Verge
-                                            rev - Github</a>
-                                    </li>
-                                    <li><a href="https://github.com/libnyanpasu/clash-nyanpasu/releases">Clash nyanpasu -
-                                        Github</a>
-                                    </li>
-                                    <li><a href="https://github.com/chen08209/FlClash/releases">FlClash - Github</a>
-                                    </li>
-                                    <li><a href="https://github.com/mihomo-party-org/clash-party/releases/">Mihomo Party -
+                                        <a href="https://github.com/libnyanpasu/clash-nyanpasu/releases">Clash nyanpasu -
                                         Github</a>
                                     </li>
                                     <li>
-                                        <del><a href="https://github.com/zzzgydi/clash-verge/releases/">Clash Verge -
-                                            Github</a></del>
-                                        似了
-                                    </li>
-                                    <li>
-                                        <del><a href="https://github.com/Fndroid/clash_for_windows_pkg/releases">Clash For
-                                            Windows - Github</a></del>
-                                        似了
-                                    </li>
-                                    <li><a href="https://github.com/clashdownload/Clash_for_Windows/releases">Clash For
-                                        Windows - Github 备份</a>
-                                    </li>
-                                </ul>
-                            </th>
-                            <th>
-                                <ul>
-                                    <li><a href="https://github.com/MetaCubeX/ClashX.Meta/releases">ClashX Meta - Github</a>
-                                    </li>
-                                    <li><a href="https://github.com/libnyanpasu/clash-nyanpasu/releases">Clash nyanpasu -
+                                        <a href="https://github.com/mihomo-party-org/clash-party/releases/">Clash Party -
                                         Github</a>
-                                    </li>
-                                    <li><a href="https://github.com/chen08209/FlClash/releases">FlClash - Github</a>
-                                    </li>
-                                    <li><a href="https://github.com/mihomo-party-org/clash-party/releases/">Mihomo Party -
-                                        Github</a></li>
-                                    <li>
-                                        <del><a href="https://github.com/yichengchen/clashX/releases">ClashX - Github</a>
-                                        </del>
-                                        似了
-                                    </li>
-                                    <li><a href="https://github.com/clashdownload/ClashX/releases">ClashX - Github 备份</a>
                                     </li>
                                 </ul>
                             </th>

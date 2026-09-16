@@ -5,7 +5,7 @@
 
 <head>
     <!--网页标题-->
-    <title>404</title>
+    <title data-i18n="error404.pageTitle">404</title>
 
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport"/>
@@ -15,6 +15,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.2/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"/>
 
+    <script src="/js/i18n.js" defer></script>
     <link href="/css/common.css" rel="stylesheet">
     <link href="/css/bootstrap4.centos.css" rel="stylesheet">
 
@@ -47,7 +48,7 @@
     </div>
 
     <!--页面标题-->
-    <h1 class="header__page__title">
+    <h1 class="header__page__title" data-i18n="error404.heading">
         404 Not Found
     </h1>
 
@@ -79,9 +80,9 @@
         <div class="row">
             <div class="col">
                 <div class="alert alert-info" role="alert">
-                    <h5 class="alert-heading">重要</h5>
-                    <h6>HTTP 404 – Not Found</h6>
-                    <p>
+                    <h5 class="alert-heading" data-i18n="error404.important">重要</h5>
+                    <h6 data-i18n="error404.alertHeading">HTTP 404 – Not Found</h6>
+                    <p data-i18n="error404.body">
                         服务器未能找到请求的资源，这可能是由于 URL 输入错误，或页面已被移除。
                         请返回主页或联系管理员。
                     </p>
@@ -89,7 +90,7 @@
             </div>
             <div class="col">
                 <p>
-                    <a href="/"><i class="fas fa-home"></i> 返回首页</a>
+                    <a href="/"><i class="fas fa-home"></i> <span data-i18n="error404.home">返回首页</span></a>
                 </p>
             </div>
         </div>
