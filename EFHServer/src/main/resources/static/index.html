@@ -42,7 +42,7 @@
             // ===== DOM 元素 =====
             const input = document.getElementById("passwd");
             const btnClash = document.getElementById("btnClash");
-            const btnSurgeMac = document.getElementById("btnSurgeMac");
+            // const btnSurgeMac = document.getElementById("btnSurgeMac");
             const btnSurgeiOS = document.getElementById("btnSurgeiOS");
             const btnShadow = document.getElementById("btnShadow");
 
@@ -88,7 +88,7 @@
                 const passwd = input.value.trim();
                 if (!passwd) {
                     btnClash.removeAttribute("href");
-                    btnSurgeMac.removeAttribute("href");
+                    // btnSurgeMac.removeAttribute("href");
                     btnSurgeiOS.removeAttribute("href");
                     btnShadow.removeAttribute("href");
                     return;
@@ -99,7 +99,7 @@
                     const baseSurge = `https://vpn.woznes.com/get-config/${hex}/Woznes-EFH-Surge`;
 
                     btnClash.href = `clash://install-config?url=${baseClash}`;
-                    btnSurgeMac.href = `surge:///install-config?url=${encodeURI(baseSurge)}`;
+                    // btnSurgeMac.href = `surge:///install-config?url=${encodeURI(baseSurge)}`;
                     btnSurgeiOS.href = `surge:///install-config?url=${encodeURI(baseSurge)}`;
                     btnShadow.href = `shadowrocket://config/add/${baseSurge}`;
                 } catch (err) {
