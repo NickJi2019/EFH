@@ -19,6 +19,23 @@
     <script src="/js/i18n.js" defer></script>
     <link href="/css/common.css" rel="stylesheet">
     <link href="/css/bootstrap4.centos.css" rel="stylesheet">
+    <style>
+        /* 两行按钮按列对齐：等宽 flex + 无缝 btn-group */
+        .btn-group-block {
+            width: 100%;
+        }
+
+        .btn-group-block > .btn {
+            flex: 1 1 0;
+            width: auto;
+            min-width: 0;
+            white-space: normal;
+        }
+
+        .btn-group-block--stacked {
+            margin-top: -1px;
+        }
+    </style>
 
     <script>
         $(document).ready(function () {
@@ -200,37 +217,16 @@
 
                 <br>
 
-                <table class="table table-sm table-borderless mb-0" style="table-layout: fixed;">
-                    <colgroup>
-                        <col style="width: 33.33%">
-                        <col style="width: 33.33%">
-                        <col style="width: 33.33%">
-                    </colgroup>
-                    <tbody>
-                    <tr>
-                        <td>
-                            <a id="btnClash" class="btn btn-primary btn-block" target="_blank" href="#" data-i18n="index.btnClash">一键导入至 Clash</a>
-                        </td>
-                        <td>
-                            <a id="btnShadow" class="btn btn-primary btn-block" target="_blank" href="#" data-i18n="index.btnShadow">一键导入至 Shadowrocket</a>
-                        </td>
-                        <td>
-                            <a id="btnSurgeiOS" class="btn btn-primary btn-block" target="_blank" href="#" data-i18n="index.btnSurgeiOS">一键导入至 Surge</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <a id="btnManualClash" class="btn btn-primary btn-block" target="_blank" href="#" data-i18n="index.btnManualClash">复制 Clash 配置 URL</a>
-                        </td>
-                        <td>
-                            <a id="btnManualShadow" class="btn btn-primary btn-block" target="_blank" href="#" data-i18n="index.btnManualShadow">复制 Shadowrocket 配置 URL</a>
-                        </td>
-                        <td>
-                            <a id="btnManualSurge" class="btn btn-primary btn-block" target="_blank" href="#" data-i18n="index.btnManualSurge">复制 Surge 配置 URL</a>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
+                <div class="btn-group btn-group-block" role="group">
+                    <a id="btnClash" class="btn btn-primary" target="_blank" href="#" data-i18n="index.btnClash">一键导入至 Clash</a>
+                    <a id="btnShadow" class="btn btn-primary" target="_blank" href="#" data-i18n="index.btnShadow">一键导入至 Shadowrocket</a>
+                    <a id="btnSurgeiOS" class="btn btn-primary" target="_blank" href="#" data-i18n="index.btnSurgeiOS">一键导入至 Surge</a>
+                </div>
+                <div class="btn-group btn-group-block btn-group-block--stacked" role="group">
+                    <a id="btnManualClash" class="btn btn-primary" target="_blank" href="#" data-i18n="index.btnManualClash">复制 Clash 配置 URL</a>
+                    <a id="btnManualShadow" class="btn btn-primary" target="_blank" href="#" data-i18n="index.btnManualShadow">复制 Shadowrocket 配置 URL</a>
+                    <a id="btnManualSurge" class="btn btn-primary" target="_blank" href="#" data-i18n="index.btnManualSurge">复制 Surge 配置 URL</a>
+                </div>
             </div>
 
         </div>
