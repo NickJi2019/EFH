@@ -52,10 +52,18 @@
         return cur;
     }
 
+    function pick(source, key) {
+        // 支持扁平键（"nav.home"）与嵌套对象两种写法
+        if (source && Object.prototype.hasOwnProperty.call(source, key)) {
+            return source[key];
+        }
+        return lookup(source, key);
+    }
+
     function t(key, params) {
-        var val = lookup(dict, key);
+        var val = pick(dict, key);
         if (typeof val !== "string") {
-            val = lookup(fallbackDict, key);
+            val = pick(fallbackDict, key);
         }
         if (typeof val !== "string") {
             return key;
