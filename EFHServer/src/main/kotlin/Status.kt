@@ -13,10 +13,21 @@ object Status {
     const val DEFAULT_CONTROLLER = "http://127.0.0.1:9091"
     const val DEFAULT_TEST_URL = "http://www.gstatic.com/generate_204"
 
-    val nodes = listOf("EFH Node1", "EFH Node2", "EFH Node3", "EFH Node4")
+    // 节点名 -> 供浏览器直接探测的服务器域名
+    private val nodeServers = linkedMapOf(
+        "EFH Node1" to "node1.vpn.woznes.com",
+        "EFH Node2" to "node2.vpn.woznes.com",
+        "EFH Node3" to "node3.vpn.woznes.com",
+        "EFH Node4" to "node4.vpn.woznes.com"
+    )
+
+    val nodes: List<String> = nodeServers.keys.toList()
+
+    fun serverOf(node: String): String? = nodeServers[node]
 
     data class NodeResult(
         val name: String,
+        val address: String?,
         val delayMs: Int?,
         val message: String?
     ) {
@@ -57,7 +68,7 @@ object Status {
             val response = client.send(request, HttpResponse.BodyHandlers.ofString())
             parse(node, response.body())
         } catch (e: Exception) {
-            NodeResult(node, null, e.message ?: e.javaClass.simpleName)
+            NodeResult(node, serverOf(node), null, e.message ?: e.javaClass.simpleName)
         }
     }
 
@@ -68,13 +79,14 @@ object Status {
         .map { delay(it, baseUrl, timeoutMs) }
         .collect(Collectors.toList())
 
-    fun pending(): List<NodeResult> = nodes.map { NodeResult(it, null, null) }
+    fun pending(): List<NodeResult> = nodes.map { NodeResult(it, serverOf(it), null, null) }
 
     fun toJson(results: List<NodeResult>): String {
         val array = results.joinToString(",") { r ->
+            val address = r.address?.let { "\"${escapeJson(it)}\"" } ?: "null"
             val delay = r.delayMs?.toString() ?: "null"
             val message = r.message?.let { "\"${escapeJson(it)}\"" } ?: "null"
-            """{"name":"${escapeJson(r.name)}","delay":$delay,"reachable":${r.reachable},"message":$message}"""
+            """{"name":"${escapeJson(r.name)}","address":$address,"delay":$delay,"reachable":${r.reachable},"message":$message}"""
         }
         return """{"updatedAt":${System.currentTimeMillis()},"nodes":[$array]}"""
     }
@@ -96,9 +108,9 @@ object Status {
         val delay = delayRegex.find(body)?.groupValues?.get(1)?.toIntOrNull()
         val message = messageRegex.find(body)?.groupValues?.get(1)
         return if (delay != null && delay > 0) {
-            NodeResult(node, delay, null)
+            NodeResult(node, serverOf(node), delay, null)
         } else {
-            NodeResult(node, null, message ?: body.trim())
+            NodeResult(node, serverOf(node), null, message ?: body.trim())
         }
     }
 }

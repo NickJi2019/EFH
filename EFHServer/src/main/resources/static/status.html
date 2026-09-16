@@ -132,21 +132,26 @@
             return (window.i18n && typeof window.i18n.t === "function") ? window.i18n.t(key, params) : key;
         }
 
+        function now() {
+            return (window.performance && typeof performance.now === "function") ? performance.now() : Date.now();
+        }
+
         var body;
         var updated;
         var refreshBtn;
         var refreshLabel;
         var spinner;
         var loading = false;
-        var nodes = [];
+        var nodes = [];           // [{name, address}]
+        var serverResults = {};   // 服务器侧：name -> {reachable, delay, message}
+        var browserResults = {};  // 浏览器侧：name -> {reachable, delay}
         var updatedAt = null;
 
+        // 延迟由浏览器 JS 直接探测节点服务器得到
         function delayText(node) {
-            if (node.delay) {
-                return node.delay + " ms";
-            }
-            if (node.message) {
-                return node.message;
+            var browser = browserResults[node.name];
+            if (browser && browser.reachable && browser.delay != null) {
+                return browser.delay + " ms";
             }
             return "-";
         }
@@ -164,31 +169,42 @@
             refreshLabel.textContent = on ? t("status.testing") : t("status.refresh");
         }
 
+        // 状态徽章：一个表示“从该浏览器是否可达”，一个表示“从该服务器是否可达”
+        function stateBadge(labelKey, result) {
+            var cls, key;
+            if (!result) {
+                cls = "secondary";
+                key = "status.pending";
+            } else if (result.reachable) {
+                cls = "success";
+                key = "status.reachable";
+            } else {
+                cls = "danger";
+                key = "status.unreachable";
+            }
+            var badge = document.createElement("span");
+            badge.className = "badge badge-" + cls;
+            badge.textContent = t(labelKey) + " " + t(key);
+            if (result && result.message) {
+                badge.title = result.message;
+            }
+            return badge;
+        }
+
         function render() {
             body.innerHTML = "";
             nodes.forEach(function (node) {
-                var pending = !node.delay && !node.message;
                 var tr = document.createElement("tr");
                 var tdName = document.createElement("td");
                 tdName.textContent = node.name;
                 var tdDelay = document.createElement("td");
                 tdDelay.textContent = delayText(node);
                 var tdState = document.createElement("td");
-                var badge = document.createElement("span");
-                var cls, labelKey;
-                if (pending) {
-                    cls = "secondary";
-                    labelKey = "status.pending";
-                } else if (node.reachable) {
-                    cls = "success";
-                    labelKey = "status.reachable";
-                } else {
-                    cls = "danger";
-                    labelKey = "status.unreachable";
-                }
-                badge.className = "badge badge-" + cls;
-                badge.textContent = t(labelKey);
-                tdState.appendChild(badge);
+                var browserBadge = stateBadge("status.browser", browserResults[node.name]);
+                browserBadge.className += " mr-1";
+                var serverBadge = stateBadge("status.server", serverResults[node.name]);
+                tdState.appendChild(browserBadge);
+                tdState.appendChild(serverBadge);
                 tr.appendChild(tdName);
                 tr.appendChild(tdDelay);
                 tr.appendChild(tdState);
@@ -206,14 +222,53 @@
             });
         }
 
+        // 浏览器直接向节点服务器发起请求，测量往返延迟并判断可达性
+        function timeFetch(url) {
+            var start = now();
+            return fetch(url, {mode: "no-cors", cache: "no-store"}).then(function () {
+                return {reachable: true, delay: Math.max(1, Math.round(now() - start))};
+            }, function () {
+                return {reachable: false, delay: null};
+            });
+        }
+
+        function probeNode(node) {
+            if (!node.address) {
+                browserResults[node.name] = {reachable: false, delay: null, message: "no address"};
+                render();
+                return Promise.resolve();
+            }
+            var url = "https://" + node.address + "/?probe=" + Date.now();
+            // 先预热一次（完成 TCP/TLS 握手），再测量往返延迟
+            return timeFetch(url).then(function () {
+                return timeFetch(url + "&t=" + Date.now());
+            }).then(function (result) {
+                browserResults[node.name] = result;
+                render();
+            });
+        }
+
         function loadPending() {
             fetchNodes(false).then(function (data) {
                 nodes = data.nodes || [];
+                serverResults = {};
+                browserResults = {};
                 updatedAt = null;
                 updated.textContent = "";
                 render();
             }).catch(function (err) {
                 updated.textContent = t("status.failed", {msg: err && err.message ? err.message : err});
+            });
+        }
+
+        function ensureNodes() {
+            if (nodes.length) {
+                return Promise.resolve(nodes);
+            }
+            return fetchNodes(false).then(function (data) {
+                nodes = data.nodes || [];
+                render();
+                return nodes;
             });
         }
 
@@ -223,15 +278,31 @@
             }
             setLoading(true);
             updated.textContent = t("status.testing");
-            fetchNodes(true).then(function (data) {
-                nodes = data.nodes || [];
+            serverResults = {};
+            browserResults = {};
+            updatedAt = null;
+            render();
+
+            // 服务器侧：通过 mihomo 检测节点可达性（不用于展示延迟）
+            var serverPromise = fetchNodes(true).then(function (data) {
+                (data.nodes || []).forEach(function (node) {
+                    serverResults[node.name] = node;
+                });
                 updatedAt = data.updatedAt || Date.now();
                 render();
-                refreshUpdated();
             }).catch(function (err) {
                 updated.textContent = t("status.failed", {msg: err && err.message ? err.message : err});
-            }).finally(function () {
+            });
+
+            // 浏览器侧：直接探测节点，得到浏览器到服务器的延迟与可达性
+            var browserPromise = ensureNodes().then(function (list) {
+                return Promise.all(list.map(probeNode));
+            }).catch(function () {
+            });
+
+            Promise.all([serverPromise, browserPromise]).then(function () {
                 setLoading(false);
+                refreshUpdated();
             });
         }
 
