@@ -39,6 +39,7 @@ for arg in "$@"; do
 done
 
 # ---------------------------------------------------------------- 版本号
+git fetch --tags --quiet 2>/dev/null || true
 if [[ -z "$VERSION" ]]; then
   latest="$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -n1)"
   if [[ -z "$latest" ]]; then
