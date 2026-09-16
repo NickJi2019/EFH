@@ -66,8 +66,25 @@
         <!--使用<div class="alert alert-info" role="alert">创建重要信息框-->
         <!--使用<h5 class="alert-heading"></h5>作为重要标题-->
         <div class="row">
-            <div class="col" data-i18n="status.body">
-                本页面正在建设中，敬请期待。
+            <div class="col">
+                <button id="refreshBtn" class="btn btn-primary" data-i18n="status.refresh">刷新</button>
+                <span id="updated" class="ml-2"></span>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                        <tr>
+                            <th data-i18n="status.node">节点</th>
+                            <th data-i18n="status.delay">延迟</th>
+                            <th data-i18n="status.state">状态</th>
+                        </tr>
+                        </thead>
+                        <tbody id="nodeBody"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </article>
@@ -83,6 +100,90 @@
 
 <!--页脚-->
 <div id="footer"></div>
+
+<script>
+    (function () {
+        "use strict";
+
+        var body = document.getElementById("nodeBody");
+        var updated = document.getElementById("updated");
+        var refreshBtn = document.getElementById("refreshBtn");
+        var loading = false;
+        var nodes = [];
+        var updatedAt = null;
+
+        function delayText(node) {
+            if (node.reachable && node.delay) {
+                return node.delay + " ms";
+            }
+            return node.message || "-";
+        }
+
+        function nextRefresh() {
+            if (updatedAt) {
+                updated.textContent = i18n.t("status.updated", {time: new Date(updatedAt).toLocaleString()});
+            }
+        }
+
+        function render() {
+            body.innerHTML = "";
+            nodes.forEach(function (node) {
+                var tr = document.createElement("tr");
+                var tdName = document.createElement("td");
+                tdName.textContent = node.name;
+                var tdDelay = document.createElement("td");
+                tdDelay.textContent = delayText(node);
+                var tdState = document.createElement("td");
+                var badge = document.createElement("span");
+                badge.className = "badge badge-" + (node.reachable ? "success" : "danger");
+                badge.textContent = i18n.t(node.reachable ? "status.reachable" : "status.unreachable");
+                tdState.appendChild(badge);
+                tr.appendChild(tdName);
+                tr.appendChild(tdDelay);
+                tr.appendChild(tdState);
+                body.appendChild(tr);
+            });
+        }
+
+        function load() {
+            if (loading) {
+                return;
+            }
+            loading = true;
+            refreshBtn.disabled = true;
+            updated.textContent = i18n.t("status.testing");
+            fetch("/status/nodes", {cache: "no-store"})
+                .then(function (res) {
+                    if (!res.ok) {
+                        throw new Error("HTTP " + res.status);
+                    }
+                    return res.json();
+                })
+                .then(function (data) {
+                    nodes = data.nodes || [];
+                    updatedAt = data.updatedAt || Date.now();
+                    render();
+                    nextRefresh();
+                })
+                .catch(function (err) {
+                    updated.textContent = i18n.t("status.failed", {msg: err && err.message ? err.message : err});
+                })
+                .finally(function () {
+                    loading = false;
+                    refreshBtn.disabled = false;
+                });
+        }
+
+        refreshBtn.addEventListener("click", load);
+        document.addEventListener("i18n:changed", function () {
+            render();
+            nextRefresh();
+        });
+
+        load();
+        setInterval(load, 30000);
+    })();
+</script>
 </body>
 
 </html>

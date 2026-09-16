@@ -63,6 +63,18 @@ fun Application.configureRouting() {
             }
         }
 
+        // 通过 mihomo 外部控制器对四个节点做可达性测速
+        get("/status/nodes") {
+            try {
+                call.respondText(Status.toJson(Status.nodeDelays()), ContentType.Application.Json)
+            } catch (e: Exception) {
+                call.respondText(
+                    text = """{"error":"${e.message ?: "failed"}"}""",
+                    status = HttpStatusCode.BadGateway
+                )
+            }
+        }
+
         // 下发 Cloudflare Radar Top 网站列表，每行一个域名
         get("/top-domains/{top}") {
             val top = call.pathParameters["top"]?.toIntOrNull()
