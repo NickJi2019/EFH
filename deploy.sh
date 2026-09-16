@@ -22,7 +22,7 @@ SERVICE="EFHServer"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-BLUE='\033[0;34m'; GREEN='\033[0;32m'; RED='\033[0;31m'; NC='\033[0m'
+BLUE=$'\033[0;34m'; GREEN=$'\033[0;32m'; RED=$'\033[0;31m'; NC=$'\033[0m'
 step() { printf '\n%s==> %s%s\n' "$BLUE" "$*" "$NC"; }
 ok()   { printf '%s%s%s\n' "$GREEN" "$*" "$NC"; }
 die()  { printf '%sERROR: %s%s\n' "$RED" "$*" "$NC" >&2; exit 1; }
