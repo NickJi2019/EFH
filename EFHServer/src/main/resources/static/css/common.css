@@ -33,10 +33,18 @@
     filter: blur(10px);
 }
 
+/* 主题的 bootstrap4.centos.css 会把 nav-link 设为 rgba(255,255,255,.5)，
+   看起来发灰；这里强制文字与图标为纯白（含 Font Awesome 图标）。 */
 .navbar .navbar-nav,
-.navbar .navbar-nav .nav-link{
-    color: #FFFFFF;
-
+.navbar .navbar-nav .nav-link,
+.navbar .navbar-nav .nav-link i{
+    color: #FFFFFF !important;
+}
+.navbar .navbar-nav .nav-link:hover,
+.navbar .navbar-nav .nav-link:focus,
+.navbar .navbar-nav .nav-link:hover i,
+.navbar .navbar-nav .nav-link:focus i{
+    color: rgba(255, 255, 255, 0.75) !important;
 }
 .dropdown-menu {
     position: fixed;
