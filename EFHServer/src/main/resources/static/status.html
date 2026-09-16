@@ -18,6 +18,29 @@
     <script src="/js/i18n.js" defer></script>
     <link href="/css/common.css" rel="stylesheet">
     <link href="/css/bootstrap4.centos.css" rel="stylesheet">
+    <style>
+        /* 按钮内加载动画：放大原图后裁剪，显示清晰的 18px 转圈 */
+        .btn-spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            margin-right: .4em;
+            overflow: hidden;
+            position: relative;
+            vertical-align: -.2em;
+        }
+
+        .btn-spinner img {
+            position: absolute;
+            width: 86px;
+            height: auto;
+            left: -34px;
+            top: -19px;
+            /* 原图白底：反相后用 screen 混合，白底消失、圆点变浅，贴合按钮 */
+            filter: invert(1);
+            mix-blend-mode: screen;
+        }
+    </style>
     <script>
         $(document).ready(function () {
             $("#footer").load("/footer.html");
@@ -67,7 +90,10 @@
         <!--使用<h5 class="alert-heading"></h5>作为重要标题-->
         <div class="row">
             <div class="col">
-                <button id="refreshBtn" class="btn btn-primary" data-i18n="status.refresh">刷新</button>
+                <button id="refreshBtn" class="btn btn-primary">
+                    <span id="loadingSpinner" class="btn-spinner" hidden><img alt="" src="/icon/loading.gif"></span>
+                    <span id="refreshLabel">刷新</span>
+                </button>
                 <span id="updated" class="ml-2"></span>
             </div>
         </div>
@@ -85,6 +111,15 @@
                         <tbody id="nodeBody"></tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col">
+                <small class="text-muted">
+                    Loading icon:
+                    <a href="https://commons.wikimedia.org/wiki/File:Loading_icon.gif" target="_blank" rel="noopener">Ahm masum</a>
+                    (CC BY-SA 4.0)
+                </small>
             </div>
         </div>
     </article>
@@ -112,15 +147,20 @@
         var body;
         var updated;
         var refreshBtn;
+        var refreshLabel;
+        var spinner;
         var loading = false;
         var nodes = [];
         var updatedAt = null;
 
         function delayText(node) {
-            if (node.reachable && node.delay) {
+            if (node.delay) {
                 return node.delay + " ms";
             }
-            return node.message || "-";
+            if (node.message) {
+                return node.message;
+            }
+            return "-";
         }
 
         function refreshUpdated() {
@@ -129,9 +169,17 @@
             }
         }
 
+        function setLoading(on) {
+            loading = on;
+            refreshBtn.disabled = on;
+            spinner.hidden = !on;
+            refreshLabel.textContent = on ? t("status.testing") : t("status.refresh");
+        }
+
         function render() {
             body.innerHTML = "";
             nodes.forEach(function (node) {
+                var pending = !node.delay && !node.message;
                 var tr = document.createElement("tr");
                 var tdName = document.createElement("td");
                 tdName.textContent = node.name;
@@ -139,8 +187,19 @@
                 tdDelay.textContent = delayText(node);
                 var tdState = document.createElement("td");
                 var badge = document.createElement("span");
-                badge.className = "badge badge-" + (node.reachable ? "success" : "danger");
-                badge.textContent = t(node.reachable ? "status.reachable" : "status.unreachable");
+                var cls, labelKey;
+                if (pending) {
+                    cls = "secondary";
+                    labelKey = "status.pending";
+                } else if (node.reachable) {
+                    cls = "success";
+                    labelKey = "status.reachable";
+                } else {
+                    cls = "danger";
+                    labelKey = "status.unreachable";
+                }
+                badge.className = "badge badge-" + cls;
+                badge.textContent = t(labelKey);
                 tdState.appendChild(badge);
                 tr.appendChild(tdName);
                 tr.appendChild(tdDelay);
@@ -149,50 +208,64 @@
             });
         }
 
-        function load() {
+        function fetchNodes(test) {
+            var url = test ? "/status/nodes" : "/status/nodes?test=false";
+            return fetch(url, {cache: "no-store"}).then(function (res) {
+                if (!res.ok) {
+                    throw new Error("HTTP " + res.status);
+                }
+                return res.json();
+            });
+        }
+
+        function loadPending() {
+            fetchNodes(false).then(function (data) {
+                nodes = data.nodes || [];
+                updatedAt = null;
+                updated.textContent = "";
+                render();
+            }).catch(function (err) {
+                updated.textContent = t("status.failed", {msg: err && err.message ? err.message : err});
+            });
+        }
+
+        function runTest() {
             if (loading) {
                 return;
             }
-            loading = true;
-            refreshBtn.disabled = true;
+            setLoading(true);
             updated.textContent = t("status.testing");
-            fetch("/status/nodes", {cache: "no-store"})
-                .then(function (res) {
-                    if (!res.ok) {
-                        throw new Error("HTTP " + res.status);
-                    }
-                    return res.json();
-                })
-                .then(function (data) {
-                    nodes = data.nodes || [];
-                    updatedAt = data.updatedAt || Date.now();
-                    render();
-                    refreshUpdated();
-                })
-                .catch(function (err) {
-                    updated.textContent = t("status.failed", {msg: err && err.message ? err.message : err});
-                })
-                .finally(function () {
-                    loading = false;
-                    refreshBtn.disabled = false;
-                });
+            fetchNodes(true).then(function (data) {
+                nodes = data.nodes || [];
+                updatedAt = data.updatedAt || Date.now();
+                render();
+                refreshUpdated();
+            }).catch(function (err) {
+                updated.textContent = t("status.failed", {msg: err && err.message ? err.message : err});
+            }).finally(function () {
+                setLoading(false);
+            });
         }
 
         function start() {
             body = document.getElementById("nodeBody");
             updated = document.getElementById("updated");
             refreshBtn = document.getElementById("refreshBtn");
-            refreshBtn.addEventListener("click", load);
+            refreshLabel = document.getElementById("refreshLabel");
+            spinner = document.getElementById("loadingSpinner");
+            refreshBtn.addEventListener("click", runTest);
             document.addEventListener("i18n:ready", function () {
                 render();
                 refreshUpdated();
+                setLoading(loading);
             });
             document.addEventListener("i18n:changed", function () {
                 render();
                 refreshUpdated();
+                setLoading(loading);
             });
-            load();
-            setInterval(load, 30000);
+            setLoading(false);
+            loadPending();
         }
 
         if (document.readyState === "loading") {

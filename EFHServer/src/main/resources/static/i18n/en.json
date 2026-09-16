@@ -76,6 +76,7 @@
   "status.state": "Status",
   "status.reachable": "Reachable",
   "status.unreachable": "Unreachable",
+  "status.pending": "Pending",
   "status.testing": "Testing...",
   "status.failed": "Failed: {msg}",
 

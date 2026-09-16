@@ -76,6 +76,7 @@
   "status.state": "状态",
   "status.reachable": "可达",
   "status.unreachable": "不可达",
+  "status.pending": "待检测",
   "status.testing": "正在测速...",
   "status.failed": "获取失败：{msg}",
 

@@ -68,6 +68,8 @@ object Status {
         .map { delay(it, baseUrl, timeoutMs) }
         .collect(Collectors.toList())
 
+    fun pending(): List<NodeResult> = nodes.map { NodeResult(it, null, null) }
+
     fun toJson(results: List<NodeResult>): String {
         val array = results.joinToString(",") { r ->
             val delay = r.delayMs?.toString() ?: "null"

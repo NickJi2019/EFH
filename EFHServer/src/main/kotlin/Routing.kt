@@ -63,10 +63,12 @@ fun Application.configureRouting() {
             }
         }
 
-        // 通过 mihomo 外部控制器对四个节点做可达性测速
+        // 通过 mihomo 外部控制器对四个节点做可达性测速；test=false 仅返回节点名（待检测）
         get("/status/nodes") {
+            val test = call.request.queryParameters["test"]?.toBooleanStrictOrNull() ?: true
             try {
-                call.respondText(Status.toJson(Status.nodeDelays()), ContentType.Application.Json)
+                val results = if (test) Status.nodeDelays() else Status.pending()
+                call.respondText(Status.toJson(results), ContentType.Application.Json)
             } catch (e: Exception) {
                 call.respondText(
                     text = """{"error":"${e.message ?: "failed"}"}""",
