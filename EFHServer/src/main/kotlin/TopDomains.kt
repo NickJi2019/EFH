@@ -1,7 +1,6 @@
 package com.woznes
 
 import java.net.URI
-import java.net.URL
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
@@ -125,7 +124,7 @@ object TopDomains {
             v = "https://$v"
         }
         return try {
-            URL(v).host?.trimEnd('.')?.lowercase().orEmpty()
+            URI.create(v).host?.trimEnd('.')?.lowercase().orEmpty()
         } catch (e: Exception) {
             ""
         }

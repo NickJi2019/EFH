@@ -2,7 +2,7 @@ package com.woznes
 import org.redisson.Redisson
 import org.redisson.api.*
 import org.redisson.config.Config
-import java.util.concurrent.TimeUnit
+import java.time.Duration
 
 object Redis {
     val redisson: RedissonClient
@@ -17,7 +17,7 @@ object Redis {
     fun <T : Any> set(key: String, value: T, expireSeconds: Long? = null) {
         val bucket: RBucket<T> = redisson.getBucket(key)
         if (expireSeconds != null) {
-            bucket.set(value, expireSeconds, TimeUnit.SECONDS)
+            bucket.set(value, Duration.ofSeconds(expireSeconds))
         } else {
             bucket.set(value)
         }
