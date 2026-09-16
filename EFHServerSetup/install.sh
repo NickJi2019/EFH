@@ -458,3 +458,44 @@ fi
 
 sudo systemctl start trojan-go
 sudo systemctl enable --now trojan-go
+
+# Install trojan-go healthcheck: auto-restart when :443 stops accepting connections
+# (trojan-go can hang with its accept queue full while the process stays alive).
+echo "Installing trojan-go healthcheck..."
+sudo tee /usr/local/bin/trojan-go-healthcheck.sh >/dev/null <<'EOF'
+#!/bin/bash
+for i in 1 2 3; do
+  if timeout 5 bash -c 'cat < /dev/null > /dev/tcp/127.0.0.1/443' 2>/dev/null; then
+    exit 0
+  fi
+  sleep 2
+done
+/usr/bin/systemctl restart trojan-go
+EOF
+sudo chmod 755 /usr/local/bin/trojan-go-healthcheck.sh
+
+sudo tee /etc/systemd/system/trojan-go-healthcheck.service >/dev/null <<'EOF'
+[Unit]
+Description=trojan-go healthcheck
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/trojan-go-healthcheck.sh
+EOF
+
+sudo tee /etc/systemd/system/trojan-go-healthcheck.timer >/dev/null <<'EOF'
+[Unit]
+Description=Run trojan-go healthcheck every 2 minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=2min
+
+[Install]
+WantedBy=timers.target
+EOF
+
+sudo systemctl daemon-reload
+sudo systemctl enable --now trojan-go-healthcheck.timer
+echo "trojan-go healthcheck installed."
