@@ -105,9 +105,13 @@
     (function () {
         "use strict";
 
-        var body = document.getElementById("nodeBody");
-        var updated = document.getElementById("updated");
-        var refreshBtn = document.getElementById("refreshBtn");
+        function t(key, params) {
+            return (window.i18n && typeof window.i18n.t === "function") ? window.i18n.t(key, params) : key;
+        }
+
+        var body;
+        var updated;
+        var refreshBtn;
         var loading = false;
         var nodes = [];
         var updatedAt = null;
@@ -119,9 +123,9 @@
             return node.message || "-";
         }
 
-        function nextRefresh() {
+        function refreshUpdated() {
             if (updatedAt) {
-                updated.textContent = i18n.t("status.updated", {time: new Date(updatedAt).toLocaleString()});
+                updated.textContent = t("status.updated", {time: new Date(updatedAt).toLocaleString()});
             }
         }
 
@@ -136,7 +140,7 @@
                 var tdState = document.createElement("td");
                 var badge = document.createElement("span");
                 badge.className = "badge badge-" + (node.reachable ? "success" : "danger");
-                badge.textContent = i18n.t(node.reachable ? "status.reachable" : "status.unreachable");
+                badge.textContent = t(node.reachable ? "status.reachable" : "status.unreachable");
                 tdState.appendChild(badge);
                 tr.appendChild(tdName);
                 tr.appendChild(tdDelay);
@@ -151,7 +155,7 @@
             }
             loading = true;
             refreshBtn.disabled = true;
-            updated.textContent = i18n.t("status.testing");
+            updated.textContent = t("status.testing");
             fetch("/status/nodes", {cache: "no-store"})
                 .then(function (res) {
                     if (!res.ok) {
@@ -163,10 +167,10 @@
                     nodes = data.nodes || [];
                     updatedAt = data.updatedAt || Date.now();
                     render();
-                    nextRefresh();
+                    refreshUpdated();
                 })
                 .catch(function (err) {
-                    updated.textContent = i18n.t("status.failed", {msg: err && err.message ? err.message : err});
+                    updated.textContent = t("status.failed", {msg: err && err.message ? err.message : err});
                 })
                 .finally(function () {
                     loading = false;
@@ -174,14 +178,28 @@
                 });
         }
 
-        refreshBtn.addEventListener("click", load);
-        document.addEventListener("i18n:changed", function () {
-            render();
-            nextRefresh();
-        });
+        function start() {
+            body = document.getElementById("nodeBody");
+            updated = document.getElementById("updated");
+            refreshBtn = document.getElementById("refreshBtn");
+            refreshBtn.addEventListener("click", load);
+            document.addEventListener("i18n:ready", function () {
+                render();
+                refreshUpdated();
+            });
+            document.addEventListener("i18n:changed", function () {
+                render();
+                refreshUpdated();
+            });
+            load();
+            setInterval(load, 30000);
+        }
 
-        load();
-        setInterval(load, 30000);
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", start);
+        } else {
+            start();
+        }
     })();
 </script>
 </body>
