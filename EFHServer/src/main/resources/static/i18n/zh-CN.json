@@ -4,6 +4,7 @@
   "nav.tools": "工具",
   "nav.status": "服务状态",
   "nav.accessibility": "网站屏蔽检测",
+  "nav.about": "关于",
 
   "footer.about": "关于",
   "footer.aboutSystem": "关于本系统",
@@ -84,9 +85,15 @@
   "status.failed": "获取失败：{msg}",
 
   "about.pageTitle": "EFH - 关于",
-  "about.heading": "在写了",
-  "about.subtitle": "在写了在写了",
-  "about.body": "本页面正在建设中，敬请期待。",
+  "about.heading": "关于 EFH",
+  "about.subtitle": "Escape From HDSB Project",
+  "about.intro": "EFH（Escape From HDSB Project）是一群被作业和防火墙同时追着跑的学生，用课余时间一点点搭起来的网络加速与访问自由项目。我们相信，互联网本该是无边界的。",
+  "about.missionTitle": "我们在做什么",
+  "about.mission": "我们维护四个分布在不同地区的节点，提供稳定、低延迟的代理服务；同时准备了配置一键导入、服务状态与网站屏蔽检测等小工具，让每个人都能轻松翻过那道名叫 HDSB 的墙。",
+  "about.stackTitle": "技术栈",
+  "about.stack": "服务端使用 Kotlin + Ktor，节点跑 trojan-go 与 nginx，证书由 acme.sh 自动续签；前端是最朴素的 HTML / CSS / JavaScript，坚持零依赖、加载飞快。",
+  "about.disclaimerTitle": "免责声明",
+  "about.disclaimer": "本项目仅用于学习与研究网络技术，请遵守你所在地区的法律法规。因使用本服务而产生的一切后果，由使用者自行承担。",
 
   "error404.pageTitle": "404",
   "error404.heading": "404 Not Found",

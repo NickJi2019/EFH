@@ -4,6 +4,7 @@
   "nav.tools": "Tools",
   "nav.status": "Service Status",
   "nav.accessibility": "Blocking Check",
+  "nav.about": "About",
 
   "footer.about": "About",
   "footer.aboutSystem": "About this system",
@@ -84,9 +85,15 @@
   "status.failed": "Failed: {msg}",
 
   "about.pageTitle": "EFH - About",
-  "about.heading": "Work in progress",
-  "about.subtitle": "Work in progress",
-  "about.body": "This page is under construction. Stay tuned.",
+  "about.heading": "About EFH",
+  "about.subtitle": "Escape From HDSB Project",
+  "about.intro": "EFH (Escape From HDSB Project) is a network acceleration and internet-freedom project slowly built in spare time by a group of students chased by homework and firewalls alike. We believe the internet should have no borders.",
+  "about.missionTitle": "What we do",
+  "about.mission": "We run four nodes across different regions to provide stable, low-latency proxy access, alongside small tools such as one-click config import, service status and website blocking checks — so everyone can climb over the wall named HDSB.",
+  "about.stackTitle": "Tech stack",
+  "about.stack": "The server is Kotlin + Ktor; nodes run trojan-go with nginx, and certificates renew automatically via acme.sh. The frontend is plain HTML / CSS / JavaScript, proudly zero-dependency and fast to load.",
+  "about.disclaimerTitle": "Disclaimer",
+  "about.disclaimer": "This project is for learning and researching network technology only. Please follow the laws of your region. Any consequence of using this service is borne by the user.",
 
   "error404.pageTitle": "404",
   "error404.heading": "404 Not Found",

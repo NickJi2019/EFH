@@ -37,12 +37,12 @@
 
     <!--页面标题-->
     <h1 class="header__page__title" data-i18n="about.heading">
-        在写了
+        关于 EFH
     </h1>
 
     <!--副标题-->
     <p class="header__page__description" data-i18n="about.subtitle">
-        在写了在写了
+        Escape From HDSB Project
     </p>
 
 </header>
@@ -66,8 +66,36 @@
         <!--使用<div class="alert alert-info" role="alert">创建重要信息框-->
         <!--使用<h5 class="alert-heading"></h5>作为重要标题-->
         <div class="row">
-            <div class="col" data-i18n="about.body">
-                本页面正在建设中，敬请期待。
+            <div class="col">
+                <p data-i18n="about.intro">
+                    EFH 是一群被作业和防火墙同时追着跑的学生，用课余时间搭起来的网络项目。
+                </p>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <h5 data-i18n="about.missionTitle">我们在做什么</h5>
+                <p data-i18n="about.mission">
+                    维护节点，提供稳定、低延迟的代理服务，以及各种顺手的小工具。
+                </p>
+            </div>
+            <div class="col-md-6">
+                <h5 data-i18n="about.stackTitle">技术栈</h5>
+                <p data-i18n="about.stack">
+                    Kotlin + Ktor、trojan-go、nginx 与 acme.sh。
+                </p>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col">
+                <div class="alert alert-info" role="alert">
+                    <h5 class="alert-heading" data-i18n="about.disclaimerTitle">免责声明</h5>
+                    <p class="mb-0" data-i18n="about.disclaimer">
+                        本项目仅供学习研究，请遵守当地法律法规。
+                    </p>
+                </div>
             </div>
         </div>
     </article>
