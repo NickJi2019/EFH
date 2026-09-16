@@ -435,19 +435,22 @@ if [[ $api == "true" ]]; then
 fi
 
 # Install acme.sh
+# 所有 acme.sh 调用都必须显式使用同一个 --home，否则证书存到 ~/.acme.sh 而
+# 自动续签 cron 指向 $(pwd)/acme.sh，导致续签永远找不到证书。
 echo "Installing acme.sh..."
-curl https://get.acme.sh | sh -s email=$EMAIL --home $(pwd)/acme.sh
+ACME_HOME="$(pwd)/acme.sh"
+curl https://get.acme.sh | sh -s email=$EMAIL --home "$ACME_HOME"
 mkdir $(pwd)/cert
 # Install SSL certificate
 export CF_Email="$EMAIL"
 export CF_Token="$CFToken"
-$(pwd)/acme.sh/acme.sh --upgrade --auto-upgrade
+"$ACME_HOME/acme.sh" --home "$ACME_HOME" --upgrade --auto-upgrade
 echo "Installing SSL certificate..."
-if $(pwd)/acme.sh/acme.sh --issue -d ${SUBDOMAIN}.${DOMAIN} --dns dns_cf --keylength ec-256 --server letsencrypt --force; then
+if "$ACME_HOME/acme.sh" --home "$ACME_HOME" --issue -d ${SUBDOMAIN}.${DOMAIN} --dns dns_cf --keylength ec-256 --server letsencrypt --force; then
   echo "SSL certificate installed."
-  $(pwd)/acme.sh/acme.sh --set-default-ca --server letsencrypt
-  $(pwd)/acme.sh/acme.sh --install-cronjob
-  $(pwd)/acme.sh/acme.sh --install-cert -d ${SUBDOMAIN}.${DOMAIN} --force \
+  "$ACME_HOME/acme.sh" --home "$ACME_HOME" --set-default-ca --server letsencrypt
+  "$ACME_HOME/acme.sh" --home "$ACME_HOME" --install-cronjob
+  "$ACME_HOME/acme.sh" --home "$ACME_HOME" --install-cert -d ${SUBDOMAIN}.${DOMAIN} --force \
     --key-file       $(pwd)/cert/${SUBDOMAIN}.${DOMAIN}.key \
     --fullchain-file $(pwd)/cert/fullchain.cer \
     --reloadcmd     "sudo systemctl reload trojan-go"

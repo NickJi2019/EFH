@@ -16,7 +16,8 @@ object Status {
     // 节点名 -> 供浏览器直接探测的服务器域名
     private val nodeServers = linkedMapOf(
         "EFH Node1" to "node1.vpn.woznes.com",
-        "EFH Node2" to "node2.vpn.woznes.com",
+        // Node2 与主域名是同一台服务器，直接探测主域名以复用其有效证书
+        "EFH Node2" to "vpn.woznes.com",
         "EFH Node3" to "node3.vpn.woznes.com",
         "EFH Node4" to "node4.vpn.woznes.com"
     )

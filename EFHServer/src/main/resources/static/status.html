@@ -102,7 +102,8 @@
                         <tr>
                             <th data-i18n="status.node">节点</th>
                             <th data-i18n="status.delay">延迟</th>
-                            <th data-i18n="status.state">状态</th>
+                            <th data-i18n="status.browser">浏览器直连</th>
+                            <th data-i18n="status.server">服务器可达</th>
                         </tr>
                         </thead>
                         <tbody id="nodeBody"></tbody>
@@ -169,8 +170,8 @@
             refreshLabel.textContent = on ? t("status.testing") : t("status.refresh");
         }
 
-        // 状态徽章：一个表示“从该浏览器是否可达”，一个表示“从该服务器是否可达”
-        function stateBadge(labelKey, result) {
+        // 状态徽章：列头已注明是浏览器侧还是服务器侧，这里只显示结果
+        function stateBadge(result) {
             var cls, key;
             if (!result) {
                 cls = "secondary";
@@ -184,7 +185,7 @@
             }
             var badge = document.createElement("span");
             badge.className = "badge badge-" + cls;
-            badge.textContent = t(labelKey) + " " + t(key);
+            badge.textContent = t(key);
             if (result && result.message) {
                 badge.title = result.message;
             }
@@ -199,15 +200,18 @@
                 tdName.textContent = node.name;
                 var tdDelay = document.createElement("td");
                 tdDelay.textContent = delayText(node);
-                var tdState = document.createElement("td");
-                var browserBadge = stateBadge("status.browser", browserResults[node.name]);
-                browserBadge.className += " mr-1";
-                var serverBadge = stateBadge("status.server", serverResults[node.name]);
-                tdState.appendChild(browserBadge);
-                tdState.appendChild(serverBadge);
+                var tdBrowser = document.createElement("td");
+                var browserBadge = stateBadge(browserResults[node.name]);
+                if (browserResults[node.name] && !browserResults[node.name].reachable) {
+                    browserBadge.title = t("status.browserHint");
+                }
+                tdBrowser.appendChild(browserBadge);
+                var tdServer = document.createElement("td");
+                tdServer.appendChild(stateBadge(serverResults[node.name]));
                 tr.appendChild(tdName);
                 tr.appendChild(tdDelay);
-                tr.appendChild(tdState);
+                tr.appendChild(tdBrowser);
+                tr.appendChild(tdServer);
                 body.appendChild(tr);
             });
         }
