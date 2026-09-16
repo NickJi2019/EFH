@@ -42,9 +42,20 @@
             // ===== DOM 元素 =====
             const input = document.getElementById("passwd");
             const btnClash = document.getElementById("btnClash");
-            // const btnSurgeMac = document.getElementById("btnSurgeMac");
+            const btnSurgeMac = document.getElementById("btnSurgeMac");
             const btnSurgeiOS = document.getElementById("btnSurgeiOS");
             const btnShadow = document.getElementById("btnShadow");
+
+            const setHref = (el, value) => {
+                if (el) {
+                    el.setAttribute("href", value);
+                }
+            };
+            const clearHref = (el) => {
+                if (el) {
+                    el.removeAttribute("href");
+                }
+            };
 
             // ===== 复制函数 =====
             async function copyToClipboard(text) {
@@ -87,10 +98,10 @@
             input.addEventListener("input", async () => {
                 const passwd = input.value.trim();
                 if (!passwd) {
-                    btnClash.removeAttribute("href");
-                    // btnSurgeMac.removeAttribute("href");
-                    btnSurgeiOS.removeAttribute("href");
-                    btnShadow.removeAttribute("href");
+                    clearHref(btnClash);
+                    clearHref(btnSurgeMac);
+                    clearHref(btnSurgeiOS);
+                    clearHref(btnShadow);
                     return;
                 }
                 try {
@@ -98,10 +109,10 @@
                     const baseClash = `https://vpn.woznes.com/get-config/${hex}/Woznes-EFH-Clash`;
                     const baseSurge = `https://vpn.woznes.com/get-config/${hex}/Woznes-EFH-Surge`;
 
-                    btnClash.href = `clash://install-config?url=${baseClash}`;
-                    // btnSurgeMac.href = `surge:///install-config?url=${encodeURI(baseSurge)}`;
-                    btnSurgeiOS.href = `surge:///install-config?url=${encodeURI(baseSurge)}`;
-                    btnShadow.href = `shadowrocket://config/add/${baseSurge}`;
+                    setHref(btnClash, `clash://install-config?url=${baseClash}`);
+                    setHref(btnSurgeMac, `surge:///install-config?url=${encodeURI(baseSurge)}`);
+                    setHref(btnSurgeiOS, `surge:///install-config?url=${encodeURI(baseSurge)}`);
+                    setHref(btnShadow, `shadowrocket://config/add/${baseSurge}`);
                 } catch (err) {
                     console.error(err);
                 }
@@ -189,19 +200,37 @@
 
                 <br>
 
-                <div class="btn-group">
-                    <a id="btnClash" class="btn btn-primary" target="_blank" href="#" data-i18n="index.btnClash">一键导入至 Clash</a>
-                    <a id="btnShadow" class="btn btn-primary" target="_blank" href="#" data-i18n="index.btnShadow">一键导入至 Shadowrocket</a>
-<!--                    <a id="btnSurgeMac" class="btn btn-primary" target="_blank" href="#" data-i18n="index.btnSurgeMac">一键导入至 Surge macOS</a>-->
-                    <a id="btnSurgeiOS" class="btn btn-primary" target="_blank" href="#" data-i18n="index.btnSurgeiOS">一键导入至 Surge</a>
-                </div>
-
-
-                <div class="btn-group">
-                    <a id="btnManualClash" class="btn btn-primary" target="_blank" href="#" data-i18n="index.btnManualClash">复制 Clash 配置 URL</a>
-                    <a id="btnManualShadow" class="btn btn-primary" target="_blank" href="#" data-i18n="index.btnManualShadow">复制 Shadowrocket 配置 URL</a>
-                    <a id="btnManualSurge" class="btn btn-primary" target="_blank" href="#" data-i18n="index.btnManualSurge">复制 Surge 配置 URL</a>
-                </div>
+                <table class="table table-sm table-borderless mb-0" style="table-layout: fixed;">
+                    <colgroup>
+                        <col style="width: 33.33%">
+                        <col style="width: 33.33%">
+                        <col style="width: 33.33%">
+                    </colgroup>
+                    <tbody>
+                    <tr>
+                        <td>
+                            <a id="btnClash" class="btn btn-primary btn-block" target="_blank" href="#" data-i18n="index.btnClash">一键导入至 Clash</a>
+                        </td>
+                        <td>
+                            <a id="btnShadow" class="btn btn-primary btn-block" target="_blank" href="#" data-i18n="index.btnShadow">一键导入至 Shadowrocket</a>
+                        </td>
+                        <td>
+                            <a id="btnSurgeiOS" class="btn btn-primary btn-block" target="_blank" href="#" data-i18n="index.btnSurgeiOS">一键导入至 Surge</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <a id="btnManualClash" class="btn btn-primary btn-block" target="_blank" href="#" data-i18n="index.btnManualClash">复制 Clash 配置 URL</a>
+                        </td>
+                        <td>
+                            <a id="btnManualShadow" class="btn btn-primary btn-block" target="_blank" href="#" data-i18n="index.btnManualShadow">复制 Shadowrocket 配置 URL</a>
+                        </td>
+                        <td>
+                            <a id="btnManualSurge" class="btn btn-primary btn-block" target="_blank" href="#" data-i18n="index.btnManualSurge">复制 Surge 配置 URL</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
 
         </div>
