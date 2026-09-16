@@ -19,7 +19,44 @@
     var current = DEFAULT_LANG;
     var loaded = false;
 
+    // 把一个语言标签（如 "zh-CN"、"en-US"、"zh"）映射到支持的语言
+    function matchLang(tag) {
+        if (!tag) {
+            return null;
+        }
+        var t = String(tag).toLowerCase();
+        for (var i = 0; i < SUPPORTED.length; i++) {
+            if (SUPPORTED[i].toLowerCase() === t) {
+                return SUPPORTED[i];
+            }
+        }
+        var base = t.split("-")[0];
+        for (var j = 0; j < SUPPORTED.length; j++) {
+            if (SUPPORTED[j].toLowerCase().split("-")[0] === base) {
+                return SUPPORTED[j];
+            }
+        }
+        if (base === "zh") {
+            return "zh-CN";
+        }
+        return null;
+    }
+
     function detectLang() {
+        // 优先按浏览器语言（按用户的偏好顺序）
+        var tags = [];
+        if (navigator.languages && navigator.languages.length) {
+            tags = navigator.languages;
+        } else if (navigator.language || navigator.userLanguage) {
+            tags = [navigator.language || navigator.userLanguage];
+        }
+        for (var i = 0; i < tags.length; i++) {
+            var matched = matchLang(tags[i]);
+            if (matched) {
+                return matched;
+            }
+        }
+        // 浏览器语言都不支持时，回退到用户上次手动选择
         try {
             var saved = localStorage.getItem(STORAGE_KEY);
             if (saved && SUPPORTED.indexOf(saved) !== -1) {
@@ -27,15 +64,6 @@
             }
         } catch (e) {
             // localStorage 不可用
-        }
-        var nav = (navigator.language || navigator.userLanguage || "").toLowerCase();
-        for (var i = 0; i < SUPPORTED.length; i++) {
-            if (nav.indexOf(SUPPORTED[i].toLowerCase()) === 0) {
-                return SUPPORTED[i];
-            }
-        }
-        if (nav.indexOf("zh") === 0) {
-            return "zh-CN";
         }
         return DEFAULT_LANG;
     }
