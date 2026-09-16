@@ -3,8 +3,26 @@
 }
 .navbar{
     color: #FFFFFF;
+    position: relative;
     /*background: transparent !important;*/
-    /*backdrop-filter: blur(10px);*/
+}
+/* 导航栏模糊放在伪元素上：若直接给 .navbar 加 backdrop-filter，
+   它会成为 backdrop root，导致内部下拉菜单的 backdrop-filter 失效（不模糊）。 */
+.navbar::before{
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 0;
+    pointer-events: none;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+.navbar > .container{
+    position: relative;
+    z-index: 1;
 }
 .bg-blur{
     backdrop-filter: blur(10px);
