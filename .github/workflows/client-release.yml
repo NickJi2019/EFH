@@ -23,8 +23,7 @@ jobs:
           ref: ${{ inputs.version }}
       - uses: subosito/flutter-action@v2
         with:
-          # A concrete version is required on the ARM runner; `channel: stable`
-          # cannot be resolved for arm64.
+          # A concrete version keeps the build reproducible.
           flutter-version: '3.47.4'
           cache: true
       - name: Build
@@ -45,19 +44,7 @@ jobs:
           files: EFH-${{ inputs.version }}-windows-portable.zip
 
   linux:
-    runs-on: ${{ matrix.runner }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          # x86_64 keeps the original file name.
-          - runner: ubuntu-latest
-            arch: x64
-            suffix: ''
-          # arm64 runs on GitHub's native ARM runner.
-          - runner: ubuntu-24.04-arm
-            arch: arm64
-            suffix: '-arm64'
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
@@ -69,8 +56,6 @@ jobs:
             libgtk-3-dev liblzma-dev libstdc++-12-dev
       - uses: subosito/flutter-action@v2
         with:
-          # A concrete version is required on the ARM runner; `channel: stable`
-          # cannot be resolved for arm64.
           flutter-version: '3.47.4'
           cache: true
       - name: Build
@@ -81,10 +66,10 @@ jobs:
       - name: Package
         working-directory: efh_connectivity_test
         run: |
-          tar -C build/linux/${{ matrix.arch }}/release -czf \
-            ../EFH-${{ inputs.version }}-linux${{ matrix.suffix }}-portable.tar.gz bundle
+          tar -C build/linux/x64/release -czf \
+            ../EFH-${{ inputs.version }}-linux-portable.tar.gz bundle
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ inputs.version }}
           prerelease: false
-          files: EFH-${{ inputs.version }}-linux${{ matrix.suffix }}-portable.tar.gz
+          files: EFH-${{ inputs.version }}-linux-portable.tar.gz
