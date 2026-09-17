@@ -1,0 +1,282 @@
+/* 深色外观。由 /js/theme.js 在 <html> 上设置 data-theme="dark" 时生效。 */
+
+html[data-theme="dark"] {
+    color-scheme: dark;
+}
+
+html[data-theme="dark"] body {
+    background-color: #121212;
+    color: #e6e1e0;
+}
+
+/* 仅内容区链接跟随主题色；header/footer/navbar 保持原有白/灰色 */
+html[data-theme="dark"] .page a {
+    color: #93d2cc;
+}
+
+html[data-theme="dark"] .page a:hover {
+    color: #afeee8;
+}
+
+html[data-theme="dark"] .text-primary {
+    color: #93d2cc !important;
+}
+
+html[data-theme="dark"] a.text-primary:hover,
+html[data-theme="dark"] a.text-primary:focus {
+    color: #afeee8 !important;
+}
+
+html[data-theme="dark"] .text-secondary {
+    color: #d6c1ba !important;
+}
+
+html[data-theme="dark"] .text-muted {
+    color: #a8a2a0 !important;
+}
+
+/* 内容卡片 */
+html[data-theme="dark"] .page__content {
+    background: #1e1e1e;
+    box-shadow: 0 -2px 3px 0 rgba(0, 0, 0, 0.6);
+}
+
+html[data-theme="dark"] .page__content h1,
+html[data-theme="dark"] .page__content h2,
+html[data-theme="dark"] .page__content h3,
+html[data-theme="dark"] .page__content h4,
+html[data-theme="dark"] .page__content h5,
+html[data-theme="dark"] .page__content h6 {
+    color: #e6e1e0;
+}
+
+/* 表格 */
+html[data-theme="dark"] .page__content table {
+    color: #e6e1e0;
+}
+
+html[data-theme="dark"] .table th,
+html[data-theme="dark"] .table td,
+html[data-theme="dark"] .page__content table th,
+html[data-theme="dark"] .page__content table td {
+    border-color: #3a3535;
+}
+
+html[data-theme="dark"] .table thead th,
+html[data-theme="dark"] .page__content table thead th {
+    border-bottom-color: #4a4444;
+}
+
+html[data-theme="dark"] .table tbody + tbody,
+html[data-theme="dark"] .page__content table tbody + tbody {
+    border-top-color: #4a4444;
+}
+
+html[data-theme="dark"] .table-bordered,
+html[data-theme="dark"] .table-bordered th,
+html[data-theme="dark"] .table-bordered td {
+    border-color: #3a3535;
+}
+
+html[data-theme="dark"] .table-striped tbody tr:nth-of-type(odd),
+html[data-theme="dark"] .page__content table tbody tr:nth-of-type(odd) {
+    background-color: rgba(255, 255, 255, 0.045);
+}
+
+html[data-theme="dark"] .table-hover tbody tr:hover {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* 表单 */
+html[data-theme="dark"] .page__content input[type="text"],
+html[data-theme="dark"] .page__content input[type="password"],
+html[data-theme="dark"] .page__content input[type="number"],
+html[data-theme="dark"] .page__content select,
+html[data-theme="dark"] .page__content textarea,
+html[data-theme="dark"] .form-control {
+    color: #e6e1e0;
+    background-color: #2a2a2a;
+    border-color: #49454f;
+}
+
+html[data-theme="dark"] .page__content input[type="text"]:focus,
+html[data-theme="dark"] .page__content input[type="password"]:focus,
+html[data-theme="dark"] .page__content input[type="number"]:focus,
+html[data-theme="dark"] .page__content select:focus,
+html[data-theme="dark"] .page__content textarea:focus,
+html[data-theme="dark"] .form-control:focus {
+    color: #ffffff;
+    background-color: #2a2a2a;
+}
+
+html[data-theme="dark"] .form-control::placeholder,
+html[data-theme="dark"] .page__content input::placeholder,
+html[data-theme="dark"] .page__content textarea::placeholder {
+    color: #9a938f;
+}
+
+html[data-theme="dark"] option {
+    color: #e6e1e0;
+    background-color: #2a2a2a;
+}
+
+/* 按钮（描边与链接） */
+html[data-theme="dark"] .btn-outline-primary {
+    color: #93d2cc;
+    border-color: #93d2cc;
+}
+
+html[data-theme="dark"] .btn-outline-primary:hover,
+html[data-theme="dark"] .btn-outline-primary:not(:disabled):not(.disabled):active,
+html[data-theme="dark"] .btn-outline-primary:not(:disabled):not(.disabled).active {
+    color: #06231f;
+    background-color: #93d2cc;
+    border-color: #93d2cc;
+}
+
+html[data-theme="dark"] .btn-link {
+    color: #93d2cc;
+}
+
+html[data-theme="dark"] .btn-link:hover,
+html[data-theme="dark"] .btn-link:focus {
+    color: #afeee8;
+}
+
+/* 提示框 */
+html[data-theme="dark"] .alert-primary {
+    color: #afeee8;
+    background-color: #06231f;
+    border-color: #155450;
+}
+
+html[data-theme="dark"] .alert-secondary {
+    color: #b3ccc8;
+    background-color: #1f2b29;
+    border-color: #3f5350;
+}
+
+html[data-theme="dark"] .alert-info {
+    color: #a7e4ef;
+    background-color: #0e2f38;
+    border-color: #17515f;
+}
+
+html[data-theme="dark"] .alert-success {
+    color: #b7e8c4;
+    background-color: #14321d;
+    border-color: #1f5a31;
+}
+
+html[data-theme="dark"] .alert-warning {
+    color: #ffe1a1;
+    background-color: #3a2f0b;
+    border-color: #6b560f;
+}
+
+html[data-theme="dark"] .alert-danger {
+    color: #f5c2c7;
+    background-color: #3a1518;
+    border-color: #6e2228;
+}
+
+/* 卡片 */
+html[data-theme="dark"] .card {
+    background-color: #1e1e1e;
+    border-color: #3a3535;
+}
+
+html[data-theme="dark"] .card-header,
+html[data-theme="dark"] .card-footer {
+    background-color: #262222;
+    border-color: #3a3535;
+}
+
+/* 面包屑 / 列表组 / 分页 */
+html[data-theme="dark"] .breadcrumb {
+    background-color: #262222;
+}
+
+html[data-theme="dark"] .breadcrumb-item + .breadcrumb-item::before {
+    color: #8f8886;
+}
+
+html[data-theme="dark"] .list-group-item {
+    color: #e6e1e0;
+    background-color: #1e1e1e;
+    border-color: #3a3535;
+}
+
+html[data-theme="dark"] .list-group-item.disabled,
+html[data-theme="dark"] .list-group-item:disabled {
+    color: #8f8886;
+    background-color: #1e1e1e;
+}
+
+html[data-theme="dark"] .page-link {
+    background-color: #1e1e1e;
+    border-color: #3a3535;
+}
+
+html[data-theme="dark"] .page-link:hover {
+    background-color: #2a2a2a;
+}
+
+html[data-theme="dark"] .page-item.disabled .page-link {
+    color: #8f8886;
+    background-color: #1e1e1e;
+    border-color: #3a3535;
+}
+
+/* 页内下拉菜单（导航栏的下拉保持透明模糊，不在此列） */
+html[data-theme="dark"] .dropdown-menu:not(.bg-transparent) {
+    background-color: #262222;
+    border-color: #3a3535;
+}
+
+html[data-theme="dark"] .dropdown-menu:not(.bg-transparent) .dropdown-item {
+    color: #e6e1e0;
+}
+
+html[data-theme="dark"] .dropdown-menu:not(.bg-transparent) .dropdown-item:hover,
+html[data-theme="dark"] .dropdown-menu:not(.bg-transparent) .dropdown-item:focus {
+    color: #ffffff;
+    background-color: #3a3535;
+}
+
+html[data-theme="dark"] .dropdown-divider {
+    border-top-color: #3a3535;
+}
+
+/* 代码与引用 */
+html[data-theme="dark"] .page__content pre,
+html[data-theme="dark"] .page__content code {
+    color: #e6e1e0;
+}
+
+html[data-theme="dark"] .page__content pre {
+    background-color: #262222;
+    border-color: #3a3535;
+}
+
+html[data-theme="dark"] .blockquote-footer {
+    color: #a8a2a0;
+}
+
+/* 模态框 */
+html[data-theme="dark"] .modal-content {
+    color: #e6e1e0;
+    background-color: #1e1e1e;
+    border-color: #3a3535;
+}
+
+html[data-theme="dark"] .modal-header,
+html[data-theme="dark"] .modal-footer {
+    border-color: #3a3535;
+}
+
+html[data-theme="dark"] .close {
+    color: #e6e1e0;
+    text-shadow: none;
+}

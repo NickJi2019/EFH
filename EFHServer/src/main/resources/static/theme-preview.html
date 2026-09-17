@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <title>配色预览 - EFH</title>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport"/>
+    <link href="/woznes.png" rel="icon" type="image/png"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.2/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"/>
+    <link href="/css/common.css" rel="stylesheet">
+    <link href="/css/bootstrap4.centos.css" rel="stylesheet">
+    <style>
+        :root {
+            --p: #de937e;
+            --p-d: #c9745c;
+            --p-rgb: 222, 147, 126;
+            --s: #262577;
+            --s-d: #131340;
+            --s-rgb: 38, 37, 119;
+            --t: #efa724;
+            --t-d: #c98a12;
+            --t-rgb: 239, 167, 36;
+        }
+
+        body { padding-top: 64px; }
+
+        a { color: var(--p); }
+        a:hover { color: var(--p-d); }
+
+        .btn-primary { color: #fff !important; background-color: var(--p) !important; border-color: var(--p) !important; }
+        .btn-primary:hover { background-color: var(--p-d) !important; border-color: var(--p-d) !important; }
+        .btn-primary:focus, .btn-primary.focus { box-shadow: 0 0 0 .2rem rgba(var(--p-rgb), .5) !important; }
+        .btn-primary.disabled, .btn-primary:disabled { background-color: var(--p) !important; border-color: var(--p) !important; }
+        .btn-primary:not(:disabled):not(.disabled):active,
+        .btn-primary:not(:disabled):not(.disabled).active,
+        .show > .btn-primary.dropdown-toggle { background-color: var(--p-d) !important; border-color: var(--p-d) !important; }
+
+        .btn-secondary { color: #fff !important; background-color: var(--s) !important; border-color: var(--s) !important; }
+        .btn-secondary:hover { background-color: var(--s-d) !important; border-color: var(--s-d) !important; }
+        .btn-secondary:focus, .btn-secondary.focus { box-shadow: 0 0 0 .2rem rgba(var(--s-rgb), .5) !important; }
+        .btn-secondary.disabled, .btn-secondary:disabled { background-color: var(--s) !important; border-color: var(--s) !important; }
+
+        .btn-outline-primary { color: var(--p) !important; border-color: var(--p) !important; }
+        .btn-outline-primary:hover,
+        .btn-outline-primary:not(:disabled):not(.disabled):active,
+        .btn-outline-primary:not(:disabled):not(.disabled).active { color: #fff !important; background-color: var(--p) !important; border-color: var(--p) !important; }
+        .btn-outline-primary:focus, .btn-outline-primary.focus { box-shadow: 0 0 0 .2rem rgba(var(--p-rgb), .5) !important; }
+
+        .btn-outline-secondary { color: var(--s) !important; border-color: var(--s) !important; }
+        .btn-outline-secondary:hover,
+        .btn-outline-secondary:not(:disabled):not(.disabled):active,
+        .btn-outline-secondary:not(:disabled):not(.disabled).active { color: #fff !important; background-color: var(--s) !important; border-color: var(--s) !important; }
+        .btn-outline-secondary:focus, .btn-outline-secondary.focus { box-shadow: 0 0 0 .2rem rgba(var(--s-rgb), .5) !important; }
+
+        .btn-link { color: var(--p) !important; }
+        .btn-link:hover, .btn-link:focus { color: var(--p-d) !important; }
+
+        .text-primary { color: var(--p) !important; }
+        a.text-primary:hover, a.text-primary:focus { color: var(--p-d) !important; }
+        .text-secondary { color: var(--s) !important; }
+        .bg-primary { background-color: var(--p) !important; }
+        .bg-secondary { background-color: var(--s) !important; }
+        .border-primary { border-color: var(--p) !important; }
+        .border-secondary { border-color: var(--s) !important; }
+
+        .badge-primary { color: #fff !important; background-color: var(--p) !important; }
+        .badge-secondary { color: #fff !important; background-color: var(--s) !important; }
+
+        .alert-primary { color: var(--p-d) !important; background-color: rgba(var(--p-rgb), .14) !important; border-color: rgba(var(--p-rgb), .4) !important; }
+        .alert-primary hr { border-top-color: rgba(var(--p-rgb), .4) !important; }
+        .alert-primary .alert-link { color: var(--p-d) !important; }
+        .alert-secondary { color: var(--s-d) !important; background-color: rgba(var(--s-rgb), .14) !important; border-color: rgba(var(--s-rgb), .4) !important; }
+        .alert-secondary .alert-link { color: var(--s-d) !important; }
+
+        .progress-bar { background-color: var(--p) !important; }
+
+        .page-link { color: var(--p) !important; }
+        .page-link:hover { color: var(--p-d) !important; }
+        .page-item.active .page-link { color: #fff !important; background-color: var(--p) !important; border-color: var(--p) !important; }
+
+        .list-group-item.active { background-color: var(--p) !important; border-color: var(--p) !important; }
+        .nav-pills .nav-link.active { background-color: var(--p) !important; }
+        .dropdown-item.active, .dropdown-item:active { background-color: var(--p) !important; }
+
+        .form-control:focus { border-color: var(--p) !important; box-shadow: 0 0 0 .2rem rgba(var(--p-rgb), .25) !important; }
+        .custom-control-input:checked ~ .custom-control-label::before { background-color: var(--p) !important; border-color: var(--p) !important; }
+        .custom-range::-webkit-slider-thumb { background-color: var(--p) !important; }
+
+        .hr__centos-color-0 { background-color: var(--t) !important; }
+        .hr__centos-color-1 { background-color: var(--p) !important; }
+        .hr__centos-color-2 { background-color: var(--s) !important; }
+        .hr__centos-color-3 { background-color: var(--p-d) !important; }
+        .hr { background-color: var(--s) !important; }
+
+        .switcher {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 2000;
+            display: flex; flex-wrap: wrap; gap: .5rem; align-items: center;
+            padding: .5rem .75rem;
+            background: rgba(2, 0, 8, .82);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 0 8px rgba(0,0,0,.5);
+        }
+        .switcher .hint { color: #fff; font-size: .85rem; margin-right: .5rem; opacity: .85; }
+        .swatch-btn {
+            display: inline-flex; align-items: center; gap: .4rem;
+            border: 1px solid rgba(255,255,255,.35); border-radius: 999px;
+            padding: .25rem .7rem; background: transparent; color: #fff;
+            font-size: .85rem; cursor: pointer;
+        }
+        .swatch-btn .dot { width: .9rem; height: .9rem; border-radius: 50%; display: inline-block; }
+        .swatch-btn.active { border-color: #fff; background: rgba(255,255,255,.15); font-weight: 600; }
+
+        .palette-line { display: flex; flex-wrap: wrap; gap: 1rem; margin: .5rem 0 1.5rem; }
+        .palette-chip { border-radius: .5rem; padding: .75rem 1rem; color: #fff; min-width: 150px; }
+        .palette-chip small { display: block; opacity: .9; }
+        .current-name { font-weight: 600; }
+    </style>
+</head>
+
+<body>
+
+<div class="switcher" id="switcher">
+    <span class="hint"><i class="fas fa-palette"></i> 配色方案：</span>
+</div>
+
+<header class="header header__page">
+    <div class="container mb-5">
+        <a href="#"></a>
+    </div>
+    <h1 class="header__page__title">配色预览</h1>
+    <p class="header__page__description">切换方案，对比网站所有 UI 元素的观感</p>
+</header>
+
+<div class="hr">
+    <div class="hr__centos-color-0"></div>
+    <div class="hr__centos-color-1"></div>
+    <div class="hr__centos-color-2"></div>
+    <div class="hr__centos-color-3"></div>
+</div>
+
+<main class="page">
+    <article class="page__content">
+
+        <div class="row">
+            <div class="col">
+                <h5>当前方案：<span class="current-name text-primary" id="curName">-</span></h5>
+                <div class="palette-line" id="paletteLine"></div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <h5>按钮 Buttons</h5>
+                <p>
+                    <button class="btn btn-primary">主色按钮</button>
+                    <button class="btn btn-secondary">次色按钮</button>
+                    <button class="btn btn-outline-primary">主色描边</button>
+                    <button class="btn btn-outline-secondary">次色描边</button>
+                    <button class="btn btn-link">链接按钮</button>
+                    <button class="btn btn-primary" disabled>禁用</button>
+                </p>
+                <p>
+                    <button class="btn btn-primary btn-lg">大按钮</button>
+                    <button class="btn btn-primary">默认</button>
+                    <button class="btn btn-primary btn-sm">小按钮</button>
+                </p>
+                <div class="btn-group" role="group">
+                    <button class="btn btn-primary"><i class="fas fa-file-import"></i> 导入</button>
+                    <button class="btn btn-primary"><i class="fas fa-copy"></i> 复制</button>
+                    <button class="btn btn-secondary dropdown-toggle" data-toggle="dropdown"><i class="fas fa-cog"></i></button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item active" href="#">当前项</a>
+                        <a class="dropdown-item" href="#">普通项</a>
+                        <a class="dropdown-item" href="#">另一项</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col">
+                <h5>表单 Forms</h5>
+                <form>
+                    <div class="form-row">
+                        <div class="col-md-4">
+                            <label for="pvText">文本输入</label>
+                            <input class="form-control" id="pvText" type="text" placeholder="请输入内容">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="pvNum">数字输入</label>
+                            <input class="form-control" id="pvNum" type="number" value="16" min="1">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="pvSel">下拉选择</label>
+                            <select class="form-control" id="pvSel">
+                                <option>选项一</option>
+                                <option>选项二</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group mt-2">
+                        <label for="pvArea">多行文本</label>
+                        <textarea class="form-control" id="pvArea" rows="2" placeholder="多行文本"></textarea>
+                    </div>
+                    <div class="custom-control custom-checkbox custom-control-inline">
+                        <input class="custom-control-input" id="pvC1" type="checkbox" checked>
+                        <label class="custom-control-label" for="pvC1">复选框</label>
+                    </div>
+                    <div class="custom-control custom-radio custom-control-inline">
+                        <input class="custom-control-input" id="pvR1" type="radio" name="pvR" checked>
+                        <label class="custom-control-label" for="pvR1">单选框</label>
+                    </div>
+                    <div class="custom-control custom-switch custom-control-inline">
+                        <input class="custom-control-input" id="pvS1" type="checkbox" checked>
+                        <label class="custom-control-label" for="pvS1">开关</label>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col">
+                <h5>表格 Tables</h5>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                        <tr>
+                            <th>软件</th>
+                            <th>平台</th>
+                            <th>状态</th>
+                            <th>链接</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>Shadowrocket</td>
+                            <td>iOS / macOS</td>
+                            <td><span class="badge badge-success">推荐</span></td>
+                            <td><a href="#">前往下载</a></td>
+                        </tr>
+                        <tr>
+                            <td>FlClash</td>
+                            <td>Android / Windows</td>
+                            <td><span class="badge badge-secondary">可用</span></td>
+                            <td><a href="#">前往下载</a></td>
+                        </tr>
+                        <tr>
+                            <td>ClashX Meta</td>
+                            <td>macOS</td>
+                            <td><span class="badge badge-warning">测试中</span></td>
+                            <td><a href="#">前往下载</a></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col">
+                <h5>徽章 Badges</h5>
+                <p>
+                    <span class="badge badge-primary">primary</span>
+                    <span class="badge badge-secondary">secondary</span>
+                    <span class="badge badge-success">success</span>
+                    <span class="badge badge-info">info</span>
+                    <span class="badge badge-warning">warning</span>
+                    <span class="badge badge-danger">danger</span>
+                    <span class="badge badge-light">light</span>
+                    <span class="badge badge-dark">dark</span>
+                </p>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col">
+                <h5>提示框 Alerts</h5>
+                <div class="alert alert-primary" role="alert">
+                    <h5 class="alert-heading">主色提示</h5>
+                    这是一条主色信息框，用于重要说明与引导。
+                </div>
+                <div class="alert alert-secondary" role="alert">次色提示框。</div>
+                <div class="alert alert-info" role="alert">信息提示框（语义色，保持不变）。</div>
+                <div class="alert alert-success" role="alert">成功提示框（语义色）。</div>
+                <div class="alert alert-warning" role="alert">警告提示框（语义色）。</div>
+                <div class="alert alert-danger" role="alert">错误提示框（语义色）。</div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col">
+                <h5>进度条 Progress</h5>
+                <div class="progress" style="height: 22px;">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 64%;">64%</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col">
+                <h5>分页 Pagination</h5>
+                <nav>
+                    <ul class="pagination">
+                        <li class="page-item disabled"><a class="page-link" href="#">上一页</a></li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item"><a class="page-link" href="#">下一页</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <h5>列表组 List group</h5>
+                <ul class="list-group">
+                    <li class="list-group-item active">当前条目</li>
+                    <li class="list-group-item">普通条目一</li>
+                    <li class="list-group-item">普通条目二</li>
+                    <li class="list-group-item disabled">禁用条目</li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <h5>导航页签 Nav pills</h5>
+                <ul class="nav nav-pills mb-3">
+                    <li class="nav-item"><a class="nav-link active" href="#">激活</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">普通</a></li>
+                </ul>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="#">首页</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">当前页</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <h5>卡片 Card</h5>
+                <div class="card">
+                    <div class="card-header">卡片标题</div>
+                    <div class="card-body">
+                        <h6 class="card-title">示例卡片</h6>
+                        <p class="card-text">用于承载一组相关内容。链接样式：<a href="#">示例链接</a>。</p>
+                        <a href="#" class="btn btn-primary btn-sm">操作</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h5>排版 Typography</h5>
+                <h6>六级标题示例</h6>
+                <p>普通段落，包含 <strong>加粗</strong>、<em>斜体</em> 与 <a href="#">链接</a>。</p>
+                <blockquote class="blockquote">
+                    <p class="mb-0">引用文本示例。</p>
+                </blockquote>
+                <pre><code>npm install example</code></pre>
+            </div>
+        </div>
+
+    </article>
+</main>
+
+<div class="hr">
+    <div class="hr__centos-color-0"></div>
+    <div class="hr__centos-color-1"></div>
+    <div class="hr__centos-color-2"></div>
+    <div class="hr__centos-color-3"></div>
+</div>
+
+<footer class="footer">
+    <div class="container">
+        <div class="row">
+            <section class="links">
+                <h6><i class="fas fa-info-circle"></i> 关于</h6>
+                <ul><li><a href="#">关于本系统</a></li></ul>
+            </section>
+            <section class="links">
+                <h6><i class="fas fa-users"></i> 联系方式</h6>
+                <ul>
+                    <li><a href="#"><i class="fab fa-github"></i> 提出 issue</a></li>
+                    <li><a href="#"><i class="fab fa-telegram"></i> Telegram</a></li>
+                </ul>
+            </section>
+        </div>
+        <div class="row">
+            <section class="copyright"><p>Copyright © 2025 Woznes</p></section>
+        </div>
+    </div>
+</footer>
+
+<script>
+    (function () {
+        "use strict";
+
+        var SCHEMES = [
+            {name: "柔和青 Muted Teal", p: "#0f5652", s: "#4c6360", t: "#73402a"},
+            {name: "柔和青绿 Muted Green-Teal", p: "#27533e", s: "#516258", t: "#6d3d3e"},
+            {name: "柔和蓝 Muted Blue", p: "#26486e", s: "#535f70", t: "#5e4104"},
+            {name: "柔和靛 Muted Indigo", p: "#3e426a", s: "#5c5d6f", t: "#6f5d26"},
+            {name: "强对比 Teal（参考）", p: "#006b5f", s: "#4a635e", t: "#456179"},
+            {name: "强对比 Cyan（参考）", p: "#006874", s: "#4a6267", t: "#525e7d"},
+            {name: "FIDELITY 暖色（现状）", p: "#a63b0c", s: "#8a4f3a", t: "#00687a"},
+            {name: "Score 显著色", p: "#ef6f3f", s: "#585e70", t: "#b2a7b7"}
+        ];
+
+        function clamp(v) { return Math.max(0, Math.min(255, Math.round(v))); }
+
+        function hexToRgb(hex) {
+            var h = hex.replace("#", "");
+            return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+        }
+
+        function rgbToHex(r, g, b) {
+            return "#" + [r, g, b].map(function (v) {
+                return clamp(v).toString(16).padStart(2, "0");
+            }).join("");
+        }
+
+        function shade(hex, amt) {
+            var c = hexToRgb(hex);
+            return rgbToHex(c[0] + 255 * amt, c[1] + 255 * amt, c[2] + 255 * amt);
+        }
+
+        function apply(scheme) {
+            var root = document.documentElement.style;
+            root.setProperty("--p", scheme.p);
+            root.setProperty("--p-d", shade(scheme.p, -0.12));
+            root.setProperty("--p-rgb", hexToRgb(scheme.p).join(", "));
+            root.setProperty("--s", scheme.s);
+            root.setProperty("--s-d", shade(scheme.s, -0.12));
+            root.setProperty("--s-rgb", hexToRgb(scheme.s).join(", "));
+            root.setProperty("--t", scheme.t);
+            root.setProperty("--t-d", shade(scheme.t, -0.12));
+            root.setProperty("--t-rgb", hexToRgb(scheme.t).join(", "));
+
+            document.getElementById("curName").textContent = scheme.name;
+            document.querySelectorAll(".swatch-btn").forEach(function (b) {
+                b.classList.toggle("active", b.dataset.name === scheme.name);
+            });
+
+            var line = document.getElementById("paletteLine");
+            line.innerHTML = "";
+            [["主色 primary", scheme.p], ["次色 secondary", scheme.s], ["其他 tertiary", scheme.t]].forEach(function (item) {
+                var chip = document.createElement("div");
+                chip.className = "palette-chip";
+                chip.style.backgroundColor = item[1];
+                chip.innerHTML = item[0] + "<small>" + item[1] + "</small>";
+                var rgb = hexToRgb(item[1]);
+                var lum = (0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]) / 255;
+                chip.style.color = lum > 0.6 ? "#1a1a1a" : "#ffffff";
+                line.appendChild(chip);
+            });
+        }
+
+        var switcher = document.getElementById("switcher");
+        SCHEMES.forEach(function (scheme) {
+            var btn = document.createElement("button");
+            btn.className = "swatch-btn";
+            btn.dataset.name = scheme.name;
+            btn.innerHTML = '<span class="dot" style="background:' + scheme.p + '"></span>' +
+                '<span class="dot" style="background:' + scheme.s + '"></span>' +
+                '<span class="dot" style="background:' + scheme.t + '"></span> ' + scheme.name;
+            btn.addEventListener("click", function () { apply(scheme); });
+            switcher.appendChild(btn);
+        });
+
+        apply(SCHEMES[0]);
+    })();
+</script>
+
+</body>
+</html>
