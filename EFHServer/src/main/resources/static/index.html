@@ -273,10 +273,26 @@
             content: "\f35d";
         }
 
+        /* 内容列统一填满行宽，避免宽度被内部元素撑开导致左右不一致或溢出 */
+        .page__content .row > div {
+            flex: 1 1 100%;
+            min-width: 0;
+        }
+
         /* 移动端表格：按列拆分为分块卡片，不再横向并排 */
         @media (max-width: 767.98px) {
+            /* 容器不带任何左右偏移，保证卡片到屏幕两侧间距一致 */
             .page__content .table-responsive {
                 overflow-x: visible;
+                margin-left: 0;
+                margin-right: 0;
+                padding-left: 0;
+                padding-right: 0;
+            }
+
+            /* 去掉表格自带外框，否则会与卡片边框错位 */
+            .page__content table.table-bordered {
+                border: 0;
             }
 
             .page__content table,
@@ -294,6 +310,7 @@
             }
 
             .page__content table tbody tr {
+                box-sizing: border-box;
                 border: 1px solid rgba(128, 128, 128, .35);
                 border-radius: .25rem;
                 margin-bottom: 1rem;

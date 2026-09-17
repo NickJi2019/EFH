@@ -74,6 +74,16 @@
                         <span data-i18n="acc.download">前往 GitHub 下载屏蔽检测软件</span>
                     </a>
                 </p>
+                <div class="alert alert-warning" role="alert">
+                    <h6 class="alert-heading" data-i18n="acc.macTitle">macOS 提示「已损坏」怎么办</h6>
+                    <p data-i18n="acc.macBody">
+                        从 GitHub 下载的应用没有 Apple 签名，macOS 会提示「已损坏，无法打开」。这并不代表文件损坏，在「终端」中执行下面这条命令即可解除限制（把路径换成实际的应用）：
+                    </p>
+                    <pre class="mb-2"><code>xattr -cr "/Applications/你的应用.app"</code></pre>
+                    <p class="mb-0" data-i18n="acc.macNote">
+                        也可以打开「系统设置 → 隐私与安全性」，在底部找到被拦截的提示，点击「仍要打开」。
+                    </p>
+                </div>
                 <p data-i18n="acc.body">
                     网页版检测受浏览器跨域（CORS）限制，结果不够可靠。推荐下载独立的屏蔽检测软件，获得更准确、更全面的检测结果。
                 </p>
