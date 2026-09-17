@@ -1,13 +1,14 @@
 name: Client Release (Windows / Linux)
 
-# Builds the client's portable Windows and Linux bundles and attaches them to
-# an existing GitHub release. macOS/Android are built locally and uploaded by
-# the packager script; Windows and Linux cannot be cross-compiled from macOS.
+# Builds the client's single-file Windows installer and Linux AppImage and
+# attaches them to an existing GitHub release. macOS (a .dmg) is built locally
+# with packaging/macos/make_dmg.sh; Windows and Linux cannot be cross-compiled
+# from macOS.
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Release tag, e.g. v1.1.3'
+        description: 'Release tag, e.g. v1.1.6'
         required: true
         type: string
 
@@ -31,17 +32,22 @@ jobs:
         run: |
           flutter pub get
           flutter build windows --release
-      - name: Package
+      - name: Package (single .exe)
         working-directory: efh_connectivity_test
         shell: pwsh
         run: |
-          Compress-Archive -Path build/windows/x64/runner/Release/* `
-            -DestinationPath ../EFH-${{ inputs.version }}-windows-portable.zip
+          $ver = '${{ inputs.version }}'
+          $iscc = (Get-ChildItem "${env:ProgramFiles(x86)}\Inno Setup*\ISCC.exe" -ErrorAction SilentlyContinue |
+            Select-Object -First 1).FullName
+          if (-not $iscc) { $iscc = 'iscc' }
+          $src = (Resolve-Path 'build\windows\x64\runner\Release').Path
+          $out = (Resolve-Path '..').Path
+          & $iscc "/DAppVersion=$ver" "/DSourceDir=$src" "/DOutDir=$out" 'packaging\windows\EFH.iss'
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ inputs.version }}
           prerelease: false
-          files: EFH-${{ inputs.version }}-windows-portable.zip
+          files: EFH-${{ inputs.version }}-windows-setup.exe
 
   linux:
     runs-on: ubuntu-latest
@@ -63,13 +69,12 @@ jobs:
         run: |
           flutter pub get
           flutter build linux --release
-      - name: Package
+      - name: Package (single AppImage)
         working-directory: efh_connectivity_test
         run: |
-          tar -C build/linux/x64/release -czf \
-            ../EFH-${{ inputs.version }}-linux-portable.tar.gz bundle
+          bash packaging/linux/make_appimage.sh "${{ inputs.version }}"
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ inputs.version }}
           prerelease: false
-          files: EFH-${{ inputs.version }}-linux-portable.tar.gz
+          files: EFH-${{ inputs.version }}-linux-x86_64.AppImage

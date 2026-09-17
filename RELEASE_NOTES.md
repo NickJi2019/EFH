@@ -1,16 +1,15 @@
-# EFH Website Blocking Detection v1.1.5
+# EFH Website Blocking Detection v1.1.6
 
 ## English
 
-This release fixes two Android issues. Rotating the device during a run no
-longer freezes the UI: the shell now keeps the page and its state (including the
-live result list) instead of rebuilding it whenever the layout crosses a width
-breakpoint. Tapping the update or download button now opens GitHub: an app
-cannot launch a browser process itself on Android, so the link is handed to the
-system browser through a small platform channel.
+This release keeps the same app as v1.1.5 and changes how it is packaged.
+Windows now ships as a single installer `.exe`, Linux as a single AppImage
+executable, and macOS as a `.dmg` that includes an Applications shortcut so the
+app can be dragged into place. Android remains a portable APK. The in-app update
+check is unaffected: it opens the release page and the browser handles the rest.
 
 ## 中文
 
-本次修复两个安卓问题。检测过程中旋转屏幕不再卡死：跨过布局宽度断点时，外壳会保留页面及其状态
-（包括实时结果列表），不再把整棵页面树重建。点击更新/下载按钮现在能打开 GitHub：安卓上应用
-无法自行启动浏览器进程，改为通过一个轻量的平台通道把链接交给系统浏览器处理。
+本次与 v1.1.5 功能一致，仅调整打包方式。Windows 改为单个安装程序 exe，Linux 改为单个可执行
+文件 AppImage，macOS 改为 dmg（内含 Applications 快捷方式，可直接拖入安装）。Android 仍为
+便携 APK。应用内的更新检查不受影响：它只是打开 Release 页面，由浏览器处理后续下载。
