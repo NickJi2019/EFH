@@ -392,9 +392,9 @@ class _DashboardPageState extends State<DashboardPage>
             ),
             if (quick)
               StatItem(
-                l10n.badgeOtherProblem,
+                l10n.badgeCertUnavailable,
                 stats.certificateError + stats.failed,
-                icon: Icons.warning_amber,
+                icon: Icons.help_outline,
               )
             else ...[
               StatItem(

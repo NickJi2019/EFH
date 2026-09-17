@@ -27,7 +27,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   FlutterWindow window(project);
   Win32Window::Point origin(10, 10);
   Win32Window::Size size(1280, 720);
-  if (!window.Create(L"网站屏蔽检测", origin, size)) {
+  // 网站屏蔽检测, written as escapes so the title is correct regardless of
+  // the source encoding and the compiler's code page.
+  if (!window.Create(
+          L"\u7f51\u7ad9\u5c4f\u853d\u68c0\u6d4b", origin, size)) {
     return EXIT_FAILURE;
   }
   window.SetQuitOnClose(true);

@@ -151,6 +151,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get badgeOtherProblem => 'Other issue';
 
   @override
+  String get badgeCertUnavailable => 'Certificate unavailable';
+
+  @override
   String get badgeReachable => 'Accessible';
 
   @override

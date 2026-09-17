@@ -497,7 +497,7 @@ class _LogsPageState extends State<LogsPage>
                     _StatusFilter.hdsbBlocked => l10n.badgeHdsbBlocked,
                     _StatusFilter.expired => l10n.badgeCertificateExpired,
                     _StatusFilter.unreachable => l10n.badgeUnreachable,
-                    _StatusFilter.otherProblem => l10n.badgeOtherProblem,
+                    _StatusFilter.otherProblem => l10n.badgeCertUnavailable,
                   },
                   selected: _statuses,
                   enabledFor: (value) =>
@@ -1129,10 +1129,12 @@ class _StatusBadge extends StatelessWidget {
       icon = Icons.warning_amber;
       label = l10n.badgeCertificateExpired;
     } else if (quick) {
+      // Quick mode only inspects the certificate issuer, so anything that did
+      // not yield one means the certificate could not be checked.
       background = const Color(0xFFF9A825);
       foreground = Colors.black87;
-      icon = Icons.warning_amber;
-      label = l10n.badgeOtherProblem;
+      icon = Icons.help_outline;
+      label = l10n.badgeCertUnavailable;
     } else {
       background = const Color(0xFFC62828);
       foreground = Colors.white;

@@ -362,6 +362,12 @@ abstract class AppLocalizations {
   /// **'Other issue'**
   String get badgeOtherProblem;
 
+  /// No description provided for @badgeCertUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Certificate unavailable'**
+  String get badgeCertUnavailable;
+
   /// No description provided for @badgeReachable.
   ///
   /// In en, this message translates to:

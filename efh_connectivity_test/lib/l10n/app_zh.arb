@@ -44,6 +44,7 @@
   "hdsbQuickCheckLabel": "针对 HDSB 的快速检查",
   "hdsbQuickCheckDesc": "仅检查证书签发者，而不检查实际服务器情况。",
   "badgeOtherProblem": "其他问题",
+  "badgeCertUnavailable": "无法检查证书",
   "badgeReachable": "可以访问",
   "badgeBlocked": "被屏蔽",
   "badgeHdsbBlocked": "明确被 HDSB 屏蔽",

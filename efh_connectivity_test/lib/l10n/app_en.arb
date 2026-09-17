@@ -62,6 +62,7 @@
   "hdsbQuickCheckLabel": "HDSB quick check",
   "hdsbQuickCheckDesc": "Only checks the certificate issuer, not the actual server state.",
   "badgeOtherProblem": "Other issue",
+  "badgeCertUnavailable": "Certificate unavailable",
   "badgeReachable": "Accessible",
   "badgeBlocked": "Blocked",
   "badgeHdsbBlocked": "Blocked by HDSB",

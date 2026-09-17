@@ -150,6 +150,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get badgeOtherProblem => '其他问题';
 
   @override
+  String get badgeCertUnavailable => '无法检查证书';
+
+  @override
   String get badgeReachable => '可以访问';
 
   @override
