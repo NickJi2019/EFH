@@ -1,9 +1,8 @@
-name: Client Release (Windows / Linux)
+name: Client Release (Windows / Linux / Android)
 
-# Builds the client's single-file Windows installer and Linux AppImage and
-# attaches them to an existing GitHub release. macOS (a .dmg) is built locally
-# with packaging/macos/make_dmg.sh; Windows and Linux cannot be cross-compiled
-# from macOS.
+# Builds the client's single-file Windows installer and Linux AppImage plus the
+# Android APK and attaches them to an existing GitHub release. macOS (a .dmg) is
+# built locally with packaging/macos/make_dmg.sh.
 on:
   workflow_dispatch:
     inputs:
@@ -78,3 +77,33 @@ jobs:
           tag_name: ${{ inputs.version }}
           prerelease: false
           files: EFH-${{ inputs.version }}-linux-x86_64.AppImage
+
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.version }}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.4'
+          cache: true
+      - name: Build
+        working-directory: efh_connectivity_test
+        run: |
+          flutter pub get
+          flutter build apk --release
+      - name: Package
+        working-directory: efh_connectivity_test
+        run: |
+          cp build/app/outputs/flutter-apk/app-release.apk \
+            ../EFH-${{ inputs.version }}-android-portable.apk
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.version }}
+          prerelease: false
+          files: EFH-${{ inputs.version }}-android-portable.apk
