@@ -200,6 +200,22 @@
         html[lang="en"] .fun-del {
             display: none;
         }
+
+        /* 移动端：图标在上、文字在下，避免文字被图标挤压 */
+        @media (max-width: 767.98px) {
+            .btn-group-block > .btn {
+                flex-wrap: wrap;
+                justify-content: center;
+                row-gap: .25em;
+                padding-top: .5rem;
+                padding-bottom: .5rem;
+            }
+
+            .btn-group-block > .btn > span {
+                flex-basis: 100%;
+                text-align: center;
+            }
+        }
     </style>
 
     <script>
