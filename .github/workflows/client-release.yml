@@ -1,0 +1,74 @@
+name: Client Release (Windows / Linux)
+
+# Builds the client's portable Windows and Linux bundles and attaches them to
+# an existing GitHub release. macOS/Android are built locally and uploaded by
+# the packager script; Windows and Linux cannot be cross-compiled from macOS.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release tag, e.g. v1.0.0'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.version }}
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Build
+        working-directory: efh_connectivity_test
+        run: |
+          flutter pub get
+          flutter build windows --release
+      - name: Package
+        working-directory: efh_connectivity_test
+        shell: pwsh
+        run: |
+          Compress-Archive -Path build/windows/x64/runner/Release/* `
+            -DestinationPath ../EFH-${{ inputs.version }}-windows-portable.zip
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.version }}
+          prerelease: false
+          files: EFH-${{ inputs.version }}-windows-portable.zip
+
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.version }}
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config \
+            libgtk-3-dev liblzma-dev libstdc++-12-dev
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Build
+        working-directory: efh_connectivity_test
+        run: |
+          flutter pub get
+          flutter build linux --release
+      - name: Package
+        working-directory: efh_connectivity_test
+        run: |
+          tar -C build/linux/x64/release -czf \
+            ../EFH-${{ inputs.version }}-linux-portable.tar.gz bundle
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.version }}
+          prerelease: false
+          files: EFH-${{ inputs.version }}-linux-portable.tar.gz

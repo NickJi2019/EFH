@@ -1,0 +1,236 @@
+{
+  "@@locale": "en",
+  "appTitle": "Website Blocking Detection",
+  "navDashboard": "Check",
+  "navLogs": "Logs",
+  "navSettings": "Settings",
+  "navAbout": "About",
+  "actionStart": "Start",
+  "actionStop": "Stop",
+  "actionPause": "Pause",
+  "actionResume": "Resume",
+  "actionCancel": "Cancel",
+  "actionClear": "Clear",
+  "actionExportJson": "Export results as JSON",
+  "actionAutoScrollStop": "Stop auto-scrolling",
+  "actionAutoScrollStart": "Auto-scroll to bottom",
+  "actionChooseFile": "Choose file",
+  "stateRunning": "Running",
+  "statePaused": "Paused",
+  "stateCancelled": "Cancelled",
+  "statePreparing": "Preparing",
+  "stateError": "Error",
+  "stateDone": "Finished",
+  "stateIdle": "Not started",
+  "ratePerSecond": "{rate} domains/s",
+  "@ratePerSecond": {
+    "placeholders": {
+      "rate": { "type": "String" }
+    }
+  },
+  "progressCounter": "{done} / {total} ({percent}%)",
+  "@progressCounter": {
+    "placeholders": {
+      "done": { "type": "int" },
+      "total": { "type": "int" },
+      "percent": { "type": "String" }
+    }
+  },
+  "progressBreakdown": "Reachable {reachable} · Blocked {blocked}",
+  "@progressBreakdown": {
+    "placeholders": {
+      "reachable": { "type": "int" },
+      "blocked": { "type": "int" }
+    }
+  },
+  "sourceTitle": "Data source",
+  "sourceRadar": "Cloudflare Radar",
+  "sourceLocal": "Local CSV",
+  "listSource": "List source",
+  "efhServer": "EFHServer",
+  "cloudflareDirect": "Cloudflare direct",
+  "serverUrlLabel": "EFHServer URL",
+  "cloudflareTokenHint": "Cloudflare direct uses the CF Token from Settings; leave it empty to read the CF_Token environment variable.",
+  "listToCheck": "List to check",
+  "logListLabel": "List used for the live log",
+  "noFileSelected": "No file selected",
+  "paramsTitle": "Parameters",
+  "workersLabel": "Concurrency",
+  "timeoutLabel": "Per-host timeout (s)",
+  "hdsbDetectionLabel": "HDSB firewall detection",
+  "hdsbDetectionDesc": "Detects certificates issued by Fortinet, the vendor of the HDSB firewall. If a normal site's certificate is replaced by a Fortinet certificate, the site is considered blocked.",
+  "hdsbQuickCheckLabel": "HDSB quick check",
+  "hdsbQuickCheckDesc": "Only checks the certificate issuer, not the actual server state.",
+  "badgeOtherProblem": "Other issue",
+  "badgeReachable": "Accessible",
+  "badgeBlocked": "Blocked",
+  "badgeHdsbBlocked": "Blocked by HDSB",
+  "badgeDnsError": "DNS error",
+  "badgeUnreachable": "Unreachable",
+  "badgeCertificateExpired": "Certificate expired",
+  "explanationReachable": "The site's HTTP page can be opened normally.",
+  "explanationDns": "The domain cannot be resolved; the site may not serve anything at this domain, or DNS may be hijacked.",
+  "explanationTimeout": "The server did not respond; the site may be broken, blocked, or the network may be at fault.",
+  "explanationCertificate": "The site uses an expired, wrong, or untrusted certificate; it may also be blocked.",
+  "explanationUnreachable": "The site cannot be reached; the server may be down or the network may be at fault.",
+  "explanationBlocked": "This site is explicitly blocked by the HDSB Fortinet firewall.",
+  "statsTitle": "Result statistics",
+  "statTotal": "Total",
+  "statProcessed": "Processed",
+  "statHdsb": "HDSB blocked",
+  "statCertError": "Certificate errors",
+  "statFailed": "Other failures",
+  "logsTitle": "Logs ({count})",
+  "@logsTitle": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "logsEmpty": "No logs yet",
+  "settingsCloudflare": "Cloudflare",
+  "cfTokenLabel": "CF Token",
+  "cfTokenHint": "Cloudflare Radar dataset read token",
+  "cfTokenHelp": "Used to fall back to the Radar dataset API when using the Cloudflare direct source. Not needed for the EFHServer source.",
+  "languageTitle": "Language",
+  "languageSystem": "System",
+  "languageChinese": "简体中文",
+  "languageEnglish": "English",
+  "aboutTitle": "Website Blocking Detection",
+  "updateTitle": "Check for updates",
+  "updateCurrentVersion": "Current version",
+  "updateChecking": "Checking for updates…",
+  "updateUpToDate": "You're on the latest version",
+  "updateAvailable": "New version available",
+  "updateDownload": "Download",
+  "updateCheckFailed": "Update check failed",
+  "updateNotChecked": "Not checked yet",
+  "actionCheckUpdate": "Check",
+  "aboutSubtitle": "Probe domain certificates in bulk, detect blocked sites and export JSON.",
+  "aboutPrinciples": "How it works",
+  "principleMethodTitle": "Method",
+  "principleMethodDesc": "Performs a TLS handshake (port 443, SNI) for each domain and reads the leaf certificate issuer.",
+  "principleCriteriaTitle": "Criteria",
+  "principleCriteriaDesc": "Marks the result blocked only when HDSB detection is enabled and the certificate issuer matches. It is an indicator, not a conclusion.",
+  "principleTrustTitle": "Certificate trust",
+  "principleTrustDesc": "The handshake deliberately accepts untrusted certificates so interception certificates can be inspected.",
+  "principleSourceTitle": "Data source",
+  "principleSourceDesc": "Cloudflare Radar Top-N lists, fetched through EFHServer or directly.",
+  "pickFileTitle": "Choose a domain list CSV",
+  "exportDialogTitle": "Export results",
+  "logInputRadar": "Input: Cloudflare Radar {label}",
+  "@logInputRadar": {
+    "placeholders": {
+      "label": { "type": "String" }
+    }
+  },
+  "logSource": "Source: {source}",
+  "@logSource": {
+    "placeholders": {
+      "source": { "type": "String" }
+    }
+  },
+  "logMerged": "Merged {count} domains",
+  "@logMerged": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "logInputPath": "Input: {path}",
+  "@logInputPath": {
+    "placeholders": {
+      "path": { "type": "String" }
+    }
+  },
+  "logError": "Error: {error}",
+  "@logError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "logCancelled": "Cancelled",
+  "logStopping": "Stopping…",
+  "logFinished": "Done, processed {count} domains",
+  "@logFinished": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "validationWorkers": "Concurrency must be a positive integer",
+  "validationTimeout": "Timeout must be a positive integer",
+  "validationInputFile": "Please choose an input CSV file first",
+  "validationServerUrl": "Please fill in the EFHServer URL",
+  "snackCancelledExport": "Export cancelled",
+  "snackExported": "Exported: {path}",
+  "@snackExported": {
+    "placeholders": {
+      "path": { "type": "String" }
+    }
+  },
+  "snackExportFailed": "Export failed: {error}",
+  "@snackExportFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "snackPickFailed": "Failed to choose file: {error}",
+  "@snackPickFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "listUpdating": "Updating {label}…",
+  "@listUpdating": {
+    "placeholders": {
+      "label": { "type": "String" }
+    }
+  },
+  "updateSettingsTitle": "Update settings",
+  "updateNow": "Update now",
+  "updating": "Updating…",
+  "lastUpdated": "Updated {time}",
+  "@lastUpdated": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "neverUpdated": "Never updated",
+  "serverAddressLabel": "Server address",
+  "filterStatus": "Status",
+  "filterHeat": "Heat",
+  "filterTitle": "Filters",
+  "searchHint": "Search domain",
+  "filterAll": "All",
+  "filterNotBlocked": "Not blocked",
+  "filterBlocked": "Blocked",
+  "filterError": "Errors",
+  "resultsEmpty": "No results yet",
+  "itemChecking": "Checking…",
+  "detailStatus": "Status",
+  "detailHeat": "Heat",
+  "detailTitle": "Title",
+  "detailCertError": "Certificate detail",
+  "detailMessage": "Error detail",
+  "statusChecking": "Checking",
+  "statusBlocked": "Blocked",
+  "statusNotBlocked": "Not blocked",
+  "statusCertificateError": "Certificate error",
+  "statusDnsError": "DNS error",
+  "statusTimeout": "Timeout",
+  "statusConnectionRefused": "Connection refused",
+  "statusNetworkError": "TLS/network error",
+  "statusInvalidInput": "Invalid input",
+  "autoScrollOn": "Auto-scroll",
+  "autoScrollOff": "Manual",
+  "themeTitle": "Theme",
+  "themeColorLabel": "Accent color",
+  "themeModeLabel": "Mode",
+  "themeModeSystem": "System",
+  "themeModeLight": "Light",
+  "themeModeDark": "Dark",
+  "themeColorDefault": "Default",
+  "themeColorCustom": "Custom",
+  "themeFollowSystem": "Follow system accent color",
+  "themeFollowSystemDark": "Follow system dark mode",
+  "themeDarkMode": "Dark mode",
+  "dialogOk": "OK"
+}
