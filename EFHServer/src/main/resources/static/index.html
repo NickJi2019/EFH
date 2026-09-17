@@ -217,21 +217,122 @@
             }
         }
 
-        /* 移动端表格：内容自动换行、列表更紧凑 */
+        /* 正文链接统一附带图标：站内用链接图标，外部链接用外链图标 */
+        .page__content a:not(.btn):not(.gh-badge)::after {
+            content: "\f0c1";
+            font-family: "Font Awesome 7 Free";
+            font-weight: 900;
+            font-size: .78em;
+            margin-left: .3em;
+            opacity: .7;
+        }
+
+        /* 推荐项：去掉加粗，改为金色流光文字 + 闪烁星星 */
+        .page__content table strong {
+            font-weight: 400;
+        }
+
+        .page__content table strong a {
+            background-image: linear-gradient(100deg, #8a5a00 0%, #b8860b 25%, #e0a800 50%, #b8860b 75%, #8a5a00 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            animation: efh-shimmer 2.5s linear infinite;
+        }
+
+        /* 链接图标用自身颜色，避免被文字的透明填充影响 */
+        .page__content table strong a::after {
+            -webkit-text-fill-color: currentColor;
+            color: #8a5a00;
+        }
+
+        /* 表格内其他链接与推荐项同样粗细，但无特效 */
+        .page__content table a {
+            font-weight: 400;
+        }
+
+        /* 深色模式下：推荐项改用亮金渐变并加发光，和普通链接拉开区分 */
+        html[data-theme="dark"] .page__content table strong a {
+            background-image: linear-gradient(100deg, #ffcf4d 0%, #ffe9a3 25%, #fff8dc 50%, #ffe9a3 75%, #ffcf4d 100%);
+            filter: drop-shadow(0 0 5px rgba(255, 207, 77, .5));
+        }
+
+        html[data-theme="dark"] .page__content table strong a::after {
+            color: #ffcf4d;
+        }
+
+        @keyframes efh-shimmer {
+            to {
+                background-position: 200% center;
+            }
+        }
+
+        .page__content a[href^="http"]:not(.btn):not(.gh-badge)::after {
+            content: "\f35d";
+        }
+
+        /* 移动端表格：按列拆分为分块卡片，不再横向并排 */
         @media (max-width: 767.98px) {
-            .page__content table {
-                table-layout: fixed;
+            .page__content .table-responsive {
+                overflow-x: visible;
             }
 
+            .page__content table,
+            .page__content table thead,
+            .page__content table tbody,
+            .page__content table tr,
             .page__content table th,
             .page__content table td {
+                display: block;
+                width: 100%;
+            }
+
+            .page__content table thead {
+                display: none;
+            }
+
+            .page__content table tbody tr {
+                border: 1px solid rgba(128, 128, 128, .35);
+                border-radius: .25rem;
+                margin-bottom: 1rem;
+                padding: .75rem;
+            }
+
+            /* 每块的小标题（原来的行首列） */
+            .page__content table tbody tr > th:first-child {
+                padding: .1rem 0 .5rem;
+                border: 0;
+                font-size: 1.05em;
+            }
+
+            /* 平台单元格：无内容的列直接隐藏 */
+            .page__content table tbody tr > th:not(:first-child),
+            .page__content table tbody tr > td {
+                padding: .3rem 0;
+                border: 0;
                 white-space: normal;
                 word-break: break-word;
                 overflow-wrap: anywhere;
             }
 
+            .page__content table tbody tr > th:not(:first-child):empty,
+            .page__content table tbody tr > td:empty {
+                display: none;
+            }
+
+            .page__content table tbody tr > th:not(:first-child)::before,
+            .page__content table tbody tr > td::before {
+                content: attr(data-label);
+                display: block;
+                font-size: .78em;
+                letter-spacing: .03em;
+                opacity: .65;
+            }
+
             .page__content table ul {
-                padding-left: 1em;
+                padding-left: 1.1em;
                 margin-left: 0;
                 margin-bottom: 0;
             }
@@ -243,6 +344,38 @@
             // ===== 导航栏 & 页脚加载 =====
             $("#footer").load("/footer.html");
             $("#navibar").load("/navibar.html");
+
+            // ===== 移动端表格：把表头列名写入每个单元格，供按列拆分展示 =====
+            function labelTableCells() {
+                $(".page__content table").each(function () {
+                    var labels = [];
+                    $(this).find("thead th").each(function () {
+                        labels.push($(this).text().trim());
+                    });
+                    $(this).find("tbody tr").each(function () {
+                        $(this).children("th, td").each(function (i) {
+                            if (labels[i]) {
+                                this.setAttribute("data-label", labels[i]);
+                            }
+                        });
+                    });
+                });
+            }
+            labelTableCells();
+
+            // ===== 所有正文链接改为新标签页打开，避免离开当前页 =====
+            function openLinksInNewTab() {
+                $(".page__content a[href]").not(".btn").each(function () {
+                    if (this.getAttribute("href").charAt(0) === "#") {
+                        return;
+                    }
+                    this.setAttribute("target", "_blank");
+                    this.setAttribute("rel", "noopener");
+                });
+            }
+            openLinksInNewTab();
+            document.addEventListener("i18n:ready", openLinksInNewTab);
+            document.addEventListener("i18n:changed", openLinksInNewTab);
 
             // ===== GitHub star 数（获取失败则只显示 Star）=====
             fetch("https://api.github.com/repos/NickJi2019/EFH")
@@ -456,6 +589,18 @@
         </div>
         <div class="row">
             <div>
+                <div class="alert alert-info" role="alert">
+                    <p class="mb-1" data-i18n-html="index.tipSchool">
+                        在学校电脑上，建议使用 <a href="https://github.com/chen08209/FlClash/releases/download/v0.8.98/FlClash-0.8.98-windows-amd64.zip" target="_blank" rel="noopener">FlClash 便携版</a>：学校电脑不允许安装新软件。
+                    </p>
+                    <p class="mb-0" data-i18n-html="index.tipChecker">
+                        好奇哪些网站被屏蔽？可以前往 <a href="/accessibility.html">网站屏蔽检测</a> 看看。
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div>
                 <h5 data-i18n="index.import">
                     导入配置
                 </h5>
@@ -499,19 +644,6 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr>
-                            <th data-i18n="index.table.viaDrive">通过 Google Drive 下载</th>
-                            <th></th>
-                            <th>
-                                <a href="https://drive.google.com/drive/folders/1lyFVt1ulLB2SiIAty9WTQK3A1lLdkjqr?usp=drive_link">Android</a>
-                            </th>
-                            <th>
-                                <a href="https://drive.google.com/drive/folders/1XMEDKJym9AgwqRsoFZ3PLz44K5K8tH2N?usp=drive_link">Windows</a>
-                            </th>
-                            <th>
-                                <a href="https://drive.google.com/drive/folders/1IoEJHFSev-5oqhRNnZjBwwqXNx5SoMnW?usp=drive_link">macOS</a>
-                            </th>
-                        </tr>
                         <tr>
                             <th data-i18n="index.table.viaStore">通过应用商店下载</th>
                             <th>
@@ -613,6 +745,19 @@
                                         Github</a>
                                     </li>
                                 </ul>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th data-i18n="index.table.viaDrive">通过 Google Drive 下载</th>
+                            <th></th>
+                            <th>
+                                <a href="https://drive.google.com/drive/folders/1lyFVt1ulLB2SiIAty9WTQK3A1lLdkjqr?usp=drive_link">Android</a>
+                            </th>
+                            <th>
+                                <a href="https://drive.google.com/drive/folders/1XMEDKJym9AgwqRsoFZ3PLz44K5K8tH2N?usp=drive_link">Windows</a>
+                            </th>
+                            <th>
+                                <a href="https://drive.google.com/drive/folders/1IoEJHFSev-5oqhRNnZjBwwqXNx5SoMnW?usp=drive_link">macOS</a>
                             </th>
                         </tr>
                         </tbody>

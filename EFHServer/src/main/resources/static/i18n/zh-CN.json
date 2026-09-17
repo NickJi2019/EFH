@@ -20,6 +20,8 @@
   "index.pageTitle": "EFH Project",
   "index.heading": "Escape From HDSB Project",
   "index.subtitle": "让所有人获得互联网访问自由",
+  "index.tipSchool": "在学校电脑上，建议使用 <a href=\"https://github.com/chen08209/FlClash/releases/download/v0.8.98/FlClash-0.8.98-windows-amd64.zip\" target=\"_blank\" rel=\"noopener\">FlClash 便携版</a>：学校电脑不允许安装新软件。",
+  "index.tipChecker": "好奇哪些网站被屏蔽？可以前往 <a href=\"/accessibility.html\">网站屏蔽检测</a> 看看。",
   "index.import": "导入配置",
   "index.passwordPlaceholder": "请输入密码",
   "index.passwordNote": "注意：本页面不会检查密码是否正确，如输入错误的密码则VPN无法使用",
