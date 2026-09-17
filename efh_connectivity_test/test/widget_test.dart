@@ -77,4 +77,38 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('更新设置'), findsOneWidget);
   });
+
+  testWidgets('orientation change keeps the page state', (
+    WidgetTester tester,
+  ) async {
+    tester.view.physicalSize = const Size(400, 800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      const EfhConnectivityApp(
+        initialLocale: Locale('zh'),
+        warmUp: false,
+        checkUpdates: false,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Open the log page and set some state via the search field.
+    await tester.tap(find.text('日志'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).first, 'example');
+    await tester.pumpAndSettle();
+    expect(find.text('example'), findsOneWidget);
+
+    // Rotate to landscape: the shell must keep the page and its state instead
+    // of rebuilding the page view (which stalls a running test).
+    tester.view.physicalSize = const Size(900, 400);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(NavigationRail), findsOneWidget);
+    expect(find.byType(NavigationBar), findsNothing);
+    expect(find.text('example'), findsOneWidget);
+  });
 }

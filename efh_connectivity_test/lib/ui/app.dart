@@ -139,8 +139,12 @@ class _AppShellState extends State<AppShell> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final mode = viewModeFor(constraints.maxWidth);
+        final mobile = mode == ViewMode.mobile;
+        // Keep the PageView and the Scaffold at a fixed position in the tree
+        // for every layout width. Otherwise an orientation change swaps the
+        // page view out, disposing the page states (and the live result list)
+        // while a run is in progress, which stalls the UI.
         final pages = PageView(
-          key: ValueKey(mode),
           controller: _pageController,
           physics: const NeverScrollableScrollPhysics(),
           onPageChanged: (index) => setState(() => _index = index),
@@ -151,63 +155,52 @@ class _AppShellState extends State<AppShell> {
             AboutPage(controller: widget.controller),
           ],
         );
-        // A layout-mode change rebuilds the PageView, which re-attaches the
-        // controller at page 0; restore the currently selected page.
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!mounted || !_pageController.hasClients) {
-            return;
-          }
-          if (_pageController.page?.round() != _index) {
-            _pageController.jumpToPage(_index);
-          }
-        });
-        if (mode == ViewMode.mobile) {
-          return Scaffold(
-            body: pages,
-            floatingActionButton: ListenableBuilder(
-              listenable: widget.controller,
-              builder: (context, _) => _buildFab(AppLocalizations.of(context)),
-            ),
-            bottomNavigationBar: NavigationBar(
-              selectedIndex: _index,
-              onDestinationSelected: _select,
-              destinations: [
-                for (final destination in destinations)
-                  NavigationDestination(
-                    icon: Icon(destination.icon),
-                    selectedIcon: Icon(destination.selectedIcon),
-                    label: destination.label,
-                  ),
-              ],
-            ),
-          );
-        }
         return Scaffold(
-          backgroundColor: scheme.surfaceContainer,
+          backgroundColor: mobile ? null : scheme.surfaceContainer,
           floatingActionButton: ListenableBuilder(
             listenable: widget.controller,
             builder: (context, _) => _buildFab(AppLocalizations.of(context)),
           ),
-          body: Row(
-            children: [
-              SafeArea(
-                child: NavigationRail(
+          bottomNavigationBar: mobile
+              ? NavigationBar(
                   selectedIndex: _index,
                   onDestinationSelected: _select,
-                  labelType: mode == ViewMode.desktop
-                      ? NavigationRailLabelType.all
-                      : NavigationRailLabelType.selected,
                   destinations: [
                     for (final destination in destinations)
-                      NavigationRailDestination(
+                      NavigationDestination(
                         icon: Icon(destination.icon),
                         selectedIcon: Icon(destination.selectedIcon),
-                        label: Text(destination.label),
+                        label: destination.label,
                       ),
                   ],
+                )
+              : null,
+          body: Row(
+            children: [
+              if (mobile)
+                const SizedBox.shrink()
+              else
+                SafeArea(
+                  child: NavigationRail(
+                    selectedIndex: _index,
+                    onDestinationSelected: _select,
+                    labelType: mode == ViewMode.desktop
+                        ? NavigationRailLabelType.all
+                        : NavigationRailLabelType.selected,
+                    destinations: [
+                      for (final destination in destinations)
+                        NavigationRailDestination(
+                          icon: Icon(destination.icon),
+                          selectedIcon: Icon(destination.selectedIcon),
+                          label: Text(destination.label),
+                        ),
+                    ],
+                  ),
                 ),
-              ),
-              VerticalDivider(width: 1, color: scheme.outlineVariant),
+              if (mobile)
+                const SizedBox.shrink()
+              else
+                VerticalDivider(width: 1, color: scheme.outlineVariant),
               Expanded(child: pages),
             ],
           ),
