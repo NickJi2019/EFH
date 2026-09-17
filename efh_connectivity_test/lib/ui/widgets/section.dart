@@ -100,7 +100,11 @@ class SettingsBlock extends StatelessWidget {
 
 /// Pads a custom control so it aligns with the block's list tiles.
 class SettingPadding extends StatelessWidget {
-  const SettingPadding({super.key, required this.child, this.vertical = 8});
+  const SettingPadding({
+    super.key,
+    required this.child,
+    this.vertical = AppInsets.page,
+  });
 
   final Widget child;
   final double vertical;

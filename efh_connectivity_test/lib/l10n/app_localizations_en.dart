@@ -232,7 +232,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cfTokenHelp =>
-      'Used to fall back to the Radar dataset API when using the Cloudflare direct source. Not needed for the EFHServer source.';
+      'Only needed for the Cloudflare direct source, as a fallback to the Radar dataset API. It needs Radar read permission; see the official guide to create one:';
+
+  @override
+  String listUpdateFailed(int count) {
+    return 'Failed to download $count list(s)';
+  }
 
   @override
   String get dnsTitle => 'DNS resolution';
@@ -307,6 +312,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get actionCheckUpdate => 'Check';
+
+  @override
+  String get softwareUpdateTitle => 'Software update';
+
+  @override
+  String get updateAutoCheckLabel => 'Check for updates on startup';
+
+  @override
+  String get updateAutoCheckDesc =>
+      'Looks for a newer release on GitHub when the app starts.';
+
+  @override
+  String get updatePromptLabel => 'Notify me about new versions';
+
+  @override
+  String get updatePromptDesc =>
+      'Shows a dialog when a newer version is found. You can still check manually below.';
+
+  @override
+  String get updateReleaseNotes => 'Release notes';
+
+  @override
+  String get updateSkipVersion => 'Skip this version';
+
+  @override
+  String get updateNeverShow => 'Don\'t show again';
+
+  @override
+  String updateSkippedVersion(String tag) {
+    return 'Skipped v$tag';
+  }
+
+  @override
+  String get updateUnskip => 'Undo skip';
 
   @override
   String get aboutSubtitle =>

@@ -9,6 +9,7 @@ class ReleaseInfo {
     required this.tag,
     required this.name,
     required this.url,
+    this.notes = '',
     this.publishedAt,
   });
 
@@ -20,6 +21,10 @@ class ReleaseInfo {
 
   /// The GitHub release page.
   final String url;
+
+  /// The release body (Markdown). Releases are written bilingually: an English
+  /// section first, then a Chinese one.
+  final String notes;
 
   final DateTime? publishedAt;
 }
@@ -70,6 +75,7 @@ class UpdateChecker {
       }
       final name = decoded['name'];
       final url = decoded['html_url'];
+      final releaseBody = decoded['body'];
       final published = decoded['published_at'];
       return ReleaseInfo(
         tag: tag.trim(),
@@ -79,6 +85,7 @@ class UpdateChecker {
         url: url is String && url.isNotEmpty
             ? url
             : 'https://github.com/NickJi2019/EFH/releases',
+        notes: releaseBody is String ? releaseBody.trim() : '',
         publishedAt: published is String ? DateTime.tryParse(published) : null,
       );
     } catch (_) {

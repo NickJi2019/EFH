@@ -225,7 +225,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get cfTokenHelp =>
-      '使用“Cloudflare 直连”来源时用于回退到 Radar 数据集 API；使用 EFHServer 来源时无需填写。';
+      '仅「Cloudflare 直连」来源需要，用于回退到 Radar 数据集 API；需具备 Radar 读取权限，创建方法见官方文档：';
+
+  @override
+  String listUpdateFailed(int count) {
+    return 'Failed to download $count list(s)';
+  }
 
   @override
   String get dnsTitle => 'DNS 解析';
@@ -298,6 +303,38 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get actionCheckUpdate => '检查更新';
+
+  @override
+  String get softwareUpdateTitle => '软件更新';
+
+  @override
+  String get updateAutoCheckLabel => '启动时自动检查更新';
+
+  @override
+  String get updateAutoCheckDesc => '应用启动时向 GitHub 查询是否有新版本。';
+
+  @override
+  String get updatePromptLabel => '发现新版本时弹窗提示';
+
+  @override
+  String get updatePromptDesc => '发现新版本时弹出提示；你仍可在下方手动检查。';
+
+  @override
+  String get updateReleaseNotes => '更新说明';
+
+  @override
+  String get updateSkipVersion => '跳过此版本';
+
+  @override
+  String get updateNeverShow => '不再显示';
+
+  @override
+  String updateSkippedVersion(String tag) {
+    return '已跳过 v$tag';
+  }
+
+  @override
+  String get updateUnskip => '取消跳过';
 
   @override
   String get aboutSubtitle => '批量探测域名证书、识别屏蔽情况并导出 JSON。';

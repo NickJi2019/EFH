@@ -91,7 +91,13 @@
   "settingsCloudflare": "Cloudflare",
   "cfTokenLabel": "CF Token",
   "cfTokenHint": "Cloudflare Radar dataset read token",
-  "cfTokenHelp": "Used to fall back to the Radar dataset API when using the Cloudflare direct source. Not needed for the EFHServer source.",
+  "cfTokenHelp": "Only needed for the Cloudflare direct source, as a fallback to the Radar dataset API. It needs Radar read permission; see the official guide to create one:",
+  "listUpdateFailed": "Failed to download {count} list(s)",
+  "@listUpdateFailed": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
   "dnsTitle": "DNS resolution",
   "dnsSystem": "System DNS",
   "dnsSystemDesc": "Use the operating system resolver (most compatible)",
@@ -116,6 +122,21 @@
   "updateCheckFailed": "Update check failed",
   "updateNotChecked": "Not checked yet",
   "actionCheckUpdate": "Check",
+  "softwareUpdateTitle": "Software update",
+  "updateAutoCheckLabel": "Check for updates on startup",
+  "updateAutoCheckDesc": "Looks for a newer release on GitHub when the app starts.",
+  "updatePromptLabel": "Notify me about new versions",
+  "updatePromptDesc": "Shows a dialog when a newer version is found. You can still check manually below.",
+  "updateReleaseNotes": "Release notes",
+  "updateSkipVersion": "Skip this version",
+  "updateNeverShow": "Don't show again",
+  "updateSkippedVersion": "Skipped v{tag}",
+  "@updateSkippedVersion": {
+    "placeholders": {
+      "tag": { "type": "String" }
+    }
+  },
+  "updateUnskip": "Undo skip",
   "aboutSubtitle": "Probe domain certificates in bulk, detect blocked sites and export JSON.",
   "aboutPrinciples": "How it works",
   "principleMethodTitle": "Method",

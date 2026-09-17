@@ -7,6 +7,7 @@ import 'pages/logs_page.dart';
 import 'pages/settings_page.dart';
 import 'run_controller.dart';
 import 'theme/app_theme.dart';
+import 'widgets/update.dart';
 
 /// The app shell: a navigation rail on wide screens and a bottom navigation
 /// bar on narrow ones, with the pages kept alive in a non-swipeable
@@ -101,9 +102,15 @@ class _AppShellState extends State<AppShell> {
     }
     if (!_updateChecked) {
       _updateChecked = true;
-      if (widget.autoCheckUpdates) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          widget.controller.checkForUpdates();
+      if (widget.autoCheckUpdates && widget.controller.autoCheckUpdates) {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          await widget.controller.checkForUpdates();
+          if (!context.mounted) {
+            return;
+          }
+          if (widget.controller.shouldPromptForUpdate) {
+            await showUpdateDialog(context, widget.controller);
+          }
         });
       }
     }

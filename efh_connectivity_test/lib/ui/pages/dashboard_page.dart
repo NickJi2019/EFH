@@ -214,23 +214,30 @@ class _DashboardPageState extends State<DashboardPage>
       icon: Icons.cloud_outlined,
       children: [
         SettingPadding(
-          child: SegmentedButton<DataSource>(
-            segments: [
-              ButtonSegment(
-                value: DataSource.radar,
-                label: Text(l10n.sourceRadar),
-                icon: const Icon(Icons.public),
-              ),
-              ButtonSegment(
-                value: DataSource.local,
-                label: Text(l10n.sourceLocal),
-                icon: const Icon(Icons.insert_drive_file_outlined),
-              ),
-            ],
-            selected: {c.source},
-            onSelectionChanged: c.running
-                ? null
-                : (selection) => c.setSource(selection.first),
+          child: LayoutBuilder(
+            builder: (context, constraints) => SegmentedButton<DataSource>(
+              // Stack vertically only on genuinely tiny widths instead of
+              // overflowing.
+              direction: constraints.maxWidth < 260
+                  ? Axis.vertical
+                  : Axis.horizontal,
+              segments: [
+                ButtonSegment(
+                  value: DataSource.radar,
+                  label: Text(l10n.sourceRadar),
+                  icon: const Icon(Icons.public),
+                ),
+                ButtonSegment(
+                  value: DataSource.local,
+                  label: Text(l10n.sourceLocal),
+                  icon: const Icon(Icons.insert_drive_file_outlined),
+                ),
+              ],
+              selected: {c.source},
+              onSelectionChanged: c.running
+                  ? null
+                  : (selection) => c.setSource(selection.first),
+            ),
           ),
         ),
         if (c.source == DataSource.radar)

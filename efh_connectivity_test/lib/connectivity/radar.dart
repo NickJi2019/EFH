@@ -52,6 +52,10 @@ const efhServerBaseUrl = 'https://vpn.woznes.com';
 /// The environment variable holding the optional Radar API token.
 const radarTokenEnv = 'CF_Token';
 
+/// Official guide for creating a Cloudflare API token.
+const cloudflareTokenUrl =
+    'https://developers.cloudflare.com/fundamentals/api/get-started/create-token/';
+
 /// Which backend serves the Cloudflare Radar lists.
 enum RadarSource {
   /// The project's own EFHServer (`GET /top-domains/{top}`), which holds the

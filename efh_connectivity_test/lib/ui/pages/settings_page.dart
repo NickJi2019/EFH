@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
+import '../../connectivity/app_version.dart';
 import '../../connectivity/doh_resolver.dart';
 import '../../connectivity/radar.dart';
 import '../../l10n/app_localizations.dart';
+import '../open_url.dart';
 import '../run_controller.dart';
 import '../theme/app_theme.dart';
 import '../widgets/section.dart';
+import '../widgets/update.dart';
 
 /// Application settings: list update settings, interface language, and the
 /// Cloudflare Radar token used when downloading lists directly.
@@ -175,7 +178,9 @@ class _SettingsPageState extends State<SettingsPage>
             AppInsets.page,
             8,
             AppInsets.page,
-            16,
+            // Leaves room for the floating action button so it never covers
+            // the last row.
+            96,
           ),
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: AppBreakpoints.laptop),
@@ -187,23 +192,33 @@ class _SettingsPageState extends State<SettingsPage>
                   icon: Icons.cloud_sync_outlined,
                   children: [
                     SettingPadding(
-                      child: SegmentedButton<RadarSource>(
-                        segments: [
-                          ButtonSegment(
-                            value: RadarSource.efhServer,
-                            label: Text(l10n.efhServer),
-                            icon: const Icon(Icons.dns_outlined),
-                          ),
-                          ButtonSegment(
-                            value: RadarSource.cloudflare,
-                            label: Text(l10n.cloudflareDirect),
-                            icon: const Icon(Icons.cloud_outlined),
-                          ),
-                        ],
-                        selected: {c.radarSource},
-                        onSelectionChanged: c.warmingUp
-                            ? null
-                            : (selection) => c.setRadarSource(selection.first),
+                      child: LayoutBuilder(
+                        builder: (context, constraints) =>
+                            SegmentedButton<RadarSource>(
+                              // Only stack on genuinely tiny widths; two
+                              // side-by-side choices fit comfortably above
+                              // ~260px of inner width.
+                              direction: constraints.maxWidth < 260
+                                  ? Axis.vertical
+                                  : Axis.horizontal,
+                              segments: [
+                                ButtonSegment(
+                                  value: RadarSource.efhServer,
+                                  label: Text(l10n.efhServer),
+                                  icon: const Icon(Icons.dns_outlined),
+                                ),
+                                ButtonSegment(
+                                  value: RadarSource.cloudflare,
+                                  label: Text(l10n.cloudflareDirect),
+                                  icon: const Icon(Icons.cloud_outlined),
+                                ),
+                              ],
+                              selected: {c.radarSource},
+                              onSelectionChanged: c.warmingUp
+                                  ? null
+                                  : (selection) =>
+                                        c.setRadarSource(selection.first),
+                            ),
                       ),
                     ),
                     if (c.radarSource == RadarSource.efhServer)
@@ -228,15 +243,65 @@ class _SettingsPageState extends State<SettingsPage>
                       )
                     else
                       SettingPadding(
-                        child: TextField(
-                          controller: _cfToken,
-                          onChanged: c.setCfToken,
-                          autocorrect: false,
-                          enableSuggestions: false,
-                          decoration: InputDecoration(
-                            labelText: l10n.cfTokenLabel,
-                            hintText: l10n.cfTokenHint,
-                          ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            TextField(
+                              controller: _cfToken,
+                              onChanged: c.setCfToken,
+                              autocorrect: false,
+                              enableSuggestions: false,
+                              decoration: InputDecoration(
+                                labelText: l10n.cfTokenLabel,
+                                hintText: l10n.cfTokenHint,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              l10n.cfTokenHelp,
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: scheme.onSurfaceVariant),
+                            ),
+                            const SizedBox(height: 2),
+                            InkWell(
+                              onTap: () => openExternalUrl(cloudflareTokenUrl),
+                              borderRadius: BorderRadius.circular(4),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 2,
+                                ),
+                                child: Text(
+                                  cloudflareTokenUrl,
+                                  style: Theme.of(context).textTheme.bodySmall
+                                      ?.copyWith(
+                                        color: scheme.primary,
+                                        decoration: TextDecoration.underline,
+                                        decorationColor: scheme.primary,
+                                      ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    if (c.listUpdateError != null)
+                      SettingPadding(
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.error_outline,
+                              size: 18,
+                              color: scheme.error,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                c.listUpdateError!,
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(color: scheme.error),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     SettingPadding(
@@ -433,6 +498,56 @@ class _SettingsPageState extends State<SettingsPage>
                         ],
                       ),
                     ),
+                  ],
+                ),
+                const SizedBox(height: AppInsets.gap),
+                SettingsBlock(
+                  title: l10n.softwareUpdateTitle,
+                  icon: Icons.system_update_alt,
+                  children: [
+                    SettingPadding(
+                      child: Row(
+                        children: [
+                          Expanded(child: Text(l10n.updateCurrentVersion)),
+                          Text(
+                            'v$appVersion',
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(color: scheme.onSurfaceVariant),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SwitchListTile(
+                      title: Text(l10n.updateAutoCheckLabel),
+                      subtitle: Text(l10n.updateAutoCheckDesc),
+                      value: c.autoCheckUpdates,
+                      onChanged: c.setAutoCheckUpdates,
+                    ),
+                    SwitchListTile(
+                      title: Text(l10n.updatePromptLabel),
+                      subtitle: Text(l10n.updatePromptDesc),
+                      value: c.updatePromptEnabled,
+                      onChanged: c.setUpdatePromptEnabled,
+                    ),
+                    if (c.skippedVersion != null)
+                      SettingPadding(
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                l10n.updateSkippedVersion(c.skippedVersion!),
+                                style: Theme.of(context).textTheme.bodyMedium
+                                    ?.copyWith(color: scheme.onSurfaceVariant),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: c.clearSkippedVersion,
+                              child: Text(l10n.updateUnskip),
+                            ),
+                          ],
+                        ),
+                      ),
+                    SettingPadding(child: UpdateStatusTile(controller: c)),
                   ],
                 ),
               ],

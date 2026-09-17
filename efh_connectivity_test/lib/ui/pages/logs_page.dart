@@ -38,6 +38,11 @@ class _LogsPageState extends State<LogsPage>
   final _favicons = FaviconCache();
   final _scrollController = ScrollController();
 
+  /// How close to the bottom the user must scroll for auto-scroll to resume.
+  static const double _resumeMargin = 64;
+
+  bool _wasAutoScroll = true;
+
   final Set<_StatusFilter> _statuses = {};
   final Set<int> _heatTops = {};
   bool _filtersExpanded = true;
@@ -73,30 +78,8 @@ class _LogsPageState extends State<LogsPage>
   }
 
   @override
-  void initState() {
-    super.initState();
-    _scrollController.addListener(_onScroll);
-  }
-
-  /// Re-enables auto-scroll when the user reaches the very bottom.
-  void _onScroll() {
-    if (!_scrollController.hasClients) {
-      return;
-    }
-    final position = _scrollController.position;
-    if (!position.hasContentDimensions) {
-      return;
-    }
-    final atEnd = position.pixels >= position.maxScrollExtent - 4;
-    if (atEnd && !widget.controller.autoScroll) {
-      widget.controller.setAutoScroll(true);
-    }
-  }
-
-  @override
   void dispose() {
     _searchDebounce?.cancel();
-    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     _searchController.dispose();
     super.dispose();
@@ -203,6 +186,12 @@ class _LogsPageState extends State<LogsPage>
     super.build(context);
     final l10n = AppLocalizations.of(context);
     final c = widget.controller;
+    // Re-enabling auto-scroll must take effect immediately, not only after the
+    // next result arrives (the list itself is cached between updates).
+    if (c.autoScroll && !_wasAutoScroll) {
+      _scrollToEnd();
+    }
+    _wasAutoScroll = c.autoScroll;
     return ListenableBuilder(
       listenable: c,
       builder: (context, _) {
@@ -317,17 +306,31 @@ class _LogsPageState extends State<LogsPage>
               constraints: const BoxConstraints(
                 maxWidth: AppBreakpoints.laptop,
               ),
-              child: NotificationListener<UserScrollNotification>(
+              child: NotificationListener<ScrollNotification>(
                 onNotification: (notification) {
-                  if (notification.direction != ScrollDirection.idle &&
-                      c.autoScroll) {
-                    c.setAutoScroll(false);
+                  // Any scroll the user drives themselves (either direction)
+                  // turns auto-scroll off immediately.
+                  if (notification is UserScrollNotification) {
+                    if (notification.direction != ScrollDirection.idle &&
+                        c.autoScroll) {
+                      c.setAutoScroll(false);
+                    }
+                  } else if (notification is ScrollEndNotification) {
+                    // Only resume once the user has stopped, and only when
+                    // they are at/near the bottom — otherwise dragging upward
+                    // would be immediately undone.
+                    if (!c.autoScroll &&
+                        notification.metrics.extentAfter <= _resumeMargin) {
+                      c.setAutoScroll(true);
+                    }
                   }
                   return false;
                 },
                 child: ListView.builder(
                   controller: _scrollController,
                   itemCount: count,
+                  // Keep the last row clear of the floating action button.
+                  padding: const EdgeInsets.only(bottom: 96),
                   addAutomaticKeepAlives: false,
                   addRepaintBoundaries: false,
                   scrollCacheExtent: const ScrollCacheExtent.pixels(200),

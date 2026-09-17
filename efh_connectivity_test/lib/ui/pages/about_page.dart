@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../../connectivity/app_version.dart';
 import '../../l10n/app_localizations.dart';
-import '../open_url.dart';
 import '../run_controller.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common_card.dart';
 import '../widgets/section.dart';
+import '../widgets/update.dart';
 
 /// Static information about the tool, plus a GitHub release update check.
 class AboutPage extends StatelessWidget {
@@ -32,7 +32,9 @@ class AboutPage extends StatelessWidget {
             AppInsets.page,
             8,
             AppInsets.page,
-            16,
+            // Leaves room for the floating action button so it never covers
+            // the last row.
+            96,
           ),
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: AppBreakpoints.laptop),
@@ -105,7 +107,9 @@ class AboutPage extends StatelessWidget {
                           ],
                         ),
                       ),
-                      SettingPadding(child: _buildUpdateStatus(context, l10n)),
+                      SettingPadding(
+                        child: UpdateStatusTile(controller: controller),
+                      ),
                     ],
                   ),
                 ),
@@ -114,78 +118,6 @@ class AboutPage extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildUpdateStatus(BuildContext context, AppLocalizations l10n) {
-    final scheme = Theme.of(context).colorScheme;
-    if (controller.checkingUpdates) {
-      return Row(
-        children: [
-          const SizedBox(
-            width: 16,
-            height: 16,
-            child: CircularProgressIndicator(strokeWidth: 2, value: 0.75),
-          ),
-          const SizedBox(width: 12),
-          Text(l10n.updateChecking),
-        ],
-      );
-    }
-    if (controller.updateAvailable) {
-      final release = controller.latestRelease!;
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                Icons.new_releases_outlined,
-                size: 18,
-                color: scheme.primary,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  '${l10n.updateAvailable} · ${release.tag}',
-                  style: TextStyle(color: scheme.primary),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: FilledButton.icon(
-              onPressed: () => openExternalUrl(release.url),
-              icon: const Icon(Icons.download),
-              label: Text(l10n.updateDownload),
-            ),
-          ),
-        ],
-      );
-    }
-    final failed = controller.updateCheckFailed;
-    final text = failed
-        ? l10n.updateCheckFailed
-        : (controller.updateCheckedAt != null
-              ? l10n.updateUpToDate
-              : l10n.updateNotChecked);
-    return Row(
-      children: [
-        Expanded(
-          child: Text(
-            text,
-            style: TextStyle(
-              color: failed ? scheme.error : scheme.onSurfaceVariant,
-            ),
-          ),
-        ),
-        TextButton(
-          onPressed: controller.checkForUpdates,
-          child: Text(l10n.actionCheckUpdate),
-        ),
-      ],
     );
   }
 }

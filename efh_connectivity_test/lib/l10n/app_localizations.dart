@@ -509,8 +509,14 @@ abstract class AppLocalizations {
   /// No description provided for @cfTokenHelp.
   ///
   /// In en, this message translates to:
-  /// **'Used to fall back to the Radar dataset API when using the Cloudflare direct source. Not needed for the EFHServer source.'**
+  /// **'Only needed for the Cloudflare direct source, as a fallback to the Radar dataset API. It needs Radar read permission; see the official guide to create one:'**
   String get cfTokenHelp;
+
+  /// No description provided for @listUpdateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to download {count} list(s)'**
+  String listUpdateFailed(int count);
 
   /// No description provided for @dnsTitle.
   ///
@@ -655,6 +661,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Check'**
   String get actionCheckUpdate;
+
+  /// No description provided for @softwareUpdateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Software update'**
+  String get softwareUpdateTitle;
+
+  /// No description provided for @updateAutoCheckLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Check for updates on startup'**
+  String get updateAutoCheckLabel;
+
+  /// No description provided for @updateAutoCheckDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Looks for a newer release on GitHub when the app starts.'**
+  String get updateAutoCheckDesc;
+
+  /// No description provided for @updatePromptLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Notify me about new versions'**
+  String get updatePromptLabel;
+
+  /// No description provided for @updatePromptDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Shows a dialog when a newer version is found. You can still check manually below.'**
+  String get updatePromptDesc;
+
+  /// No description provided for @updateReleaseNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Release notes'**
+  String get updateReleaseNotes;
+
+  /// No description provided for @updateSkipVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip this version'**
+  String get updateSkipVersion;
+
+  /// No description provided for @updateNeverShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t show again'**
+  String get updateNeverShow;
+
+  /// No description provided for @updateSkippedVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Skipped v{tag}'**
+  String updateSkippedVersion(String tag);
+
+  /// No description provided for @updateUnskip.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo skip'**
+  String get updateUnskip;
 
   /// No description provided for @aboutSubtitle.
   ///

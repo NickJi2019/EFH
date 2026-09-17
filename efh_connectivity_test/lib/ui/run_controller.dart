@@ -155,10 +155,29 @@ class RunController extends ChangeNotifier implements Reporter {
   bool updateCheckFailed = false;
   DateTime? updateCheckedAt;
 
+  /// Whether to look for a newer release on startup.
+  bool autoCheckUpdates = true;
+
+  /// Whether to pop up a dialog when a newer release is found. The user can
+  /// turn this off from the dialog ("don't show again") or from settings.
+  bool updatePromptEnabled = true;
+
+  /// A release tag the user chose to skip; it is not prompted again.
+  String? skippedVersion;
+
   /// Whether a newer client version is available.
   bool get updateAvailable {
     final release = latestRelease;
     return release != null && isNewerVersion(release.tag, appVersion);
+  }
+
+  /// Whether the startup update dialog should be shown.
+  bool get shouldPromptForUpdate {
+    final release = latestRelease;
+    if (release == null || !updateAvailable || !updatePromptEnabled) {
+      return false;
+    }
+    return release.tag != skippedVersion;
   }
 
   /// Checks GitHub for a newer release. Prereleases are ignored because they
@@ -181,12 +200,42 @@ class RunController extends ChangeNotifier implements Reporter {
     notifyListeners();
   }
 
+  void setAutoCheckUpdates(bool value) {
+    autoCheckUpdates = value;
+    _scheduleSave();
+    notifyListeners();
+  }
+
+  void setUpdatePromptEnabled(bool value) {
+    updatePromptEnabled = value;
+    _scheduleSave();
+    notifyListeners();
+  }
+
+  /// Stops prompting for [tag] until a newer release appears.
+  void skipVersion(String tag) {
+    skippedVersion = tag;
+    _scheduleSave();
+    notifyListeners();
+  }
+
+  void clearSkippedVersion() {
+    skippedVersion = null;
+    _scheduleSave();
+    notifyListeners();
+  }
+
   /// Short human-readable status shown on the progress card.
   String? statusMessage;
   bool warmingUp = false;
   DateTime? listsUpdatedAt;
   int listUpdateDone = 0;
   int listUpdateTotal = 0;
+
+  /// Set when the most recent list refresh could not download one or more
+  /// lists; null when the last refresh succeeded.
+  String? listUpdateError;
+  int listUpdateFailed = 0;
 
   /// Progress (0..1) of the list refresh, for the manual update bar.
   double get listUpdateProgress =>
@@ -329,6 +378,18 @@ class RunController extends ChangeNotifier implements Reporter {
     if (follow is bool) {
       followSystemColor = follow;
     }
+    final autoCheck = data['autoCheckUpdates'];
+    if (autoCheck is bool) {
+      autoCheckUpdates = autoCheck;
+    }
+    final prompt = data['updatePromptEnabled'];
+    if (prompt is bool) {
+      updatePromptEnabled = prompt;
+    }
+    final skipped = data['skippedVersion'];
+    if (skipped is String && skipped.trim().isNotEmpty) {
+      skippedVersion = skipped.trim();
+    }
   }
 
   void _scheduleSave() {
@@ -348,6 +409,9 @@ class RunController extends ChangeNotifier implements Reporter {
         'darkMode': darkMode,
         'seedColor': seedColor?.toARGB32(),
         'followSystemColor': followSystemColor,
+        'autoCheckUpdates': autoCheckUpdates,
+        'updatePromptEnabled': updatePromptEnabled,
+        'skippedVersion': skippedVersion,
       });
     });
   }
@@ -454,11 +518,23 @@ class RunController extends ChangeNotifier implements Reporter {
   }
 
   Future<void> _detectSystemColorSupport() async {
-    bool supported;
+    // Android implements `getCorePalette` and returns null when the device has
+    // no dynamic colors (Android < 12 or an unsupported ROM); macOS implements
+    // `getAccentColor`. Try both so a platform that only supports one — which
+    // is exactly the Android case — is still detected. Using `getAccentColor`
+    // alone made Android report "unsupported" and disabled the setting.
+    bool supported = false;
     try {
-      supported = await DynamicColorPlugin.getAccentColor() != null;
+      supported = await DynamicColorPlugin.getCorePalette() != null;
     } catch (_) {
       supported = false;
+    }
+    if (!supported) {
+      try {
+        supported = await DynamicColorPlugin.getAccentColor() != null;
+      } catch (_) {
+        supported = false;
+      }
     }
     if (supported == supportsSystemColor && (supported || !followSystemColor)) {
       return;
@@ -545,6 +621,8 @@ class RunController extends ChangeNotifier implements Reporter {
     final startedAt = DateTime.now();
     listUpdateDone = 0;
     listUpdateTotal = rankingBuckets.length;
+    listUpdateFailed = 0;
+    listUpdateError = null;
     statusMessage = l10n.listUpdating(l10n.sourceRadar);
     notifyListeners();
 
@@ -567,7 +645,9 @@ class RunController extends ChangeNotifier implements Reporter {
             client: http,
           );
         } catch (_) {
-          // Keep whatever cache already exists for this bucket.
+          // Keep whatever cache already exists for this bucket, but remember
+          // that this list could not be downloaded so the UI can report it.
+          listUpdateFailed++;
         }
         listUpdateDone++;
         notifyListeners();
@@ -583,6 +663,9 @@ class RunController extends ChangeNotifier implements Reporter {
         await Future<void>.delayed(minimum - elapsed);
       }
       http.close(force: true);
+      if (listUpdateFailed > 0) {
+        listUpdateError = l10n.listUpdateFailed(listUpdateFailed);
+      }
       warmingUp = false;
       statusMessage = null;
       notifyListeners();
