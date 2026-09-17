@@ -15,6 +15,7 @@ import '../connectivity/radar.dart';
 import '../connectivity/reporter.dart';
 import '../connectivity/result.dart';
 import '../connectivity/app_version.dart';
+import '../connectivity/doh_resolver.dart';
 import '../connectivity/settings_store.dart';
 import '../connectivity/status.dart';
 import '../connectivity/update_checker.dart';
@@ -101,6 +102,12 @@ class RunController extends ChangeNotifier implements Reporter {
 
   /// Quick HDSB check: only inspector the issuer, skip other checks.
   bool hdsbQuickCheck = false;
+
+  /// How hostnames are resolved before probing; defaults to Cloudflare DoH.
+  DnsMode dnsMode = DnsMode.cloudflare;
+
+  /// The custom DoH endpoint used when [dnsMode] is [DnsMode.custom].
+  String customDohUrl = '';
 
   /// Radar API token; only ever read from the settings, never the environment.
   String cfToken = '';
@@ -276,6 +283,18 @@ class RunController extends ChangeNotifier implements Reporter {
     if (quick is bool) {
       hdsbQuickCheck = quick;
     }
+    final dns = data['dnsMode'];
+    if (dns is String) {
+      for (final value in DnsMode.values) {
+        if (value.name == dns) {
+          dnsMode = value;
+        }
+      }
+    }
+    final customDoh = data['customDohUrl'];
+    if (customDoh is String && customDoh.trim().isNotEmpty) {
+      customDohUrl = customDoh.trim();
+    }
     final workers = data['workersText'];
     if (workers is String && workers.trim().isNotEmpty) {
       workersText = workers;
@@ -321,6 +340,8 @@ class RunController extends ChangeNotifier implements Reporter {
         'radarSource': radarSource.name,
         'hdsbDetection': hdsbDetection,
         'hdsbQuickCheck': hdsbQuickCheck,
+        'dnsMode': dnsMode.name,
+        'customDohUrl': customDohUrl,
         'workersText': workersText,
         'timeoutText': timeoutText,
         'followSystemDark': followSystemDark,
@@ -375,6 +396,18 @@ class RunController extends ChangeNotifier implements Reporter {
     hdsbQuickCheck = value;
     _scheduleSave();
     _requestResultsRefresh(immediate: true);
+    notifyListeners();
+  }
+
+  void setDnsMode(DnsMode value) {
+    dnsMode = value;
+    _scheduleSave();
+    notifyListeners();
+  }
+
+  void setCustomDohUrl(String value) {
+    customDohUrl = value;
+    _scheduleSave();
     notifyListeners();
   }
 
@@ -730,6 +763,8 @@ class RunController extends ChangeNotifier implements Reporter {
         'timeout': timeoutSeconds,
         'detectFortinet': hdsbDetection,
         'quickCheck': hdsbDetection && hdsbQuickCheck,
+        'dnsMode': dnsMode.name,
+        'dohUrl': customDohUrl.trim(),
       },
       port.sendPort,
     ]);
@@ -839,7 +874,18 @@ class RunController extends ChangeNotifier implements Reporter {
     if (source == DataSource.local && inputPath.trim().isEmpty) {
       return l10n.validationInputFile;
     }
+    if (dnsMode == DnsMode.custom && !isValidDohUrl(customDohUrl)) {
+      return l10n.validationDohUrl;
+    }
     return null;
+  }
+
+  /// Whether [value] is an absolute http(s) URL usable as a DoH endpoint.
+  static bool isValidDohUrl(String value) {
+    final uri = Uri.tryParse(value.trim());
+    return uri != null &&
+        (uri.scheme == 'http' || uri.scheme == 'https') &&
+        uri.host.isNotEmpty;
   }
 
   // ---------------------------------------------------------------- Reporter

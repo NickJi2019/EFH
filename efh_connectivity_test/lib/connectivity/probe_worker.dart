@@ -1,5 +1,7 @@
 import 'dart:isolate';
 
+import 'checker.dart';
+import 'doh_resolver.dart';
 import 'processor.dart';
 
 /// Isolate entry point that runs all probes off the UI thread and streams
@@ -75,9 +77,41 @@ Future<void> probeWorkerEntry(List<Object?> args) async {
     }
   }
 
+  // DNS: the system resolver by default, or a DoH endpoint when configured.
+  final dnsMode = (config['dnsMode'] as String?) ?? 'system';
+  final dohUrl = (config['dohUrl'] as String?)?.trim() ?? '';
+  final probeTimeout = Duration(seconds: config['timeout'] as int);
+  final HostResolver? resolver = switch (dnsMode) {
+    'cloudflare' => DohResolver(url: cloudflareDohUrl, timeout: probeTimeout),
+    'custom' when dohUrl.isNotEmpty => DohResolver(
+      url: dohUrl,
+      timeout: probeTimeout,
+    ),
+    _ => null,
+  };
+  Probe? probe;
+  if (resolver != null) {
+    probe =
+        (
+          String host, {
+          String port = defaultPort,
+          Duration timeout = defaultTimeout,
+          bool detectFortinet = true,
+          bool quick = false,
+        }) => check(
+          host,
+          port: port,
+          timeout: timeout,
+          detectFortinet: detectFortinet,
+          quick: quick,
+          resolver: resolver,
+        );
+  }
+
   try {
     final stats = await process(
       config['csv'] as String,
+      probe: probe,
       onRow: (_) {},
       onStats: (stats) {
         statsSnapshot = {

@@ -506,6 +506,66 @@ abstract class AppLocalizations {
   /// **'Used to fall back to the Radar dataset API when using the Cloudflare direct source. Not needed for the EFHServer source.'**
   String get cfTokenHelp;
 
+  /// No description provided for @dnsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'DNS resolution'**
+  String get dnsTitle;
+
+  /// No description provided for @dnsSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System DNS'**
+  String get dnsSystem;
+
+  /// No description provided for @dnsSystemDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the operating system resolver (most compatible)'**
+  String get dnsSystemDesc;
+
+  /// No description provided for @dnsCloudflare.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloudflare DoH'**
+  String get dnsCloudflare;
+
+  /// No description provided for @dnsCloudflareDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolve over encrypted DNS to avoid poisoning (default)'**
+  String get dnsCloudflareDesc;
+
+  /// No description provided for @dnsCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom DoH'**
+  String get dnsCustom;
+
+  /// No description provided for @dnsCustomDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Use your own DoH endpoint'**
+  String get dnsCustomDesc;
+
+  /// No description provided for @dnsCustomUrlLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'DoH URL'**
+  String get dnsCustomUrlLabel;
+
+  /// No description provided for @dnsCustomUrlHint.
+  ///
+  /// In en, this message translates to:
+  /// **'https://example.com/dns-query'**
+  String get dnsCustomUrlHint;
+
+  /// No description provided for @validationDohUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid http(s) DoH URL'**
+  String get validationDohUrl;
+
   /// No description provided for @languageTitle.
   ///
   /// In en, this message translates to:

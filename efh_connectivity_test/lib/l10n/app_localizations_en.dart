@@ -232,6 +232,38 @@ class AppLocalizationsEn extends AppLocalizations {
       'Used to fall back to the Radar dataset API when using the Cloudflare direct source. Not needed for the EFHServer source.';
 
   @override
+  String get dnsTitle => 'DNS resolution';
+
+  @override
+  String get dnsSystem => 'System DNS';
+
+  @override
+  String get dnsSystemDesc =>
+      'Use the operating system resolver (most compatible)';
+
+  @override
+  String get dnsCloudflare => 'Cloudflare DoH';
+
+  @override
+  String get dnsCloudflareDesc =>
+      'Resolve over encrypted DNS to avoid poisoning (default)';
+
+  @override
+  String get dnsCustom => 'Custom DoH';
+
+  @override
+  String get dnsCustomDesc => 'Use your own DoH endpoint';
+
+  @override
+  String get dnsCustomUrlLabel => 'DoH URL';
+
+  @override
+  String get dnsCustomUrlHint => 'https://example.com/dns-query';
+
+  @override
+  String get validationDohUrl => 'Enter a valid http(s) DoH URL';
+
+  @override
   String get languageTitle => 'Language';
 
   @override

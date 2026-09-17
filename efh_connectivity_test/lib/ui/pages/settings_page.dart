@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
+import '../../connectivity/doh_resolver.dart';
 import '../../connectivity/radar.dart';
 import '../../l10n/app_localizations.dart';
 import '../run_controller.dart';
@@ -21,6 +22,7 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage>
     with AutomaticKeepAliveClientMixin {
   late final TextEditingController _cfToken;
+  late final TextEditingController _dohUrl;
 
   @override
   bool get wantKeepAlive => true;
@@ -29,13 +31,21 @@ class _SettingsPageState extends State<SettingsPage>
   void initState() {
     super.initState();
     _cfToken = TextEditingController(text: widget.controller.cfToken);
+    _dohUrl = TextEditingController(text: widget.controller.customDohUrl);
   }
 
   @override
   void dispose() {
     _cfToken.dispose();
+    _dohUrl.dispose();
     super.dispose();
   }
+
+  String _dnsDescription(AppLocalizations l10n, DnsMode mode) => switch (mode) {
+    DnsMode.system => l10n.dnsSystemDesc,
+    DnsMode.cloudflare => l10n.dnsCloudflareDesc,
+    DnsMode.custom => l10n.dnsCustomDesc,
+  };
 
   String _formatTime(DateTime time) {
     String two(int value) => value.toString().padLeft(2, '0');
@@ -269,6 +279,70 @@ class _SettingsPageState extends State<SettingsPage>
                         ],
                       ),
                     ),
+                  ],
+                ),
+                const SizedBox(height: AppInsets.gap),
+                SettingsBlock(
+                  title: l10n.dnsTitle,
+                  icon: Icons.travel_explore,
+                  children: [
+                    SettingPadding(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          DropdownButtonFormField<DnsMode>(
+                            initialValue: c.dnsMode,
+                            decoration: InputDecoration(
+                              labelText: l10n.dnsTitle,
+                            ),
+                            items: [
+                              DropdownMenuItem(
+                                value: DnsMode.system,
+                                child: Text(l10n.dnsSystem),
+                              ),
+                              DropdownMenuItem(
+                                value: DnsMode.cloudflare,
+                                child: Text(l10n.dnsCloudflare),
+                              ),
+                              DropdownMenuItem(
+                                value: DnsMode.custom,
+                                child: Text(l10n.dnsCustom),
+                              ),
+                            ],
+                            onChanged: (value) {
+                              if (value != null) {
+                                c.setDnsMode(value);
+                              }
+                            },
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            _dnsDescription(l10n, c.dnsMode),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: scheme.onSurfaceVariant),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (c.dnsMode == DnsMode.custom)
+                      SettingPadding(
+                        child: TextField(
+                          controller: _dohUrl,
+                          onChanged: c.setCustomDohUrl,
+                          autocorrect: false,
+                          enableSuggestions: false,
+                          keyboardType: TextInputType.url,
+                          decoration: InputDecoration(
+                            labelText: l10n.dnsCustomUrlLabel,
+                            hintText: l10n.dnsCustomUrlHint,
+                            errorText:
+                                c.customDohUrl.trim().isNotEmpty &&
+                                    !RunController.isValidDohUrl(c.customDohUrl)
+                                ? l10n.validationDohUrl
+                                : null,
+                          ),
+                        ),
+                      ),
                   ],
                 ),
                 const SizedBox(height: AppInsets.gap),

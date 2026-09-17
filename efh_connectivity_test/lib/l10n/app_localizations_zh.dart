@@ -225,6 +225,36 @@ class AppLocalizationsZh extends AppLocalizations {
       '使用“Cloudflare 直连”来源时用于回退到 Radar 数据集 API；使用 EFHServer 来源时无需填写。';
 
   @override
+  String get dnsTitle => 'DNS 解析';
+
+  @override
+  String get dnsSystem => '系统 DNS';
+
+  @override
+  String get dnsSystemDesc => '使用操作系统默认解析，兼容性最好';
+
+  @override
+  String get dnsCloudflare => 'Cloudflare DoH';
+
+  @override
+  String get dnsCloudflareDesc => '通过加密 DNS 解析，避免 DNS 污染（默认）';
+
+  @override
+  String get dnsCustom => '自定义 DoH';
+
+  @override
+  String get dnsCustomDesc => '使用你自己的 DoH 端点';
+
+  @override
+  String get dnsCustomUrlLabel => 'DoH URL';
+
+  @override
+  String get dnsCustomUrlHint => 'https://example.com/dns-query';
+
+  @override
+  String get validationDohUrl => '请输入有效的 http(s) DoH 地址';
+
+  @override
   String get languageTitle => '语言';
 
   @override
