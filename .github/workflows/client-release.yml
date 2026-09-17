@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Release tag, e.g. v1.0.0'
+        description: 'Release tag, e.g. v1.1.3'
         required: true
         type: string
 
@@ -43,7 +43,19 @@ jobs:
           files: EFH-${{ inputs.version }}-windows-portable.zip
 
   linux:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # x86_64 keeps the original file name.
+          - runner: ubuntu-latest
+            arch: x64
+            suffix: ''
+          # arm64 runs on GitHub's native ARM runner.
+          - runner: ubuntu-24.04-arm
+            arch: arm64
+            suffix: '-arm64'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -65,10 +77,10 @@ jobs:
       - name: Package
         working-directory: efh_connectivity_test
         run: |
-          tar -C build/linux/x64/release -czf \
-            ../EFH-${{ inputs.version }}-linux-portable.tar.gz bundle
+          tar -C build/linux/${{ matrix.arch }}/release -czf \
+            ../EFH-${{ inputs.version }}-linux${{ matrix.suffix }}-portable.tar.gz bundle
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ inputs.version }}
           prerelease: false
-          files: EFH-${{ inputs.version }}-linux-portable.tar.gz
+          files: EFH-${{ inputs.version }}-linux${{ matrix.suffix }}-portable.tar.gz
