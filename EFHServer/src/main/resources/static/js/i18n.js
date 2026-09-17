@@ -68,6 +68,26 @@
         return DEFAULT_LANG;
     }
 
+    // 当前选择："zh-CN" / "en" / "system"（未手动选择时）
+    function currentChoice() {
+        try {
+            var saved = localStorage.getItem(STORAGE_KEY);
+            if (saved && SUPPORTED.indexOf(saved) !== -1) {
+                return saved;
+            }
+        } catch (e) {
+            // localStorage 不可用
+        }
+        return "system";
+    }
+
+    function updateMenu() {
+        var items = document.querySelectorAll("[data-lang]");
+        for (var i = 0; i < items.length; i++) {
+            items[i].classList.toggle("active", items[i].getAttribute("data-lang") === currentChoice());
+        }
+    }
+
     function lookup(source, path) {
         var parts = path.split(".");
         var cur = source;
@@ -156,7 +176,24 @@
     }
 
     function setLang(lang) {
+        if (lang === "system") {
+            try {
+                localStorage.removeItem(STORAGE_KEY);
+            } catch (e) {
+                // ignore
+            }
+            current = detectLang();
+            document.documentElement.lang = current;
+            load(current).then(function (data) {
+                dict = data || {};
+                apply(document);
+                updateMenu();
+                document.dispatchEvent(new CustomEvent("i18n:changed", {detail: {lang: current}}));
+            });
+            return;
+        }
         if (SUPPORTED.indexOf(lang) === -1 || lang === current) {
+            updateMenu();
             return;
         }
         current = lang;
@@ -168,6 +205,7 @@
         load(lang).then(function (data) {
             dict = data || {};
             apply(document);
+            updateMenu();
             document.dispatchEvent(new CustomEvent("i18n:changed", {detail: {lang: lang}}));
         });
     }
@@ -186,6 +224,7 @@
                     }
                 }
             }
+            updateMenu();
             observer.observe(document.body, {childList: true, subtree: true});
         });
         observer.observe(document.body, {childList: true, subtree: true});
@@ -208,6 +247,7 @@
             fallbackDict = res[1] || {};
             loaded = true;
             apply(document);
+            updateMenu();
             observe();
             document.dispatchEvent(new CustomEvent("i18n:ready", {detail: {lang: current}}));
         });

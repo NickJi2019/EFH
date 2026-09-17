@@ -62,8 +62,11 @@
     <article class="page__content">
         <div class="row">
             <div class="col">
-                <p data-i18n="acc.body">
-                    网页版检测受浏览器跨域（CORS）限制，结果不够可靠。推荐下载独立的屏蔽检测软件，获得更准确、更全面的检测结果。
+                <p data-i18n-html="acc.platform">
+                    本软件支持安卓、Windows、macOS、Linux。
+                    为什么不支持 iOS 因为我买不起 App Store 证书喵。
+                    <br>
+                    所以各位苹果人朋友想要检测的话可以打开电脑，或者借用一下旁边安卓人的手机了。
                 </p>
                 <p>
                     <a class="btn btn-primary" href="https://github.com/NickJi2019/EFH/releases/latest" target="_blank" rel="noopener">
@@ -71,6 +74,33 @@
                         <span data-i18n="acc.download">前往 GitHub 下载屏蔽检测软件</span>
                     </a>
                 </p>
+                <p data-i18n="acc.body">
+                    网页版检测受浏览器跨域（CORS）限制，结果不够可靠。推荐下载独立的屏蔽检测软件，获得更准确、更全面的检测结果。
+                </p>
+
+                <h5 data-i18n="acc.aboutTitle">关于检测</h5>
+                <p data-i18n="acc.about">
+                    HDSB 会在网络出口拦截并篡改对部分网站的访问。检测软件会逐一访问 Cloudflare Radar Top 榜单中的网站，判断其是否被拦截，帮助你了解当前网络下的可访问情况。
+                </p>
+
+                <h6 data-i18n="acc.featureTitle">可以做什么</h6>
+                <ul>
+                    <li data-i18n="acc.feature1">批量检测 Cloudflare Radar Top 榜单网站的可访问性</li>
+                    <li data-i18n="acc.feature2">区分「可访问 / 被屏蔽 / 无法访问 / 超时」并统计数量</li>
+                    <li data-i18n="acc.feature3">查看每个域名的判定详情，并导出结果为 CSV</li>
+                </ul>
+
+                <h6 data-i18n="acc.howTitle">如何判断被屏蔽</h6>
+                <p data-i18n="acc.how">
+                    当请求被 HDSB 拦截时，通常会返回其拦截页面，或把网站证书替换为拦截设备签发的证书。检测软件会据此判断网站是否被屏蔽。
+                </p>
+
+                <h6 data-i18n="acc.tipsTitle">使用提示</h6>
+                <ul>
+                    <li data-i18n="acc.tip1">请在 HDSB 网络环境下运行，检测结果才有意义</li>
+                    <li data-i18n="acc.tip2">不同时间、不同网络下结果可能不同，仅供参考</li>
+                    <li data-i18n="acc.tip3">检测会请求大量域名，首次运行可能需要一些时间</li>
+                </ul>
             </div>
         </div>
     </article>

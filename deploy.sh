@@ -72,7 +72,7 @@ if [[ "$ALLOW_DIRTY" -eq 0 ]] && [[ -n "$(git status --porcelain --untracked-fil
   die "工作区有未提交的改动；请先提交，或加 --dirty 强制部署当前代码"
 fi
 step "1/5 推送到远端"
-#git pull --rebase
+git pull --rebase
 git push
 ok "已推送"
 

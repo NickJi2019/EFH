@@ -216,6 +216,26 @@
                 text-align: center;
             }
         }
+
+        /* 移动端表格：内容自动换行、列表更紧凑 */
+        @media (max-width: 767.98px) {
+            .page__content table {
+                table-layout: fixed;
+            }
+
+            .page__content table th,
+            .page__content table td {
+                white-space: normal;
+                word-break: break-word;
+                overflow-wrap: anywhere;
+            }
+
+            .page__content table ul {
+                padding-left: 1em;
+                margin-left: 0;
+                margin-bottom: 0;
+            }
+        }
     </style>
 
     <script>
@@ -413,7 +433,7 @@
 <main class="page">
     <article class="page__content">
         <div class="row">
-            <p class="container">
+            <p>
                 <span class="fun-del"><del data-i18n="index.funDel">关注塔菲喵，关注塔菲谢谢喵</del><br></span>
                 <span data-i18n="index.funPrefix">111给我Github repo</span>
                 <a class="gh-badge" href="https://github.com/NickJi2019/EFH" target="_blank" rel="noopener">
@@ -426,7 +446,7 @@
         </div>
 
         <div class="row">
-            <div class="col">
+            <div>
                 <h5 data-i18n="index.usageTitle">
                     使用说明
                 </h5>
@@ -435,7 +455,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col">
+            <div>
                 <h5 data-i18n="index.import">
                     导入配置
                 </h5>
@@ -463,7 +483,7 @@
         </div>
         <br>
         <div class="row">
-            <div class="col">
+            <div>
                 <h5 data-i18n="index.download">
                     请下载以下软件使用
                 </h5>
@@ -498,7 +518,7 @@
                                 <ul>
                                     <li>
                                         <strong>
-                                        <a href="https://apps.apple.com/us/app/shadowrocket/id932747118">Shadowrocket <span data-i18n="index.recommended">(推荐)</span> - App
+                                        <a href="https://apps.apple.com/us/app/shadowrocket/id932747118">Shadow<wbr>rocket <span data-i18n="index.recommended">(推荐)</span> - App
                                             Store</a>
                                         </strong>
                                     </li>
@@ -507,12 +527,25 @@
                                     </li>
                                 </ul>
                             </th>
-                            <th></th>
+                            <th>
+                                <ul>
+                                    <li>
+                                        <strong>
+                                        <a href="https://play.google.com/store/apps/details?id=com.fclash.app">FlClash <span data-i18n="index.recommended">(推荐)</span> - Google Play</a>
+                                        </strong>
+                                    </li>
+                                    <li>
+                                        <strong>
+                                        <a href="https://chen08209.github.io/FlClash-fdroid-repo/">FlClash <span data-i18n="index.recommended">(推荐)</span> - F-Droid</a>
+                                        </strong>
+                                    </li>
+                                </ul>
+                            </th>
                             <th></th>
                             <th>
                                 <ul>
                                     <li>
-                                        <a href="https://apps.apple.com/us/app/shadowrocket/id932747118">Shadowrocket - App
+                                        <a href="https://apps.apple.com/us/app/shadowrocket/id932747118">Shadow<wbr>rocket - App
                                             Store</a>
                                     </li>
                                     <li>
