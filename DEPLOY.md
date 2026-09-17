@@ -73,13 +73,15 @@ VERSION=v0.0.6
 gh release create "$VERSION" \
   EFHServer/build/libs/EFHServer-all.jar \
   --title "$VERSION" \
-  --notes "EFHServer $VERSION"
+  --notes "EFHServer $VERSION" \
+  --prerelease
 ```
 
 如果 release 已存在，改用上传附件：
 
 ```sh
 gh release upload "$VERSION" EFHServer/build/libs/EFHServer-all.jar --clobber
+gh release edit "$VERSION" --prerelease
 ```
 
 ### 4. 登录服务器并替换 jar
@@ -107,6 +109,6 @@ sudo service EFHServer status
 ```sh
 cd EFHServer && ./gradlew buildFatJar
 VERSION=v0.0.6
-gh release create "$VERSION" build/libs/EFHServer-all.jar --title "$VERSION" --notes "EFHServer $VERSION"
+gh release create "$VERSION" build/libs/EFHServer-all.jar --title "$VERSION" --notes "EFHServer $VERSION" --prerelease
 ssh opc@vpn.woznes.com "rm -f EFHServer-all.jar && curl -fL -o EFHServer-all.jar https://github.com/NickJi2019/EFH/releases/download/$VERSION/EFHServer-all.jar && sudo service EFHServer restart"
 ```

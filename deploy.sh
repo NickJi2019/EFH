@@ -83,12 +83,13 @@ step "2/5 打包 fat jar"
 ok "产物: $JAR ($(du -h "$JAR" | cut -f1))"
 
 # ---------------------------------------------------------------- 3. 发布
-step "3/5 上传 GitHub Release $VERSION"
+step "3/5 上传 GitHub Release $VERSION（pre-release）"
 if gh release view "$VERSION" -R "$REPO" >/dev/null 2>&1; then
   gh release upload "$VERSION" "$JAR" -R "$REPO" --clobber
+  gh release edit "$VERSION" -R "$REPO" --prerelease
 else
   gh release create "$VERSION" "$JAR" -R "$REPO" \
-    --title "$VERSION" --notes "EFHServer $VERSION"
+    --title "$VERSION" --notes "EFHServer $VERSION" --prerelease
 fi
 ok "Release: https://github.com/$REPO/releases/tag/$VERSION"
 

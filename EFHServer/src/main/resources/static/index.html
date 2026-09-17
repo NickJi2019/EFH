@@ -19,6 +19,8 @@
     <script src="/js/i18n.js" defer></script>
     <link href="/css/common.css" rel="stylesheet">
     <link href="/css/bootstrap4.centos.css" rel="stylesheet">
+    <link href="/css/theme.css" rel="stylesheet">
+    <script src="/js/theme.js"></script>
     <style>
         /* 两行按钮按列对齐：等宽 flex + 无缝 btn-group */
         .btn-group-block {
@@ -53,6 +55,151 @@
         .btn-group-block--stacked {
             margin-top: -1px;
         }
+
+        /* 导入按钮改为柔和的浅色填充，降低视觉重量 */
+        .btn-group-block > .btn.btn-primary {
+            color: #0f5652;
+            background-color: #edf4f3;
+            border: 1px solid #b8cfcd;
+            box-shadow: none;
+        }
+
+        .btn-group-block > .btn.btn-primary:hover,
+        .btn-group-block > .btn.btn-primary:focus,
+        .btn-group-block > .btn.btn-primary.focus {
+            color: #093f3c;
+            background-color: #dce9e8;
+            border-color: #8fb2af;
+            box-shadow: none;
+        }
+
+        .btn-group-block > .btn.btn-primary:not(:disabled):not(.disabled):active,
+        .btn-group-block > .btn.btn-primary:not(:disabled):not(.disabled).active {
+            color: #062b29;
+            background-color: #cfe0de;
+            border-color: #82a7a5;
+            box-shadow: none;
+        }
+
+        /* 上下两排贴合：抹平交接处的外侧圆角 */
+        .btn-group-block:not(.btn-group-block--stacked) > .btn:first-child {
+            border-bottom-left-radius: 0;
+        }
+
+        .btn-group-block:not(.btn-group-block--stacked) > .btn:last-child {
+            border-bottom-right-radius: 0;
+        }
+
+        .btn-group-block--stacked > .btn:first-child {
+            border-top-left-radius: 0;
+        }
+
+        .btn-group-block--stacked > .btn:last-child {
+            border-top-right-radius: 0;
+        }
+
+        /* 密码框 + 提示：>=768 同一行且等宽，窄屏上下排列且等宽 */
+        .password-row {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: .5rem;
+        }
+
+        .password-row__field {
+            flex: 1 1 14rem;
+            min-width: 0;
+            margin: 0;
+        }
+
+        .password-row > .alert {
+            flex: 1 1 14rem;
+        }
+
+        @media (max-width: 767.98px) {
+            .password-row {
+                display: block;
+            }
+
+            .password-row__field {
+                display: block;
+                margin: 0 0 .5rem 0;
+            }
+
+            .password-row > .alert {
+                display: block;
+            }
+        }
+
+        /* 深色模式下导入按钮改用深色主题，避免过亮突兀 */
+        html[data-theme="dark"] .btn-group-block > .btn.btn-primary {
+            color: #93d2cc;
+            background-color: #1d2e2c;
+            border: 1px solid #3f5b58;
+        }
+
+        html[data-theme="dark"] .btn-group-block > .btn.btn-primary:hover,
+        html[data-theme="dark"] .btn-group-block > .btn.btn-primary:focus,
+        html[data-theme="dark"] .btn-group-block > .btn.btn-primary.focus {
+            color: #afeee8;
+            background-color: #263b38;
+            border-color: #557a76;
+            box-shadow: none;
+        }
+
+        html[data-theme="dark"] .btn-group-block > .btn.btn-primary:not(:disabled):not(.disabled):active,
+        html[data-theme="dark"] .btn-group-block > .btn.btn-primary:not(:disabled):not(.disabled).active {
+            color: #c6f4ef;
+            background-color: #2d4642;
+            border-color: #6a938e;
+            box-shadow: none;
+        }
+
+        /* GitHub 仓库 badge：随主题变色、与文字同行对齐 */
+        .page a.gh-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .35em;
+            padding: .05em .55em;
+            margin: 0 .25em;
+            border: 1px solid #d0d7de;
+            border-radius: 6px;
+            background-color: #f6f8fa;
+            color: #24292f;
+            font-size: .85em;
+            line-height: 1.5;
+            vertical-align: middle;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .page a.gh-badge:hover,
+        .page a.gh-badge:focus {
+            background-color: #eaeef2;
+            color: #24292f;
+            text-decoration: none;
+        }
+
+        .page a.gh-badge i {
+            font-size: 1.05em;
+        }
+
+        html[data-theme="dark"] .page a.gh-badge {
+            background-color: #21262d;
+            border-color: #30363d;
+            color: #c9d1d9;
+        }
+
+        html[data-theme="dark"] .page a.gh-badge:hover,
+        html[data-theme="dark"] .page a.gh-badge:focus {
+            background-color: #30363d;
+            color: #ffffff;
+        }
+
+        /* 第一句仅中文保留 */
+        html[lang="en"] .fun-del {
+            display: none;
+        }
     </style>
 
     <script>
@@ -60,6 +207,51 @@
             // ===== 导航栏 & 页脚加载 =====
             $("#footer").load("/footer.html");
             $("#navibar").load("/navibar.html");
+
+            // ===== GitHub star 数（获取失败则只显示 Star）=====
+            fetch("https://api.github.com/repos/NickJi2019/EFH")
+                .then(function (res) { return res.ok ? res.json() : null; })
+                .then(function (data) {
+                    if (!data || typeof data.stargazers_count !== "number") {
+                        return;
+                    }
+                    var el = document.getElementById("ghStarCount");
+                    if (el) {
+                        el.textContent = data.stargazers_count;
+                        el.hidden = false;
+                    }
+                })
+                .catch(function () {});
+
+            // ===== 联系方式链接随语言切换（中文微信 / 英文 Telegram）=====
+            function updateContactLink() {
+                var link = document.getElementById("funContact");
+                if (!link) {
+                    return;
+                }
+                var lang = (window.i18n && i18n.getLang) ? i18n.getLang() : "zh-CN";
+                link.setAttribute("href", lang === "en" ? "https://discordapp.com/users/967447076487196703" : "wechat.png");
+            }
+            updateContactLink();
+            document.addEventListener("i18n:ready", updateContactLink);
+            document.addEventListener("i18n:changed", updateContactLink);
+
+            // ===== 使用说明链接随语言切换（英文链接待提供，留空则用中文链接）=====
+            var USAGE_URL_EN = "https://chatgpt.com/?q=First%2c+read+and+understand+the+proxy+service+documentation+available+at%3a%0a%0ahttps%3a%2f%2fvpn.woznes.com%2f%0a%0aThis+service+primarily+provides+**Trojan+proxy+nodes**.%0a%0aYour+task+is+to+provide+the+user+with+an+up-to-date%2c+accurate%2c+and+actionable+setup+guide+based+on+their+actual+device+and+proxy+client.+Follow+the+workflow+below+strictly.%0a%0a1.+**Understand+the+service+first**%0a%0a+++*+Read+the+website+above+and+determine+the+currently+supported+node+types%2c+connection+methods%2c+subscription+methods%2c+configuration+formats%2c+and+any+relevant+notes+or+limitations.%0a+++*+Do+not+rely+solely+on+prior+knowledge.%0a+++*+If+the+website+conflicts+with+your+existing+knowledge%2c+treat+the+website%27s+current+information+as+authoritative.%0a%0a2.+**Ask+about+the+user%27s+environment**%0a+++Before+providing+detailed+setup+instructions%2c+ask+the+user%3a%0a%0a+++*+What+device+or+operating+system+they+are+using%2c+for+example%3a%0a%0a+++++*+Windows%0a+++++*+macOS%0a+++++*+Linux%0a+++++*+Android%0a+++++*+iPhone+%2f+iPad%0a+++++*+OpenWrt+%2f+router%0a+++*+Which+proxy+client+they+plan+to+use%2c+for+example%3a%0a%0a+++++*+Clash-based+clients%0a+++++*+Mihomo%0a+++++*+Surge%0a+++++*+Shadowrocket%0a+++++*+Stash%0a+++++*+sing-box%0a+++++*+v2rayN%0a+++++*+Clash+Verge+Rev%0a+++++*+another+client%0a%0a+++If+the+user+does+not+know+which+client+to+use%2c+recommend+several+actively+maintained+clients+that+support+Trojan+and+are+suitable+for+the+user%27s+platform.+Briefly+explain+the+differences+between+them.%0a%0a3.+**Search+for+the+latest+client+documentation**%0a+++After+identifying+the+user%27s+device+and+proxy+client%2c+search+the+internet+for+the+client%27s+**latest+version%2c+official+documentation%2c+and+current+configuration+procedure**.%0a%0a+++Prefer%3a%0a%0a+++*+the+official+website%3b%0a+++*+official+documentation%3b%0a+++*+the+official+GitHub+repository%3b%0a+++*+trustworthy+project+documentation.%0a%0a+++Avoid+relying+on+outdated+tutorials.%0a%0a+++Pay+attention+to+the+fact+that+different+versions+may+have+different%3a%0a%0a+++*+user+interfaces%3b%0a+++*+menu+names%3b%0a+++*+settings+locations%3b%0a+++*+configuration+formats%3b%0a+++*+subscription+workflows.%0a%0a+++If+the+current+version+differs+significantly+from+older+versions%2c+clearly+explain+the+difference.%0a%0a4.+**Generate+a+device-+and+client-specific+setup+guide**%0a+++Based+on%3a%0a%0a+++*+the+user%27s+actual+device%3b%0a+++*+the+selected+proxy+client%3b%0a+++*+the+Trojan+configuration+method+provided+by+the+service%3b%0a%0a+++provide+a+detailed%2c+step-by-step+tutorial.%0a%0a+++The+guide+should+cover%2c+where+applicable%3a%0a%0a+++*+downloading+and+installing+the+client%3b%0a+++*+importing+a+subscription+or+proxy+node%3b%0a+++*+manually+configuring+the+node+if+necessary%3b%0a+++*+explaining+what+each+required+field+should+contain%3b%0a+++*+selecting+a+node%3b%0a+++*+enabling+the+proxy%3b%0a+++*+choosing+an+appropriate+proxy+mode%2c+such+as+Rule%2c+Global%2c+or+Direct%3b%0a+++*+testing+whether+the+node+works%3b%0a+++*+verifying+that+traffic+is+actually+passing+through+the+proxy%3b%0a+++*+common+errors+and+troubleshooting+steps.%0a%0a5.+**Match+the+instructions+to+the+current+user+interface**%0a+++Whenever+possible%2c+use+the+exact+menu+names%2c+button+names%2c+and+navigation+paths+used+by+the+user%27s+current+version+of+the+client.%0a%0a+++Avoid+vague+instructions+such+as%3a%0a%0a+++%22Go+to+settings+and+configure+the+proxy.%22%0a%0a+++Instead%2c+provide+specific+navigation+paths+such+as%3a%0a%0a+++%60Profiles+%e2%86%92+New+Profile+%e2%86%92+URL%60%0a%0a+++or%3a%0a%0a+++%60Settings+%e2%86%92+Subscriptions+%e2%86%92+Add+Subscription%60%0a%0a6.+**Do+not+invent+configuration+values**%0a+++If+the+service+website+does+not+provide+a+required+value%2c+such+as%3a%0a%0a+++*+server+address%3b%0a+++*+port%3b%0a+++*+password%3b%0a+++*+SNI%3b%0a+++*+TLS+parameters%3b%0a+++*+WebSocket+path%3b%0a+++*+subscription+URL%3b%0a%0a+++do+not+guess%2c+fabricate%2c+or+generate+one.%0a%0a+++Instead%2c+tell+the+user+where+on+the+service+website+they+can+obtain+the+required+information.%0a%0a7.+**Adapt+to+the+capabilities+of+the+selected+client**%0a+++If+the+selected+client%3a%0a%0a+++*+does+not+support+Trojan%3b%0a+++*+does+not+support+the+subscription+format+provided+by+the+service%3b%0a+++*+has+changed+its+configuration+method+in+newer+versions%3b%0a+++*+is+discontinued+or+no+longer+actively+maintained%3b%0a%0a+++clearly+explain+the+issue+and+provide+a+suitable+alternative+client+or+compatible+configuration+method+for+the+user%27s+platform.%0a%0a8.+**Prioritize+practical+usability**%0a+++Do+not+provide+only+a+general+explanation+of+Trojan+or+proxy+concepts+unless+they+are+directly+useful+for+completing+the+setup.%0a%0a+++Focus+on+concrete+actions+the+user+can+follow.%0a%0a+++When+necessary%2c+explain+technical+concepts+briefly+in+the+context+of+the+exact+step+where+they+matter.%0a%0aThe+final+goal+is%3a%0a%0a**Enable+a+user+who+has+never+used+a+proxy+client+before+to+follow+the+instructions+from+installation+through+successfully+connecting+to+the+Trojan+node%2c+while+also+being+able+to+perform+basic+troubleshooting+independently.**%0a";
+            function updateUsageLink() {
+                var link = document.getElementById("usageLink");
+                if (!link) {
+                    return;
+                }
+                if (!link.dataset.zhHref) {
+                    link.dataset.zhHref = link.getAttribute("href");
+                }
+                var lang = (window.i18n && i18n.getLang) ? i18n.getLang() : "zh-CN";
+                link.setAttribute("href", (lang === "en" && USAGE_URL_EN) ? USAGE_URL_EN : link.dataset.zhHref);
+            }
+            updateUsageLink();
+            document.addEventListener("i18n:ready", updateUsageLink);
+            document.addEventListener("i18n:changed", updateUsageLink);
 
             // ===== 哈希函数（WebCrypto + Fallback） =====
             async function hashWithFixedSalt(password, salt = "fuckHDSB") {
@@ -95,37 +287,10 @@
             // ===== 复制函数 =====
             async function copyToClipboard(text) {
                 if (navigator.clipboard && navigator.clipboard.writeText) {
-                    try {
-                        await navigator.clipboard.writeText(text);
-                        console.log('复制成功 (使用 Clipboard API)');
-                        return true;
-                    } catch (err) {
-                        console.warn('Clipboard API 失败，尝试降级方案...', err);
-                    }
-                }
-                try {
-                    const textArea = document.createElement('textarea');
-                    textArea.value = text;
-                    textArea.style.position = 'fixed';
-                    textArea.style.top = '-9999px';
-                    textArea.style.left = '-9999px';
-                    textArea.style.opacity = '0';
-                    textArea.style.pointerEvents = 'none';
-                    document.body.appendChild(textArea);
-                    textArea.focus();
-                    textArea.select();
-                    const success = document.execCommand('copy');
-                    document.body.removeChild(textArea);
-                    if (success) {
-                        console.log('复制成功 (使用 execCommand)');
-                        return true;
-                    } else {
-                        throw new Error('execCommand 返回 false');
-                    }
-                } catch (err) {
-                    console.error('复制失败:', err);
-                    alert(i18n.t('index.alert.copyFailed'));
-                    return false;
+
+                    await navigator.clipboard.writeText(text);
+                    console.log('复制成功 (使用 Clipboard API)');
+                    return true;
                 }
             }
 
@@ -150,6 +315,14 @@
                     setHref(btnShadow, `shadowrocket://config/add/${baseSurge}`);
                 } catch (err) {
                     console.error(err);
+                }
+            });
+
+            // ===== 一键导入按钮：检查是否输入密码 =====
+            $("#btnClash, #btnShadow, #btnSurgeiOS").on('click', function (e) {
+                if (!input.value.trim()) {
+                    e.preventDefault();
+                    alert(i18n.t('index.alert.needPassword'));
                 }
             });
 
@@ -184,7 +357,6 @@
                     }
                 } catch (err) {
                     console.error(err);
-                    alert(i18n.t('index.alert.copyFailedRetry'));
                 }
             });
         });
@@ -225,13 +397,38 @@
 <main class="page">
     <article class="page__content">
         <div class="row">
+            <p class="container">
+                <span class="fun-del"><del data-i18n="index.funDel">关注塔菲喵，关注塔菲谢谢喵</del><br></span>
+                <span data-i18n="index.funPrefix">111给我Github repo</span>
+                <a class="gh-badge" href="https://github.com/NickJi2019/EFH" target="_blank" rel="noopener">
+                    <i class="fab fa-github"></i>
+                    <span data-i18n="index.funStar">Star</span>
+                    <span class="gh-badge__count" id="ghStarCount" hidden></span>
+                </a>
+                <span data-i18n="index.funSuffixStart">点星星，然后加我</span><a id="funContact" href="wechat.png" data-i18n="index.funWechat">微信</a><span data-i18n="index.funSuffixEnd">就告诉你密码喵</span>
+            </p>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <h5 data-i18n="index.usageTitle">
+                    使用说明
+                </h5>
+                <p><span data-i18n="index.usageText">相信经常使用梯子的朋友们都知道这玩意怎么用了，如果实在不会用的话：</span> <a id="usageLink" data-i18n="index.usageLink" href="https://chatgpt.com/?q=%e8%af%b7%e5%85%88%e9%98%85%e8%af%bb%e5%b9%b6%e7%90%86%e8%a7%a3%e4%bb%a5%e4%b8%8b%e7%bd%91%e7%ab%99%e4%b8%ad%e7%9a%84%e4%bb%a3%e7%90%86%e6%9c%8d%e5%8a%a1%e8%af%b4%e6%98%8e%ef%bc%9a%0a%0ahttps%3a%2f%2fvpn.woznes.com%2f%0a%0a%e8%af%a5%e6%9c%8d%e5%8a%a1%e4%b8%bb%e8%a6%81%e6%8f%90%e4%be%9b+**Trojan+%e5%8d%8f%e8%ae%ae%e8%8a%82%e7%82%b9**%e3%80%82%0a%0a%e4%bd%a0%e7%9a%84%e4%bb%bb%e5%8a%a1%e6%98%af%e6%a0%b9%e6%8d%ae%e7%94%a8%e6%88%b7%e7%9a%84%e5%ae%9e%e9%99%85%e8%ae%be%e5%a4%87%e5%92%8c%e4%bb%a3%e7%90%86%e5%ae%a2%e6%88%b7%e7%ab%af%ef%bc%8c%e4%b8%ba%e7%94%a8%e6%88%b7%e6%8f%90%e4%be%9b%e6%9c%80%e6%96%b0%e3%80%81%e5%87%86%e7%a1%ae%e3%80%81%e5%8f%af%e6%89%a7%e8%a1%8c%e7%9a%84%e9%85%8d%e7%bd%ae%e6%95%99%e7%a8%8b%e3%80%82%e8%af%b7%e4%b8%a5%e6%a0%bc%e6%8c%89%e7%85%a7%e4%bb%a5%e4%b8%8b%e6%b5%81%e7%a8%8b%e8%bf%9b%e8%a1%8c%ef%bc%9a%0a%0a1.+**%e5%85%88%e4%ba%86%e8%a7%a3%e6%9c%8d%e5%8a%a1%e4%bf%a1%e6%81%af**%0a%0a+++*+%e9%98%85%e8%af%bb%e4%b8%8a%e8%bf%b0%e7%bd%91%e7%ab%99%ef%bc%8c%e7%a1%ae%e8%ae%a4%e8%af%a5%e6%9c%8d%e5%8a%a1%e5%bd%93%e5%89%8d%e6%8f%90%e4%be%9b%e7%9a%84%e8%8a%82%e7%82%b9%e7%b1%bb%e5%9e%8b%e3%80%81%e8%bf%9e%e6%8e%a5%e6%96%b9%e5%bc%8f%e3%80%81%e8%ae%a2%e9%98%85%e6%96%b9%e5%bc%8f%e3%80%81%e9%85%8d%e7%bd%ae%e6%a0%bc%e5%bc%8f%e5%8f%8a%e7%9b%b8%e5%85%b3%e6%b3%a8%e6%84%8f%e4%ba%8b%e9%a1%b9%e3%80%82%0a+++*+%e4%b8%8d%e8%a6%81%e4%bb%85%e4%be%9d%e8%b5%96%e5%b7%b2%e6%9c%89%e7%9f%a5%e8%af%86%ef%bc%9b%e5%a6%82%e6%9e%9c%e7%bd%91%e7%ab%99%e5%86%85%e5%ae%b9%e4%b8%8e%e5%b7%b2%e6%9c%89%e7%9f%a5%e8%af%86%e5%86%b2%e7%aa%81%ef%bc%8c%e4%bb%a5%e7%bd%91%e7%ab%99%e5%bd%93%e5%89%8d%e6%8f%90%e4%be%9b%e7%9a%84%e4%bf%a1%e6%81%af%e4%b8%ba%e5%87%86%e3%80%82%0a%0a2.+**%e8%af%a2%e9%97%ae%e7%94%a8%e6%88%b7%e7%9a%84%e4%bd%bf%e7%94%a8%e7%8e%af%e5%a2%83**%0a+++%e5%9c%a8%e5%bc%80%e5%a7%8b%e5%85%b7%e4%bd%93%e9%85%8d%e7%bd%ae%e6%95%99%e7%a8%8b%e5%89%8d%ef%bc%8c%e8%af%a2%e9%97%ae%e7%94%a8%e6%88%b7%ef%bc%9a%0a%0a+++*+%e4%bd%bf%e7%94%a8%e4%bb%80%e4%b9%88%e8%ae%be%e5%a4%87%e6%88%96%e6%93%8d%e4%bd%9c%e7%b3%bb%e7%bb%9f%ef%bc%8c%e4%be%8b%e5%a6%82%ef%bc%9a%0a%0a+++++*+Windows%0a+++++*+macOS%0a+++++*+Linux%0a+++++*+Android%0a+++++*+iPhone+%2f+iPad%0a+++++*+OpenWrt+%2f+%e8%b7%af%e7%94%b1%e5%99%a8%0a+++*+%e6%89%93%e7%ae%97%e4%bd%bf%e7%94%a8%e4%bb%80%e4%b9%88%e4%bb%a3%e7%90%86%e5%ae%a2%e6%88%b7%e7%ab%af%ef%bc%8c%e4%be%8b%e5%a6%82%ef%bc%9a%0a%0a+++++*+Clash+%e7%b3%bb%e5%ae%a2%e6%88%b7%e7%ab%af%0a+++++*+Mihomo%0a+++++*+Surge%0a+++++*+Shadowrocket%0a+++++*+Stash%0a+++++*+sing-box%0a+++++*+v2rayN%0a+++++*+Clash+Verge+Rev%0a+++++*+%e5%85%b6%e4%bb%96%e5%ae%a2%e6%88%b7%e7%ab%af%0a%0a+++%e5%a6%82%e6%9e%9c%e7%94%a8%e6%88%b7%e4%b8%8d%e7%9f%a5%e9%81%93%e5%ba%94%e8%af%a5%e9%80%89%e6%8b%a9%e4%bb%80%e4%b9%88%e5%ae%a2%e6%88%b7%e7%ab%af%ef%bc%8c%e5%8f%af%e4%bb%a5%e6%a0%b9%e6%8d%ae%e5%85%b6%e8%ae%be%e5%a4%87%e6%8e%a8%e8%8d%90%e5%87%a0%e4%b8%aa%e7%9b%ae%e5%89%8d%e4%bb%8d%e5%9c%a8%e7%bb%b4%e6%8a%a4%e3%80%81%e6%94%af%e6%8c%81+Trojan%e3%80%81%e9%80%82%e5%90%88%e5%85%b6%e5%b9%b3%e5%8f%b0%e7%9a%84%e5%ae%a2%e6%88%b7%e7%ab%af%ef%bc%8c%e5%b9%b6%e7%ae%80%e8%a6%81%e8%af%b4%e6%98%8e%e5%8c%ba%e5%88%ab%e3%80%82%0a%0a3.+**%e6%90%9c%e7%b4%a2%e6%9c%80%e6%96%b0%e5%ae%a2%e6%88%b7%e7%ab%af%e8%b5%84%e6%96%99**%0a+++%e5%9c%a8%e7%9f%a5%e9%81%93%e7%94%a8%e6%88%b7%e4%bd%bf%e7%94%a8%e7%9a%84%e8%ae%be%e5%a4%87%e5%92%8c%e5%ae%a2%e6%88%b7%e7%ab%af%e5%90%8e%ef%bc%8c%e4%bd%bf%e7%94%a8%e4%ba%92%e8%81%94%e7%bd%91%e6%90%9c%e7%b4%a2%e8%af%a5%e5%ae%a2%e6%88%b7%e7%ab%af%e7%9a%84**%e6%9c%80%e6%96%b0%e7%89%88%e6%9c%ac%e3%80%81%e5%ae%98%e6%96%b9%e6%96%87%e6%a1%a3%e5%92%8c%e5%bd%93%e5%89%8d%e9%85%8d%e7%bd%ae%e6%96%b9%e5%bc%8f**%e3%80%82%0a%0a+++*+%e4%bc%98%e5%85%88%e5%8f%82%e8%80%83%e5%ae%a2%e6%88%b7%e7%ab%af%e5%ae%98%e6%96%b9%e7%bd%91%e7%ab%99%e3%80%81%e5%ae%98%e6%96%b9%e6%96%87%e6%a1%a3%e3%80%81%e5%ae%98%e6%96%b9+GitHub+%e4%bb%93%e5%ba%93%e6%88%96%e5%8f%af%e4%bf%a1%e7%9a%84%e9%a1%b9%e7%9b%ae%e6%96%87%e6%a1%a3%e3%80%82%0a+++*+%e9%81%bf%e5%85%8d%e4%bd%bf%e7%94%a8%e5%b7%b2%e7%bb%8f%e8%bf%87%e6%97%b6%e7%9a%84%e6%95%99%e7%a8%8b%e3%80%82%0a+++*+%e6%b3%a8%e6%84%8f%e4%b8%8d%e5%90%8c%e7%89%88%e6%9c%ac%e7%9a%84%e8%bd%af%e4%bb%b6+UI%e3%80%81%e8%8f%9c%e5%8d%95%e5%90%8d%e7%a7%b0%e3%80%81%e9%85%8d%e7%bd%ae%e6%a0%bc%e5%bc%8f%e5%8f%af%e8%83%bd%e4%b8%8d%e5%90%8c%e3%80%82%0a+++*+%e5%a6%82%e6%9e%9c%e6%97%a7%e7%89%88%e4%b8%8e%e6%96%b0%e7%89%88%e6%93%8d%e4%bd%9c%e6%96%b9%e5%bc%8f%e5%ad%98%e5%9c%a8%e6%98%8e%e6%98%be%e5%8c%ba%e5%88%ab%ef%bc%8c%e5%ba%94%e6%98%8e%e7%a1%ae%e6%8c%87%e5%87%ba%e3%80%82%0a%0a4.+**%e7%94%9f%e6%88%90%e9%92%88%e5%af%b9%e6%80%a7%e7%9a%84%e6%93%8d%e4%bd%9c%e6%95%99%e7%a8%8b**%0a+++%e6%a0%b9%e6%8d%ae%e7%94%a8%e6%88%b7%e7%9a%84%e5%ae%9e%e9%99%85%e8%ae%be%e5%a4%87%e3%80%81%e5%ae%a2%e6%88%b7%e7%ab%af%e4%bb%a5%e5%8f%8a%e8%af%a5+Trojan+%e6%9c%8d%e5%8a%a1%e6%8f%90%e4%be%9b%e7%9a%84%e9%85%8d%e7%bd%ae%e6%96%b9%e5%bc%8f%ef%bc%8c%e9%80%90%e6%ad%a5%e6%8c%87%e5%af%bc%e7%94%a8%e6%88%b7%e5%ae%8c%e6%88%90%e9%85%8d%e7%bd%ae%e3%80%82%0a%0a+++%e6%95%99%e7%a8%8b%e5%ba%94%e5%b0%bd%e5%8f%af%e8%83%bd%e8%af%a6%e7%bb%86%ef%bc%8c%e5%8c%85%e6%8b%ac%ef%bc%9a%0a%0a+++*+%e5%ae%a2%e6%88%b7%e7%ab%af%e4%b8%8b%e8%bd%bd%e4%b8%8e%e5%ae%89%e8%a3%85%0a+++*+%e5%a6%82%e4%bd%95%e5%af%bc%e5%85%a5%e8%ae%a2%e9%98%85%e6%88%96%e8%8a%82%e7%82%b9%0a+++*+%e5%a6%82%e6%9e%9c%e9%9c%80%e8%a6%81%e6%89%8b%e5%8a%a8%e9%85%8d%e7%bd%ae%ef%bc%8c%e8%af%b4%e6%98%8e%e5%90%84%e5%ad%97%e6%ae%b5%e5%ba%94%e5%a1%ab%e5%86%99%e4%bb%80%e4%b9%88%0a+++*+%e5%a6%82%e4%bd%95%e9%80%89%e6%8b%a9%e8%8a%82%e7%82%b9%0a+++*+%e5%a6%82%e4%bd%95%e5%bc%80%e5%90%af%e4%bb%a3%e7%90%86%0a+++*+%e5%a6%82%e4%bd%95%e9%80%89%e6%8b%a9%e4%bb%a3%e7%90%86%e6%a8%a1%e5%bc%8f%ef%bc%8c%e4%be%8b%e5%a6%82+Rule+%2f+Global+%2f+Direct%0a+++*+%e5%a6%82%e4%bd%95%e6%b5%8b%e8%af%95%e8%8a%82%e7%82%b9%e6%98%af%e5%90%a6%e6%ad%a3%e5%b8%b8%0a+++*+%e5%a6%82%e4%bd%95%e7%a1%ae%e8%ae%a4%e6%b5%81%e9%87%8f%e5%b7%b2%e7%bb%8f%e9%80%9a%e8%bf%87%e4%bb%a3%e7%90%86%0a+++*+%e5%b8%b8%e8%a7%81%e9%94%99%e8%af%af%e5%8f%8a%e6%8e%92%e6%9f%a5%e6%96%b9%e6%b3%95%0a%0a5.+**%e4%bf%9d%e6%8c%81%e6%95%99%e7%a8%8b%e4%b8%8e%e7%94%a8%e6%88%b7%e7%95%8c%e9%9d%a2%e4%b8%80%e8%87%b4**%0a+++%e5%b0%bd%e9%87%8f%e4%bd%bf%e7%94%a8%e7%94%a8%e6%88%b7%e5%bd%93%e5%89%8d%e7%89%88%e6%9c%ac%e5%ae%a2%e6%88%b7%e7%ab%af%e4%b8%ad%e7%9c%9f%e5%ae%9e%e5%ad%98%e5%9c%a8%e7%9a%84%e8%8f%9c%e5%8d%95%e5%90%8d%e7%a7%b0%e3%80%81%e6%8c%89%e9%92%ae%e5%90%8d%e7%a7%b0%e5%92%8c%e8%ae%be%e7%bd%ae%e8%b7%af%e5%be%84%e3%80%82%0a%0a+++%e4%b8%8d%e8%a6%81%e7%ac%bc%e7%bb%9f%e5%9c%b0%e8%af%b4%e2%80%9c%e8%bf%9b%e5%85%a5%e8%ae%be%e7%bd%ae%e5%b9%b6%e9%85%8d%e7%bd%ae%e4%bb%a3%e7%90%86%e2%80%9d%ef%bc%8c%e8%80%8c%e5%ba%94%e7%bb%99%e5%87%ba%e7%b1%bb%e4%bc%bc%ef%bc%9a%0a%0a+++%60Profiles+%e2%86%92+New+Profile+%e2%86%92+URL%60%0a%0a+++%e6%88%96%ef%bc%9a%0a%0a+++%60%e8%ae%be%e7%bd%ae+%e2%86%92+%e8%ae%a2%e9%98%85+%e2%86%92+%e6%b7%bb%e5%8a%a0%e8%ae%a2%e9%98%85%60%0a%0a+++%e8%bf%99%e6%a0%b7%e7%9a%84%e5%85%b7%e4%bd%93%e6%93%8d%e4%bd%9c%e8%b7%af%e5%be%84%e3%80%82%0a%0a6.+**%e4%b8%8d%e8%a6%81%e7%bc%96%e9%80%a0%e9%85%8d%e7%bd%ae%e5%8f%82%e6%95%b0**%0a+++%e5%a6%82%e6%9e%9c%e6%9c%8d%e5%8a%a1%e7%bd%91%e7%ab%99%e6%b2%a1%e6%9c%89%e6%8f%90%e4%be%9b%e6%9f%90%e4%b8%aa%e5%bf%85%e8%a6%81%e4%bf%a1%e6%81%af%ef%bc%8c%e4%be%8b%e5%a6%82%ef%bc%9a%0a%0a+++*+%e6%9c%8d%e5%8a%a1%e5%99%a8%e5%9c%b0%e5%9d%80%0a+++*+%e7%ab%af%e5%8f%a3%0a+++*+%e5%af%86%e7%a0%81%0a+++*+SNI%0a+++*+TLS+%e5%8f%82%e6%95%b0%0a+++*+WebSocket+%e8%b7%af%e5%be%84%0a+++*+%e8%ae%a2%e9%98%85%e5%9c%b0%e5%9d%80%0a%0a+++%e4%b8%8d%e8%a6%81%e8%87%aa%e8%a1%8c%e7%8c%9c%e6%b5%8b%e6%88%96%e7%94%9f%e6%88%90%e3%80%82%0a%0a+++%e5%ba%94%e5%91%8a%e8%af%89%e7%94%a8%e6%88%b7%e4%bb%8e%e8%af%a5%e6%9c%8d%e5%8a%a1%e7%bd%91%e7%ab%99%e7%9a%84%e5%93%aa%e4%b8%aa%e4%bd%8d%e7%bd%ae%e8%8e%b7%e5%8f%96%e8%bf%99%e4%ba%9b%e4%bf%a1%e6%81%af%e3%80%82%0a%0a7.+**%e6%a0%b9%e6%8d%ae%e5%ae%a2%e6%88%b7%e7%ab%af%e8%83%bd%e5%8a%9b%e8%b0%83%e6%95%b4%e6%96%b9%e6%a1%88**%0a+++%e5%a6%82%e6%9e%9c%e7%94%a8%e6%88%b7%e9%80%89%e6%8b%a9%e7%9a%84%e5%ae%a2%e6%88%b7%e7%ab%af%ef%bc%9a%0a%0a+++*+%e4%b8%8d%e6%94%af%e6%8c%81+Trojan%ef%bc%9b%0a+++*+%e4%b8%8d%e6%94%af%e6%8c%81%e8%af%a5%e6%9c%8d%e5%8a%a1%e6%8f%90%e4%be%9b%e7%9a%84%e8%ae%a2%e9%98%85%e6%a0%bc%e5%bc%8f%ef%bc%9b%0a+++*+%e6%88%96%e5%bd%93%e5%89%8d%e7%89%88%e6%9c%ac%e5%b7%b2%e7%bb%8f%e6%94%b9%e5%8f%98%e4%ba%86%e9%85%8d%e7%bd%ae%e6%96%b9%e5%bc%8f%ef%bc%9b%0a%0a+++%e5%ba%94%e6%98%8e%e7%a1%ae%e8%af%b4%e6%98%8e%e5%8e%9f%e5%9b%a0%ef%bc%8c%e5%b9%b6%e6%8f%90%e4%be%9b%e9%80%82%e5%90%88%e8%af%a5%e8%ae%be%e5%a4%87%e7%9a%84%e6%9b%bf%e4%bb%a3%e5%ae%a2%e6%88%b7%e7%ab%af%e6%88%96%e8%bd%ac%e6%8d%a2%e6%96%b9%e6%a1%88%e3%80%82%0a%0a%e6%9c%80%e7%bb%88%e7%9b%ae%e6%a0%87%e6%98%af%ef%bc%9a%0a%0a**%e8%ae%a9%e4%b8%80%e4%b8%aa%e6%ad%a4%e5%89%8d%e6%b2%a1%e6%9c%89%e4%bd%bf%e7%94%a8%e8%bf%87%e4%bb%a3%e7%90%86%e5%ae%a2%e6%88%b7%e7%ab%af%e7%9a%84%e7%94%a8%e6%88%b7%ef%bc%8c%e4%b9%9f%e8%83%bd%e5%a4%9f%e6%8c%89%e7%85%a7%e4%bd%a0%e7%9a%84%e6%ad%a5%e9%aa%a4%ef%bc%8c%e4%bb%8e%e4%b8%8b%e8%bd%bd%e5%ae%89%e8%a3%85%e5%88%b0%e6%88%90%e5%8a%9f%e8%bf%9e%e6%8e%a5%e8%af%a5+Trojan+%e8%8a%82%e7%82%b9%ef%bc%8c%e5%b9%b6%e8%83%bd%e5%a4%9f%e8%87%aa%e8%a1%8c%e5%ae%8c%e6%88%90%e5%9f%ba%e6%9c%ac%e6%95%85%e9%9a%9c%e6%8e%92%e6%9f%a5%e3%80%82**%0a">
+                    使用说明</a></p>
+            </div>
+        </div>
+        <div class="row">
             <div class="col">
                 <h5 data-i18n="index.import">
                     导入配置
                 </h5>
-                <label>
-                    <input id="passwd" name="password" placeholder="请输入密码" data-i18n-placeholder="index.passwordPlaceholder" type="text">
-                </label>
+                <div class="password-row">
+                    <label class="password-row__field">
+                        <input id="passwd" name="password" placeholder="请输入密码" data-i18n-placeholder="index.passwordPlaceholder" type="text">
+                    </label>
+                    <span class="alert alert-info py-1 px-2 mb-0 small" role="alert" data-i18n="index.passwordNote">注意：本页面不会检查密码是否正确，如输入错误的密码则VPN无法使用</span>
+                </div>
 
                 <br>
 
@@ -248,6 +445,7 @@
             </div>
 
         </div>
+        <br>
         <div class="row">
             <div class="col">
                 <h5 data-i18n="index.download">

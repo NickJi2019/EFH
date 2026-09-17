@@ -43,7 +43,16 @@
     }
 
     function detectLang() {
-        // 优先按浏览器语言（按用户的偏好顺序）
+        // 优先使用用户上次手动选择的语言
+        try {
+            var saved = localStorage.getItem(STORAGE_KEY);
+            if (saved && SUPPORTED.indexOf(saved) !== -1) {
+                return saved;
+            }
+        } catch (e) {
+            // localStorage 不可用
+        }
+        // 否则按浏览器语言（按用户的偏好顺序）
         var tags = [];
         if (navigator.languages && navigator.languages.length) {
             tags = navigator.languages;
@@ -55,15 +64,6 @@
             if (matched) {
                 return matched;
             }
-        }
-        // 浏览器语言都不支持时，回退到用户上次手动选择
-        try {
-            var saved = localStorage.getItem(STORAGE_KEY);
-            if (saved && SUPPORTED.indexOf(saved) !== -1) {
-                return saved;
-            }
-        } catch (e) {
-            // localStorage 不可用
         }
         return DEFAULT_LANG;
     }
