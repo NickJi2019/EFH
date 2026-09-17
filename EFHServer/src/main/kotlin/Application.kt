@@ -1,6 +1,7 @@
 package com.woznes
 
 import io.ktor.http.*
+import io.ktor.http.content.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.cachingheaders.*
 import io.ktor.server.plugins.cors.routing.*
@@ -21,7 +22,7 @@ fun Application.module() {
 
     // 静态资源缓存：图片/字体长缓存（含 bkg.jpg），CSS/JS 一周；HTML 不设，走条件请求
     install(CachingHeaders) {
-        options { outgoingContent ->
+        options { _, outgoingContent ->
             val type = outgoingContent.contentType?.withoutParameters()
             val maxAge = when {
                 type == null -> null
