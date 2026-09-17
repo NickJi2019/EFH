@@ -41,7 +41,9 @@ done
 # ---------------------------------------------------------------- 版本号
 git fetch --tags --quiet 2>/dev/null || true
 if [[ -z "$VERSION" ]]; then
-  latest="$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -n1)"
+  # Only the server's own v0.0.x series; the client publishes v1.x releases and
+  # must not be chased (otherwise the next patch would collide with it).
+  latest="$(git tag --list 'v0.0.[0-9]*' --sort=-v:refname | head -n1)"
   if [[ -z "$latest" ]]; then
     VERSION="v0.0.1"
   else
@@ -85,6 +87,11 @@ ok "产物: $JAR ($(du -h "$JAR" | cut -f1))"
 # ---------------------------------------------------------------- 3. 发布
 step "3/5 上传 GitHub Release ${VERSION}（pre-release）"
 if gh release view "$VERSION" -R "$REPO" >/dev/null 2>&1; then
+  # Never mark an existing stable release (e.g. a client release) as a
+  # prerelease; that would break the client's update check.
+  if [[ "$(gh release view "$VERSION" -R "$REPO" --json isPrerelease --jq '.isPrerelease')" != "true" ]]; then
+    die "Release $VERSION 已存在且不是 pre-release；请指定其他版本号"
+  fi
   gh release upload "$VERSION" "$JAR" -R "$REPO" --clobber
   gh release edit "$VERSION" -R "$REPO" --prerelease
 else
